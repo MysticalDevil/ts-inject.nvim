@@ -4,6 +4,7 @@ require("ts_inject").setup({
   enable = {
     go = true,
     javascript = true,
+    lua = true,
     python = true,
     rust = true,
     typescript = true,
@@ -78,6 +79,10 @@ assert_injected_node("tests/fixtures/basic.js", "javascript", "GROUP BY status",
 assert_injected_node("tests/fixtures/basic.js", "javascript", "UPDATE users", "keyword_update")
 assert_injected_node("tests/fixtures/basic.js", "javascript", "ON CONFLICT (email)", "keyword_on")
 assert_injected_node("tests/fixtures/basic.js", "javascript", "DELETE FROM users", "keyword_delete")
+assert_injected_node("tests/fixtures/basic.lua", "lua", "SELECT id, email", "keyword_select")
+assert_injected_node("tests/fixtures/basic.lua", "lua", "CREATE TABLE users (", "keyword_create")
+assert_injected_node("tests/fixtures/basic.lua", "lua", "WITH recent_users AS (", "keyword_with")
+assert_injected_node("tests/fixtures/basic.lua", "lua", "INSERT INTO users (email, status)", "keyword_insert")
 assert_injected_node("tests/fixtures/basic.py", "python", "CREATE TABLE users (", "keyword_create")
 assert_injected_node("tests/fixtures/basic.py", "python", "DELETE FROM users", "keyword_delete")
 assert_injected_node("tests/fixtures/basic.rs", "rust", "CREATE TABLE users (", "keyword_create")
