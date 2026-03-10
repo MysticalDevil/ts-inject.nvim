@@ -20,6 +20,13 @@ function M.install(lang, query)
   vim.fn.writefile(vim.split(query, "\n", { plain = true }), M.query_path(lang))
 end
 
+function M.remove(lang)
+  local path = M.query_path(lang)
+  if vim.uv.fs_stat(path) then
+    vim.fn.delete(path)
+  end
+end
+
 function M.enable_on_runtimepath()
   local rtp = vim.opt.runtimepath:get()
   if vim.tbl_contains(rtp, root_dir) then

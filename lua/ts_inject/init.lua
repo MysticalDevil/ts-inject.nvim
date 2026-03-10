@@ -8,7 +8,6 @@ local defaults = {
 }
 
 local state = {
-  configured = false,
   commands_registered = false,
   opts = vim.deepcopy(defaults),
 }
@@ -45,21 +44,18 @@ end
 
 local function register_queries()
   runtime.enable_on_runtimepath()
-  for lang, enabled in pairs(state.opts.enable) do
-    if enabled then
+  for lang in pairs(query_store.supported_languages()) do
+    if state.opts.enable[lang] then
       runtime.install(lang, query_store.load(lang))
+    else
+      runtime.remove(lang)
     end
   end
 end
 
 function M.setup(opts)
-  if state.configured then
-    return state.opts
-  end
-
   state.opts = vim.tbl_deep_extend("force", vim.deepcopy(defaults), opts or {})
   state.opts.enable = normalize_enable(state.opts.enable)
-  state.configured = true
 
   register_commands()
   register_queries()

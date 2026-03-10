@@ -11,6 +11,7 @@ function M.supported_languages()
   return {
     go = true,
     python = true,
+    rust = true,
   }
 end
 

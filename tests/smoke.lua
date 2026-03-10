@@ -4,6 +4,7 @@ require("ts_inject").setup({
   enable = {
     go = true,
     python = true,
+    rust = true,
   },
 })
 
@@ -70,5 +71,7 @@ end
 assert_injected_node("tests/fixtures/basic.go", "go", "SELECT id, name", "keyword_select")
 assert_injected_node("tests/fixtures/basic.py", "python", "CREATE TABLE users (", "keyword_create")
 assert_injected_node("tests/fixtures/basic.py", "python", "DELETE FROM users", "keyword_delete")
+assert_injected_node("tests/fixtures/basic.rs", "rust", "CREATE TABLE users (", "keyword_create")
+assert_injected_node("tests/fixtures/basic.rs", "rust", "INSERT INTO users (email)", "keyword_insert")
 
 print("smoke test passed")
