@@ -11,6 +11,9 @@ $summarySql = "SELECT status, count(*) AS total " .
   "GROUP BY status " .
   "HAVING count(*) > 0";
 
+$deleteSql = "DELETE FROM users " .
+  "WHERE status = 'inactive'";
+
 $db = new class {
   public function query(string $sql, mixed ...$params): string
   {
@@ -51,3 +54,7 @@ $cte = $db->query(
 );
 
 $stmt = $db->prepare("CREATE TABLE audit_logs (id BIGINT PRIMARY KEY)");
+$alter = $db->prepare(<<<'SQL'
+  ALTER TABLE audit_logs
+  ADD COLUMN created_at TIMESTAMP
+SQL);

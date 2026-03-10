@@ -10,6 +10,11 @@ fun main() {
     "GROUP BY status " +
     "HAVING count(*) > 0"
 
+  val migrationSql = """
+    ALTER TABLE users
+    ADD COLUMN last_seen_at TIMESTAMPTZ
+  """.trimIndent()
+
   val db = Db()
 
   val rows = db.execute(
@@ -45,12 +50,19 @@ fun main() {
     )
   """.trimIndent()
 
+  val stmt = db.prepareStatement("""
+    DELETE FROM users
+    WHERE status = 'inactive'
+  """.trimIndent())
+
   println(USERS_SQL)
   println(summarySql)
   println(rows)
   println(insertRows)
   println(statements)
   println(schemaSql)
+  println(migrationSql)
+  println(stmt)
 }
 
 class Db {

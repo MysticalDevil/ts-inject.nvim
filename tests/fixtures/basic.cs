@@ -19,6 +19,9 @@ WHERE Status = 'active'
             "GROUP BY Status " +
             "HAVING COUNT(*) > 0";
 
+        var deleteSql = "DELETE FROM Users " +
+            "WHERE Status = 'inactive'";
+
         var db = new Db();
 
         var rows = db.Execute(@"
@@ -47,6 +50,10 @@ WHERE Email = @email
         );
 
         var stmt = db.Prepare("CREATE TABLE AuditLogs (Id BIGINT PRIMARY KEY)");
+        var alter = db.Prepare(@"
+ALTER TABLE AuditLogs
+ADD COLUMN CreatedAt TIMESTAMP
+");
 
         Console.WriteLine(USERS_SQL);
         Console.WriteLine(summarySql);
@@ -54,5 +61,7 @@ WHERE Email = @email
         Console.WriteLine(inserts);
         Console.WriteLine(cte);
         Console.WriteLine(stmt);
+        Console.WriteLine(deleteSql);
+        Console.WriteLine(alter);
     }
 }

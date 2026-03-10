@@ -25,6 +25,9 @@ class Main {
       "GROUP BY status " +
       "HAVING count(*) > 0";
 
+    String deleteSql = "DELETE FROM users " +
+      "WHERE status = 'inactive'";
+
     var rows = db.execute("""
       UPDATE users
       SET status = ?
@@ -48,6 +51,10 @@ class Main {
     );
 
     var stmt = db.prepareStatement("CREATE TABLE audit_logs (id BIGINT PRIMARY KEY)");
+    var alter = db.prepareStatement("""
+      ALTER TABLE audit_logs
+      ADD COLUMN created_at TIMESTAMP
+      """);
 
     System.out.println(USERS_SQL);
     System.out.println(summarySql);
@@ -55,5 +62,7 @@ class Main {
     System.out.println(inserts);
     System.out.println(cte);
     System.out.println(stmt);
+    System.out.println(deleteSql);
+    System.out.println(alter);
   }
 }
