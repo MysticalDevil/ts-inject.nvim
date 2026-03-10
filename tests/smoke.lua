@@ -3,8 +3,10 @@ vim.opt.runtimepath:append(vim.fn.getcwd())
 require("ts_inject").setup({
   enable = {
     go = true,
+    javascript = true,
     python = true,
     rust = true,
+    typescript = true,
   },
 })
 
@@ -38,6 +40,8 @@ local function assert_injected_node(file, filetype, text, expected_type)
   assert_debug_header()
 
   local bufnr = vim.api.nvim_get_current_buf()
+  pcall(vim.treesitter.language.add, filetype)
+  pcall(vim.treesitter.language.add, "sql")
   local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
   local row, col
 
@@ -69,9 +73,17 @@ local function assert_injected_node(file, filetype, text, expected_type)
 end
 
 assert_injected_node("tests/fixtures/basic.go", "go", "SELECT id, name", "keyword_select")
+assert_injected_node("tests/fixtures/basic.js", "javascript", "SELECT id, email", "keyword_select")
+assert_injected_node("tests/fixtures/basic.js", "javascript", "GROUP BY status", "keyword_group")
+assert_injected_node("tests/fixtures/basic.js", "javascript", "UPDATE users", "keyword_update")
+assert_injected_node("tests/fixtures/basic.js", "javascript", "ON CONFLICT (email)", "keyword_on")
+assert_injected_node("tests/fixtures/basic.js", "javascript", "DELETE FROM users", "keyword_delete")
 assert_injected_node("tests/fixtures/basic.py", "python", "CREATE TABLE users (", "keyword_create")
 assert_injected_node("tests/fixtures/basic.py", "python", "DELETE FROM users", "keyword_delete")
 assert_injected_node("tests/fixtures/basic.rs", "rust", "CREATE TABLE users (", "keyword_create")
 assert_injected_node("tests/fixtures/basic.rs", "rust", "INSERT INTO users (email)", "keyword_insert")
+assert_injected_node("tests/fixtures/basic.ts", "typescript", "UPDATE users", "keyword_update")
+assert_injected_node("tests/fixtures/basic.ts", "typescript", "CREATE TABLE IF NOT EXISTS audit_logs (", "keyword_create")
+assert_injected_node("tests/fixtures/basic.ts", "typescript", "WITH recent_users AS (", "keyword_with")
 
 print("smoke test passed")

@@ -10,8 +10,10 @@ end
 function M.supported_languages()
   return {
     go = true,
+    javascript = true,
     python = true,
     rust = true,
+    typescript = true,
   }
 end
 
