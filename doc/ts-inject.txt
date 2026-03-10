@@ -42,6 +42,7 @@ Options:
       lua = true,
       php = true,
       python = true,
+      ruby = true,
       rust = true,
       typescript = true,
       zig = true,
@@ -64,6 +65,7 @@ Current built-in hosts:
   - lua
   - php
   - python
+  - ruby
   - rust
   - typescript
   - zig

@@ -31,6 +31,7 @@ require("ts_inject").setup({
     lua = true,
     php = true,
     python = true,
+    ruby = true,
     rust = true,
     typescript = true,
     zig = true,
@@ -58,6 +59,7 @@ Current built-in hosts:
 - `lua`
 - `php`
 - `python`
+- `ruby`
 - `rust`
 - `typescript`
 - `zig`
@@ -103,6 +105,9 @@ intended stable paths, not every possible string shape.
 - `python`
   - supports `snake_case ..._sql` and obvious SQL content in assignment/call positions
   - supports triple-quoted strings, concatenation, and `execute`/`executemany`/`executescript`
+- `ruby`
+  - supports `snake_case ..._sql`, `SCREAMING_SNAKE_CASE ..._SQL`, and common DB call sites
+  - supports regular strings, SQL-labeled heredocs, and `execute`/`exec`/`prepare`/`find_by_sql`
 - `rust`
   - supports Rust-style names like `userSql` / `USER_SQL` and common SQL crate call sites
   - supports normal strings and raw strings

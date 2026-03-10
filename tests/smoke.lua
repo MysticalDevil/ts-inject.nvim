@@ -40,21 +40,24 @@ local function collect_langs(parser)
 end
 
 local function assert_debug_header()
+  local original_buf = vim.api.nvim_get_current_buf()
   vim.cmd("TSInjectDebug")
   local debug_buf = vim.api.nvim_get_current_buf()
   local debug_lines = vim.api.nvim_buf_get_lines(debug_buf, 0, -1, false)
   local debug_text = table.concat(debug_lines, "\n")
   assert(debug_text:find("TSInject Debug", 1, true), "debug header missing")
   assert(debug_text:find("plugin_enabled", 1, true), "debug plugin section missing")
-  vim.cmd.bprevious()
+  vim.api.nvim_set_current_buf(original_buf)
 end
 
 local function assert_injected_node(file, filetype, text, expected_type)
-  vim.cmd.edit(vim.fn.fnamemodify(file, ":p"))
-  vim.bo.filetype = filetype
-  assert_debug_header()
+  vim.cmd("silent! %bwipeout!")
+  local path = vim.fn.fnamemodify(file, ":p")
+  local bufnr = vim.fn.bufadd(path)
+  vim.fn.bufload(bufnr)
+  vim.api.nvim_set_current_buf(bufnr)
+  vim.bo[bufnr].filetype = filetype
 
-  local bufnr = vim.api.nvim_get_current_buf()
   pcall(vim.treesitter.language.add, filetype)
   pcall(vim.treesitter.language.add, "sql")
   local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
@@ -87,6 +90,18 @@ local function assert_injected_node(file, filetype, text, expected_type)
   assert(node ~= nil, "no node found at injected SQL position for " .. filetype)
   assert(node:type() == expected_type, ("expected %s at injected position, got %s"):format(expected_type, node:type()))
 end
+
+local function assert_debug_command(file, filetype)
+  vim.cmd("silent! %bwipeout!")
+  local path = vim.fn.fnamemodify(file, ":p")
+  local bufnr = vim.fn.bufadd(path)
+  vim.fn.bufload(bufnr)
+  vim.api.nvim_set_current_buf(bufnr)
+  vim.bo[bufnr].filetype = filetype
+  assert_debug_header()
+end
+
+assert_debug_command("tests/fixtures/basic.go", "go")
 
 assert_injected_node("tests/fixtures/basic.c", "c", "UPDATE users", "keyword_update")
 assert_injected_node("tests/fixtures/basic.c", "c", "INSERT INTO users (email, status)", "keyword_insert")
