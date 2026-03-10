@@ -23,6 +23,13 @@ These instructions apply to the entire repository.
 ## SQL example coverage
 
 - SQL examples should cover more than simple `SELECT`.
+- Injection naming heuristics should follow each host language's idioms and common community conventions.
+- Do not keep awkward cross-language compatibility naming just for symmetry.
+- Prefer language-native naming signals over generic ones.
+- Examples:
+  - JavaScript and TypeScript: prefer camelCase or PascalCase forms like `userSql`, `userQuery`, or `sql`; uppercase constants like `USERS_SQL` are also common and should be supported when they read naturally as constants
+  - Python: prefer snake_case forms like `user_sql`
+  - Go and Rust: prefer mixedCaps forms like `userQuery` or `userSQL`
 - When adding or updating examples, aim to cover a representative mix of common SQL forms:
   - DDL like `CREATE TABLE`, `CREATE INDEX`, and `ALTER TABLE`
   - DML like `SELECT`, `INSERT`, `UPDATE`, and `DELETE`
