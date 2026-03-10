@@ -11,6 +11,7 @@ function M.supported_languages()
   return {
     go = true,
     javascript = true,
+    kotlin = true,
     lua = true,
     python = true,
     rust = true,
