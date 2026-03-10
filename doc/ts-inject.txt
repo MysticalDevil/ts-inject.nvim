@@ -1,4 +1,4 @@
-*ts-inject.txt*  Go SQL Tree-sitter injection helpers
+*ts-inject.txt*  SQL Tree-sitter injection helpers for Go and Python
 
 ==============================================================================
 CONTENTS                                                      *ts-inject*
@@ -13,7 +13,7 @@ CONTENTS                                                      *ts-inject*
 ts-inject.nvim is a minimal Tree-sitter injection plugin.
 
 MVP scope:
-  - Go host buffers
+  - Go and Python host buffers
   - SQL string injection
   - one debug command
 
@@ -24,17 +24,23 @@ MVP scope:
   require("ts_inject").setup()
 <
 
+No host-language injections are enabled by default.
+
 Options:
 
 >
   require("ts_inject").setup({
-    enabled = true,
     debug_command = "TSInjectDebug",
+    enable = {
+      go = true,
+      python = true,
+    },
   })
 <
 
-The plugin extends `queries/go/injections.scm`, so existing Go injections from
-Neovim or nvim-treesitter remain active.
+The plugin registers static queries at runtime for explicitly enabled host
+languages and extends the existing injection queries from Neovim or
+nvim-treesitter.
 
 If SQL injection highlighting disappears after `gopls` attaches, disable
 `gopls` semantic tokens in your LSP configuration.

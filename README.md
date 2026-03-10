@@ -4,14 +4,15 @@ Minimal Tree-sitter injection helpers for Neovim.
 
 Current MVP scope:
 
-- Go host buffers
+- Go and Python host buffers
 - SQL string injection
 - `:TSInjectDebug` for inspection
 
 ## Requirements
 
 - Neovim 0.11+
-- Tree-sitter Go parser
+- Tree-sitter Go parser if you enable Go injections
+- Tree-sitter Python parser if you enable Python injections
 - Tree-sitter SQL parser
 
 ## Installation
@@ -19,16 +20,34 @@ Current MVP scope:
 Add the plugin to your plugin manager, then:
 
 ```lua
-require("ts_inject").setup()
+require("ts_inject").setup({
+  enable = {
+    go = true,
+    python = true,
+  },
+})
 ```
+
+The plugin does not enable any host-language injections by default. You must
+explicitly enable each supported language in `setup()`.
 
 ## What It Does
 
-The plugin extends `queries/go/injections.scm` and injects `sql` into Go string
-content when it looks like SQL. It currently matches:
+The plugin registers static injection queries at runtime for the languages you
+explicitly enable. Current built-in hosts are `go` and `python`.
+
+Go currently matches:
 
 - common SQL statement keywords like `SELECT`, `INSERT`, `UPDATE`, `DELETE`
+- common DDL and transaction fragments like `CREATE TABLE`, `ALTER TABLE`,
+  `BEGIN`, and `COMMIT`
 - SQL marker strings like `-- sql`
+
+Python currently matches:
+
+- assignments such as `QUERY_SQL = """..."""`
+- parenthesized concatenated string assignments ending in `sql`
+- `execute`, `executemany`, and `executescript` calls with string SQL arguments
 
 Example:
 
