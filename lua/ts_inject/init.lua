@@ -51,6 +51,15 @@ local function register_queries()
       runtime.remove(lang)
     end
   end
+
+  if vim.treesitter and vim.treesitter.query then
+    if vim.treesitter.query.get and vim.treesitter.query.get.clear then
+      vim.treesitter.query.get:clear()
+    end
+    if vim.treesitter.query.parse and vim.treesitter.query.parse.clear then
+      vim.treesitter.query.parse:clear()
+    end
+  end
 end
 
 function M.setup(opts)

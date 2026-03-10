@@ -10,6 +10,7 @@ end
 function M.supported_languages()
   return {
     c = true,
+    cpp = true,
     go = true,
     c_sharp = true,
     java = true,
