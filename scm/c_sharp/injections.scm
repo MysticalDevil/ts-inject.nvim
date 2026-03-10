@@ -1,0 +1,256 @@
+; extends
+
+; SQL assignment like `var summarySql = "..." + "..."`
+(
+  (local_declaration_statement
+    (modifier)
+    (variable_declaration
+      (_)
+      (variable_declarator
+        (identifier) @_name
+        (verbatim_string_literal) @injection.content)))
+  (#lua-match? @_name "^[%u][%u%d_]*_SQL$")
+  (#offset! @injection.content 0 2 0 -1)
+  (#set! injection.language "sql")
+)
+
+(
+  (local_declaration_statement
+    (variable_declaration
+      (_)
+      (variable_declarator
+        (identifier) @_name
+        (verbatim_string_literal) @injection.content)))
+  (#lua-match? @_name "^[%l][%w]*Sql$")
+  (#offset! @injection.content 0 2 0 -1)
+  (#set! injection.language "sql")
+)
+
+(
+  (local_declaration_statement
+    (variable_declaration
+      (_)
+      (variable_declarator
+        (identifier) @_name
+        (string_literal
+          (string_literal_content) @injection.content))))
+  (#lua-match? @_name "^[%u][%u%d_]*_SQL$")
+  (#set! injection.language "sql")
+)
+
+(
+  (local_declaration_statement
+    (variable_declaration
+      (_)
+      (variable_declarator
+        (identifier) @_name
+        (string_literal
+          (string_literal_content) @injection.content))))
+  (#lua-match? @_name "^[%l][%w]*Sql$")
+  (#set! injection.language "sql")
+)
+
+(
+  (local_declaration_statement
+    (variable_declaration
+      (_)
+      (variable_declarator
+        (identifier) @_name
+        (binary_expression
+          left: (string_literal
+            (string_literal_content) @injection.content)
+          right: (string_literal
+            (string_literal_content) @injection.content)))))
+  (#lua-match? @_name "^[%l][%w]*Sql$")
+  (#set! injection.language "sql")
+)
+
+(
+  (local_declaration_statement
+    (variable_declaration
+      (_)
+      (variable_declarator
+        (identifier) @_name
+        (binary_expression
+          left: (binary_expression
+            left: (string_literal
+              (string_literal_content) @injection.content)
+            right: (string_literal
+              (string_literal_content) @injection.content))
+          right: (string_literal
+            (string_literal_content) @injection.content)))))
+  (#lua-match? @_name "^[%l][%w]*Sql$")
+  (#set! injection.language "sql")
+)
+
+(
+  (local_declaration_statement
+    (variable_declaration
+      (_)
+      (variable_declarator
+        (identifier) @_name
+        (binary_expression
+          left: (binary_expression
+            left: (binary_expression
+              left: (string_literal
+                (string_literal_content) @injection.content)
+              right: (string_literal
+                (string_literal_content) @injection.content))
+            right: (string_literal
+              (string_literal_content) @injection.content))
+          right: (string_literal
+            (string_literal_content) @injection.content)))))
+  (#lua-match? @_name "^[%l][%w]*Sql$")
+  (#set! injection.language "sql")
+)
+
+; SQL passed to C# DB helpers.
+(
+  (invocation_expression
+    (member_access_expression
+      (identifier)
+      .
+      (identifier) @_fn)
+    (argument_list
+      "("
+      .
+      (argument
+        (verbatim_string_literal) @injection.content)
+      . [
+        ","
+        ")"
+      ]))
+  (#any-of? @_fn "Query" "Execute" "Prepare")
+  (#offset! @injection.content 0 2 0 -1)
+  (#set! injection.language "sql")
+)
+
+(
+  (invocation_expression
+    (member_access_expression
+      (identifier)
+      .
+      (identifier) @_fn)
+    (argument_list
+      "("
+      .
+      (argument
+        (string_literal
+          (string_literal_content) @injection.content))
+      . [
+        ","
+        ")"
+      ]))
+  (#any-of? @_fn "Query" "Execute" "Prepare")
+  (#set! injection.language "sql")
+)
+
+(
+  (invocation_expression
+    (member_access_expression
+      (identifier)
+      .
+      (identifier) @_fn)
+    (argument_list
+      "("
+      .
+      (argument
+        (binary_expression
+          left: (string_literal
+            (string_literal_content) @injection.content)
+          right: (string_literal
+            (string_literal_content) @injection.content)))
+      . [
+        ","
+        ")"
+      ]))
+  (#any-of? @_fn "Query" "Execute" "Prepare")
+  (#set! injection.language "sql")
+)
+
+(
+  (invocation_expression
+    (member_access_expression
+      (identifier)
+      .
+      (identifier) @_fn)
+    (argument_list
+      "("
+      .
+      (argument
+        (binary_expression
+          left: (binary_expression
+            left: (string_literal
+              (string_literal_content) @injection.content)
+            right: (string_literal
+              (string_literal_content) @injection.content))
+          right: (string_literal
+            (string_literal_content) @injection.content)))
+      . [
+        ","
+        ")"
+      ]))
+  (#any-of? @_fn "Query" "Execute" "Prepare")
+  (#set! injection.language "sql")
+)
+
+(
+  (invocation_expression
+    (member_access_expression
+      (identifier)
+      .
+      (identifier) @_fn)
+    (argument_list
+      "("
+      .
+      (argument
+        (binary_expression
+          left: (binary_expression
+            left: (binary_expression
+              left: (string_literal
+                (string_literal_content) @injection.content)
+              right: (string_literal
+                (string_literal_content) @injection.content))
+            right: (string_literal
+              (string_literal_content) @injection.content))
+          right: (string_literal
+            (string_literal_content) @injection.content)))
+      . [
+        ","
+        ")"
+      ]))
+  (#any-of? @_fn "Query" "Execute" "Prepare")
+  (#set! injection.language "sql")
+)
+
+(
+  (invocation_expression
+    (member_access_expression
+      (identifier)
+      .
+      (identifier) @_fn)
+    (argument_list
+      "("
+      .
+      (argument
+        (binary_expression
+          left: (binary_expression
+            left: (binary_expression
+              left: (binary_expression
+                left: (string_literal
+                  (string_literal_content) @injection.content)
+                right: (string_literal
+                  (string_literal_content) @injection.content))
+              right: (string_literal
+                (string_literal_content) @injection.content))
+            right: (string_literal
+              (string_literal_content) @injection.content))
+          right: (string_literal
+            (string_literal_content) @injection.content)))
+      . [
+        ","
+        ")"
+      ]))
+  (#any-of? @_fn "Query" "Execute" "Prepare")
+  (#set! injection.language "sql")
+)

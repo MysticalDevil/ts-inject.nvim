@@ -2,6 +2,7 @@ vim.opt.runtimepath:append(vim.fn.getcwd())
 
 require("ts_inject").setup({
   enable = {
+    c_sharp = true,
     go = true,
     java = true,
     javascript = true,
@@ -78,6 +79,11 @@ local function assert_injected_node(file, filetype, text, expected_type)
 end
 
 assert_injected_node("tests/fixtures/basic.go", "go", "SELECT id, name", "keyword_select")
+assert_injected_node("tests/fixtures/basic.cs", "c_sharp", "SELECT Id, Email", "keyword_select")
+assert_injected_node("tests/fixtures/basic.cs", "c_sharp", "UPDATE Users", "keyword_update")
+assert_injected_node("tests/fixtures/basic.cs", "c_sharp", "INSERT INTO Users (Email, Status)", "keyword_insert")
+assert_injected_node("tests/fixtures/basic.cs", "c_sharp", "WITH recent_users AS (", "keyword_with")
+assert_injected_node("tests/fixtures/basic.cs", "c_sharp", "CREATE TABLE AuditLogs (", "keyword_create")
 assert_injected_node("tests/fixtures/basic.java", "java", "SELECT id, email", "keyword_select")
 assert_injected_node("tests/fixtures/basic.java", "java", "UPDATE users", "keyword_update")
 assert_injected_node("tests/fixtures/basic.java", "java", "INSERT INTO users (email, status)", "keyword_insert")

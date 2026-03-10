@@ -10,6 +10,7 @@ end
 function M.supported_languages()
   return {
     go = true,
+    c_sharp = true,
     java = true,
     javascript = true,
     kotlin = true,
