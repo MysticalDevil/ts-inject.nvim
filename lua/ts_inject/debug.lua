@@ -59,6 +59,11 @@ function M.collect(opts)
   add_kv(lines, "filetype", filetype)
   add_kv(lines, "target_lang", target_lang)
   add_kv(lines, "cursor", ("%d:%d"):format(cursor[1], col))
+  add_kv(lines, "plugin_enabled", require("ts_inject").is_enabled(filetype) and "yes" or "no")
+
+  if require("ts_inject").is_enabled(filetype) then
+    add_kv(lines, "plugin_query", require("ts_inject.runtime").query_path(filetype))
+  end
 
   local clients = vim.lsp.get_clients({ bufnr = bufnr })
   local client_lines = {}

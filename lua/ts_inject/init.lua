@@ -1,8 +1,10 @@
 local M = {}
+local query_store = require("ts_inject.query_store")
+local runtime = require("ts_inject.runtime")
 
 local defaults = {
-  enabled = true,
   debug_command = "TSInjectDebug",
+  enable = {},
 }
 
 local state = {
@@ -28,23 +30,49 @@ local function register_commands()
   state.commands_registered = true
 end
 
+local function normalize_enable(enable)
+  local normalized = {}
+  local supported = query_store.supported_languages()
+
+  for lang, value in pairs(enable or {}) do
+    if supported[lang] and value then
+      normalized[lang] = true
+    end
+  end
+
+  return normalized
+end
+
+local function register_queries()
+  runtime.enable_on_runtimepath()
+  for lang, enabled in pairs(state.opts.enable) do
+    if enabled then
+      runtime.install(lang, query_store.load(lang))
+    end
+  end
+end
+
 function M.setup(opts)
   if state.configured then
     return state.opts
   end
 
   state.opts = vim.tbl_deep_extend("force", vim.deepcopy(defaults), opts or {})
+  state.opts.enable = normalize_enable(state.opts.enable)
   state.configured = true
 
-  if state.opts.enabled then
-    register_commands()
-  end
+  register_commands()
+  register_queries()
 
   return state.opts
 end
 
 function M.get_opts()
   return state.opts
+end
+
+function M.is_enabled(lang)
+  return state.opts.enable[lang] == true
 end
 
 return M
