@@ -17,6 +17,7 @@ function M.supported_languages()
     python = true,
     rust = true,
     typescript = true,
+    zig = true,
   }
 end
 

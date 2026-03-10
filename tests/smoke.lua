@@ -10,6 +10,7 @@ require("ts_inject").setup({
     python = true,
     rust = true,
     typescript = true,
+    zig = true,
   },
 })
 
@@ -102,5 +103,10 @@ assert_injected_node("tests/fixtures/basic.rs", "rust", "INSERT INTO users (emai
 assert_injected_node("tests/fixtures/basic.ts", "typescript", "UPDATE users", "keyword_update")
 assert_injected_node("tests/fixtures/basic.ts", "typescript", "CREATE TABLE IF NOT EXISTS audit_logs (", "keyword_create")
 assert_injected_node("tests/fixtures/basic.ts", "typescript", "WITH recent_users AS (", "keyword_with")
+assert_injected_node("tests/fixtures/basic.zig", "zig", "SELECT id, email", "keyword_select")
+assert_injected_node("tests/fixtures/basic.zig", "zig", "CREATE TABLE audit_logs (", "keyword_create")
+assert_injected_node("tests/fixtures/basic.zig", "zig", "WITH recent_users AS (", "keyword_with")
+assert_injected_node("tests/fixtures/basic.zig", "zig", "UPDATE users", "keyword_update")
+assert_injected_node("tests/fixtures/basic.zig", "zig", "INSERT INTO users (email)", "keyword_insert")
 
 print("smoke test passed")
