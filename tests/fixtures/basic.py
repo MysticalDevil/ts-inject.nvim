@@ -1,8 +1,8 @@
 SCHEMA_SQL = """
-CREATE TABLE users (
-  id INTEGER PRIMARY KEY,
-  email TEXT NOT NULL
-)
+  CREATE TABLE users (
+    id INTEGER PRIMARY KEY,
+    email TEXT NOT NULL
+  )
 """
 
 query_sql = (
@@ -12,8 +12,8 @@ query_sql = (
 )
 
 statement = """
-DELETE FROM users
-WHERE email = 'old@example.com'
+  DELETE FROM users
+  WHERE email = 'old@example.com'
 """
 
 
@@ -26,8 +26,8 @@ def run(cursor):
 
   cursor.execute(
     """
-INSERT INTO users (email)
-VALUES ('alice@example.com')
+    INSERT INTO users (email)
+    VALUES ('alice@example.com')
 """
   )
 

@@ -1,7 +1,7 @@
 const USERS_SQL = `
-SELECT id, email
-FROM users
-WHERE status = 'active'
+  SELECT id, email
+  FROM users
+  WHERE status = 'active'
 `;
 
 const aggregateSql = "SELECT status, count(*) AS total " +
@@ -22,9 +22,9 @@ const prisma = {
 };
 
 db.query(`
-INSERT INTO users (email, status)
-VALUES ('alice@example.com', 'active')
-RETURNING id, email
+  INSERT INTO users (email, status)
+  VALUES ('alice@example.com', 'active')
+  RETURNING id, email
 `);
 
 db.execute(
@@ -44,8 +44,8 @@ db.execute(
 );
 
 prisma.$queryRaw`
-DELETE FROM users
-WHERE status = ${"disabled"}
+  DELETE FROM users
+  WHERE status = ${"disabled"}
 `;
 
 void USERS_SQL;

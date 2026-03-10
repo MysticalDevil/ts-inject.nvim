@@ -4,9 +4,9 @@ type UserRow = {
 };
 
 const USER_LOOKUP_SQL = `
-SELECT id, email
-FROM users
-WHERE email = $1
+  SELECT id, email
+  FROM users
+  WHERE email = $1
 `;
 
 const summarySql = "SELECT status, count(*) AS total " +
@@ -31,9 +31,9 @@ const prisma = {
 };
 
 const rows = db.execute<UserRow>(`
-UPDATE users
-SET status = 'active'
-WHERE email = 'alice@example.com'
+  UPDATE users
+  SET status = 'active'
+  WHERE email = 'alice@example.com'
 `);
 
 const summaries = db.query<UserRow>(
@@ -45,10 +45,10 @@ const summaries = db.query<UserRow>(
 );
 
 prisma.$executeRaw`
-CREATE TABLE IF NOT EXISTS audit_logs (
-  id SERIAL PRIMARY KEY,
-  message TEXT NOT NULL
-)
+  CREATE TABLE IF NOT EXISTS audit_logs (
+    id SERIAL PRIMARY KEY,
+    message TEXT NOT NULL
+  )
 `;
 
 void USER_LOOKUP_SQL;
