@@ -14,6 +14,7 @@ function M.supported_languages()
     javascript = true,
     kotlin = true,
     lua = true,
+    php = true,
     python = true,
     rust = true,
     typescript = true,

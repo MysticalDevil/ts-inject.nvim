@@ -7,6 +7,7 @@ require("ts_inject").setup({
     javascript = true,
     kotlin = true,
     lua = true,
+    php = true,
     python = true,
     rust = true,
     typescript = true,
@@ -96,6 +97,11 @@ assert_injected_node("tests/fixtures/basic.lua", "lua", "SELECT id, email", "key
 assert_injected_node("tests/fixtures/basic.lua", "lua", "CREATE TABLE users (", "keyword_create")
 assert_injected_node("tests/fixtures/basic.lua", "lua", "WITH recent_users AS (", "keyword_with")
 assert_injected_node("tests/fixtures/basic.lua", "lua", "INSERT INTO users (email, status)", "keyword_insert")
+assert_injected_node("tests/fixtures/basic.php", "php", "SELECT id, email", "keyword_select")
+assert_injected_node("tests/fixtures/basic.php", "php", "UPDATE users", "keyword_update")
+assert_injected_node("tests/fixtures/basic.php", "php", "INSERT INTO users (email, status)", "keyword_insert")
+assert_injected_node("tests/fixtures/basic.php", "php", "WITH recent_users AS (", "keyword_with")
+assert_injected_node("tests/fixtures/basic.php", "php", "CREATE TABLE audit_logs (", "keyword_create")
 assert_injected_node("tests/fixtures/basic.py", "python", "CREATE TABLE users (", "keyword_create")
 assert_injected_node("tests/fixtures/basic.py", "python", "DELETE FROM users", "keyword_delete")
 assert_injected_node("tests/fixtures/basic.rs", "rust", "CREATE TABLE users (", "keyword_create")
