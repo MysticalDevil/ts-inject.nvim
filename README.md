@@ -1,19 +1,18 @@
 # ts-inject.nvim
 
-Minimal Tree-sitter injection helpers for Neovim.
+Static Tree-sitter SQL injection helpers for Neovim.
 
-Current MVP scope:
+Current 0.1 scope:
 
-- Go and Python host buffers
-- SQL string injection
+- static SQL injection queries for multiple host languages
+- explicit opt-in per host language via `setup()`
 - `:TSInjectDebug` for inspection
 
 ## Requirements
 
 - Neovim 0.11+
-- Tree-sitter Go parser if you enable Go injections
-- Tree-sitter Python parser if you enable Python injections
 - Tree-sitter SQL parser
+- Tree-sitter host parsers for the languages you enable
 
 ## Installation
 
@@ -22,8 +21,18 @@ Add the plugin to your plugin manager, then:
 ```lua
 require("ts_inject").setup({
   enable = {
+    c = true,
+    c_sharp = true,
     go = true,
+    java = true,
+    javascript = true,
+    kotlin = true,
+    lua = true,
+    php = true,
     python = true,
+    rust = true,
+    typescript = true,
+    zig = true,
   },
 })
 ```
@@ -34,20 +43,47 @@ explicitly enable each supported language in `setup()`.
 ## What It Does
 
 The plugin registers static injection queries at runtime for the languages you
-explicitly enable. Current built-in hosts are `go` and `python`.
+explicitly enable.
 
-Go currently matches:
+Current built-in hosts:
 
-- common SQL statement keywords like `SELECT`, `INSERT`, `UPDATE`, `DELETE`
-- common DDL and transaction fragments like `CREATE TABLE`, `ALTER TABLE`,
-  `BEGIN`, and `COMMIT`
-- SQL marker strings like `-- sql`
+- `c`
+- `c_sharp`
+- `go`
+- `java`
+- `javascript`
+- `kotlin`
+- `lua`
+- `php`
+- `python`
+- `rust`
+- `typescript`
+- `zig`
 
-Python currently matches:
+The matching strategy is host-specific and intentionally conservative. The
+queries prefer language-native naming and call-site conventions instead of a
+single cross-language rule set.
 
-- assignments such as `QUERY_SQL = """..."""`
-- parenthesized concatenated string assignments ending in `sql`
-- `execute`, `executemany`, and `executescript` calls with string SQL arguments
+### C note
+
+`c` is currently restricted to explicit database API call sites plus
+backslash-continued multiline `*_sql` declarations:
+
+- `sqlite3_exec`
+- `sqlite3_prepare_v2`
+- `PQexec`
+- `PQprepare`
+- declarations like:
+
+```c
+const char *summary_sql = "  SELECT status \
+    FROM users \
+    ORDER BY status";
+```
+
+Plain C variable assignments such as `const char *query_sql = "...";` are
+currently treated as normal strings. This is intentional for now because the
+single-line declaration path has shown unstable highlight behavior.
 
 Example:
 
@@ -95,8 +131,6 @@ gopls = {
 ```
 
 ## Tooling
-
-The repo uses the same Lua tooling settings as `~/.config/nvim-lite`.
 
 ```sh
 stylua --check lua plugin

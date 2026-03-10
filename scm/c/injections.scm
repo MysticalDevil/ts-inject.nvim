@@ -11,8 +11,13 @@
       value: (string_literal
         "\""
         (string_content) @injection.content
+        (escape_sequence)
+        (string_content) @injection.content
+        (escape_sequence)
+        (string_content) @injection.content
         "\"")))
   (#lua-match? @_name "^[%l][%w_]*_sql$")
+  (#set! injection.combined)
   (#set! injection.language "sql")
 )
 

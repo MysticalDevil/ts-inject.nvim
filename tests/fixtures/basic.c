@@ -2,10 +2,9 @@
 #include <sqlite3.h>
 
 void run(PGconn *conn, sqlite3 *db) {
-  const char *users_sql = "  SELECT id, email FROM users WHERE active = true";
-  const char *ordered_users_sql = "  SELECT id, email FROM users ORDER BY created_at DESC";
-  const char *aggregate_sql = "  SELECT status, count(*) AS total FROM users GROUP BY status HAVING count(*) > 0";
-  const char *delete_sql = "  DELETE FROM users WHERE active = false";
+  const char *summary_sql = "  SELECT status \
+      FROM users \
+      ORDER BY status";
 
   sqlite3_exec(db,
     "  UPDATE users \
@@ -36,8 +35,5 @@ void run(PGconn *conn, sqlite3 *db) {
     0,
     0);
 
-  (void) users_sql;
-  (void) ordered_users_sql;
-  (void) aggregate_sql;
-  (void) delete_sql;
+  (void) summary_sql;
 }
