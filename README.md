@@ -1,22 +1,24 @@
 # ts-inject.nvim
 
-Static Tree-sitter SQL injection helpers for Neovim.
+Static Tree-sitter SQL injections for Neovim.
 
-Current 0.1 scope:
+`ts-inject.nvim` keeps 0.1 intentionally simple:
 
-- static SQL injection queries for multiple host languages
-- explicit opt-in per host language via `setup()`
-- `:TSInjectDebug` for inspection
+- static per-language injection queries
+- explicit opt-in in `setup()`
+- one debug command: `:TSInjectDebug`
 
-## Requirements
+The project favors stable, host-native heuristics over a generic rule engine.
 
-- Neovim 0.11+
-- Tree-sitter SQL parser
-- Tree-sitter host parsers for the languages you enable
+## Quick Start
 
-## Installation
+Requirements:
 
-Add the plugin to your plugin manager, then:
+- Neovim `0.11+`
+- Tree-sitter `sql` parser
+- Tree-sitter host parsers for every language you enable
+
+Setup:
 
 ```lua
 require("ts_inject").setup({
@@ -32,6 +34,7 @@ require("ts_inject").setup({
     php = true,
     python = true,
     ruby = true,
+    scala = true,
     rust = true,
     typescript = true,
     zig = true,
@@ -39,15 +42,18 @@ require("ts_inject").setup({
 })
 ```
 
-The plugin does not enable any host-language injections by default. You must
-explicitly enable each supported language in `setup()`.
+Nothing is enabled by default.
 
-## What It Does
+## What 0.1 Covers
 
-The plugin registers static injection queries at runtime for the languages you
-explicitly enable.
+The current release is static and conservative:
 
-Current built-in hosts:
+- no runtime DSL
+- no merge engine
+- no attempt to guess every string-shaped SQL fragment
+- host-language heuristics that follow common local naming and call-site patterns
+
+Supported hosts:
 
 - `c`
 - `cpp`
@@ -60,71 +66,42 @@ Current built-in hosts:
 - `php`
 - `python`
 - `ruby`
+- `scala`
 - `rust`
 - `typescript`
 - `zig`
 
-The matching strategy is host-specific and intentionally conservative. The
-queries prefer language-native naming and call-site conventions instead of a
-single cross-language rule set.
+## Host Matrix
 
-## Host Support
+| Host | Primary naming / signal | Stable string forms | Notes |
+| --- | --- | --- | --- |
+| `c` | `*_sql`, DB API calls | backslash-continued multiline strings | plain single-line variable strings are intentionally left alone |
+| `cpp` | `*_sql`, DB API calls | raw strings | plain regular C++ string literals are intentionally left alone |
+| `c_sharp` | `camelCase ...Sql`, `..._SQL`, DB calls | regular, concatenated, verbatim | common `Query` / `Execute` / `Prepare` paths |
+| `go` | Go-style `userQuery`, SQL-looking content | raw and interpreted strings | favors obvious SQL text |
+| `java` | `camelCase ...Sql`, `..._SQL`, DB calls | regular, concatenated, text blocks | common JDBC-style call sites |
+| `javascript` | `camelCase ...Sql`, `PascalCase ...Sql`, `..._SQL` | template strings, concatenation | common query / execute call sites |
+| `kotlin` | `camelCase ...Sql`, `..._SQL`, DB calls | raw strings, `trimIndent`, `trimMargin`, concatenation | focuses on common Kotlin SQL shapes |
+| `lua` | `snake_case ..._sql`, `..._SQL`, DB calls | long strings, concatenation, `:format(...)` | Lua-specific helper syntax is supported |
+| `php` | `$camelCaseSql`, `..._SQL`, DB calls | regular strings, concatenation, heredoc/nowdoc | common PDO-style usage |
+| `python` | `snake_case ..._sql`, obvious SQL content, DB calls | regular, triple-quoted, concatenated | includes `execute` / `executemany` / `executescript` |
+| `ruby` | `snake_case ..._sql`, `..._SQL`, DB calls | regular strings, SQL heredocs | includes `execute`, `exec`, `prepare`, `find_by_sql` |
+| `scala` | `camelCase ...Sql`, `..._SQL`, DB calls | regular and triple-quoted strings | includes common `execute` / `exec` / `prepare` / `query` call sites |
+| `rust` | `userSql`, `USER_SQL`, crate call sites | regular and raw strings | covers common SQL crate usage |
+| `typescript` | `camelCase ...Sql`, `PascalCase ...Sql`, `..._SQL` | template strings, concatenation | mirrors the JS strategy |
+| `zig` | `camelCase ...Sql`, DB calls | multiline literals and direct call-site strings | tuned for common Zig naming |
 
-Current 0.1 support is static and conservative. The list below reflects the
-intended stable paths, not every possible string shape.
+### Current C / C++ Constraints
 
-- `c`
-  - supports `sqlite3_exec`, `sqlite3_prepare_v2`, `PQexec`, `PQprepare`
-  - supports backslash-continued multiline `*_sql` declarations
-  - plain single-line C string assignments are intentionally treated as normal strings
-- `cpp`
-  - supports raw string `*_sql` declarations like `R"sql(... )sql"`
-  - supports raw string arguments passed to `sqlite3_exec`, `sqlite3_prepare_v2`, `PQexec`, and `PQprepare`
-  - plain regular C++ string literals are intentionally treated as normal strings
-- `c_sharp`
-  - supports `camelCase ...Sql`, `SCREAMING_SNAKE_CASE ..._SQL`, and common DB call sites
-  - supports regular strings, concatenated strings, and verbatim strings
-- `go`
-  - supports SQL-looking raw strings and interpreted strings
-  - favors Go-style names like `userQuery` and obvious SQL content
-- `java`
-  - supports `camelCase ...Sql`, `SCREAMING_SNAKE_CASE ..._SQL`, and common DB call sites
-  - supports text blocks, regular strings, and concatenated strings
-- `javascript`
-  - supports `camelCase ...Sql`, `PascalCase ...Sql`, and `SCREAMING_SNAKE_CASE ..._SQL`
-  - supports template strings, concatenated strings, and common DB call sites
-- `kotlin`
-  - supports `camelCase ...Sql`, `SCREAMING_SNAKE_CASE ..._SQL`, and common DB call sites
-  - supports raw strings, `trimIndent()`/`trimMargin()`, and concatenated strings
-- `lua`
-  - supports `snake_case ..._sql`, `SCREAMING_SNAKE_CASE ..._SQL`, and DB-style call sites
-  - supports long strings, concatenation, and `:format(...)`
-- `php`
-  - supports `$camelCaseSql`, `SCREAMING_SNAKE_CASE ..._SQL`, and common DB call sites
-  - supports regular strings, concatenation, and heredoc/nowdoc forms
-- `python`
-  - supports `snake_case ..._sql` and obvious SQL content in assignment/call positions
-  - supports triple-quoted strings, concatenation, and `execute`/`executemany`/`executescript`
-- `ruby`
-  - supports `snake_case ..._sql`, `SCREAMING_SNAKE_CASE ..._SQL`, and common DB call sites
-  - supports regular strings, SQL-labeled heredocs, and `execute`/`exec`/`prepare`/`find_by_sql`
-- `rust`
-  - supports Rust-style names like `userSql` / `USER_SQL` and common SQL crate call sites
-  - supports normal strings and raw strings
-- `typescript`
-  - supports `camelCase ...Sql`, `PascalCase ...Sql`, and `SCREAMING_SNAKE_CASE ..._SQL`
-  - supports template strings, concatenated strings, and common DB call sites
-- `zig`
-  - supports Zig-style `camelCase ...Sql` names and common DB call sites
-  - supports multiline string literals and direct call-site SQL strings
-
-Examples for the current C / C++ constraints:
+For `c`:
 
 ```c
 const char *summary_sql = "  SELECT status \
   FROM users \
   ORDER BY status";
 ```
+
+For `cpp`:
 
 ```cpp
 const char *schema_sql = R"sql(  CREATE TABLE audit_logs (
@@ -133,40 +110,73 @@ const char *schema_sql = R"sql(  CREATE TABLE audit_logs (
 ))sql";
 ```
 
-Example:
-
-```go
-query := `
-SELECT id, name
-FROM users
-WHERE active = true
-`
-```
-
 ## Debugging
 
-Run:
+Inspect the current buffer:
 
 ```vim
 :TSInjectDebug
 ```
 
-Or specify a target language explicitly:
+Or force the target language:
 
 ```vim
 :TSInjectDebug sql
 ```
 
-The debug view reports parser paths, active injection query files, captures at
-cursor, the current node, and nested language trees.
+The debug view reports:
 
-## LSP Semantic Tokens
+- parser paths
+- active query files
+- captures under cursor
+- current node info
+- nested language trees
+
+## Verification
+
+### Smoke test
+
+```sh
+env XDG_DATA_HOME=./tmp/test-data \
+  XDG_STATE_HOME=./tmp/test-state \
+  XDG_CACHE_HOME=./tmp/test-cache \
+  /home/omega/.local/share/mise/installs/neovim/nightly/bin/nvim \
+  --headless -u NONE -i NONE -n -l tests/smoke.lua
+```
+
+### Local example projects
+
+The ignored example projects under `tmp/` use standard layouts where practical.
+
+Open one with:
+
+```sh
+./tmp/verify-nvim-mini.sh --lang scala
+```
+
+Supported values:
+
+- `c`
+- `cpp`
+- `csharp`
+- `go`
+- `java`
+- `javascript`
+- `kotlin`
+- `lua`
+- `php`
+- `python`
+- `ruby`
+- `scala`
+- `rust`
+- `typescript`
+- `zig`
+
+## LSP Notes
 
 If SQL injection highlighting disappears after `gopls` attaches, disable
-`gopls` semantic tokens in your LSP config. This keeps Tree-sitter injection
-highlighting visible instead of letting semantic tokens override it.
-
-Recommended `gopls` setting:
+`gopls` semantic tokens in your LSP config so Tree-sitter injection highlighting
+stays visible.
 
 ```lua
 gopls = {
@@ -183,21 +193,4 @@ gopls = {
 ```sh
 stylua --check lua plugin
 selene lua plugin
-```
-
-## Smoke Test
-
-A minimal headless smoke test lives in `tests/smoke.lua`.
-
-Run it with:
-
-```sh
-env XDG_DATA_HOME=/tmp/ts-inject-data \
-  XDG_STATE_HOME=/tmp/ts-inject-state \
-  XDG_CACHE_HOME=/tmp/ts-inject-cache \
-  /home/omega/.local/share/mise/installs/neovim/nightly/bin/nvim \
-  --headless --clean -u NONE -i NONE \
-  --cmd 'set rtp+=.,/home/omega/.local/share/nvim/lazy/nvim-treesitter' \
-  -c 'lua dofile("tests/smoke.lua")' \
-  -c 'qa!'
 ```

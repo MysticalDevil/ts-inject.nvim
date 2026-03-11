@@ -5,7 +5,9 @@ CONTENTS                                                      *ts-inject*
 
 1. Introduction ................................................ |ts-inject-intro|
 2. Setup ........................................................ |ts-inject-setup|
-3. Commands .................................................. |ts-inject-commands|
+3. Host Support .......................................... |ts-inject-support|
+4. Verification ...................................... |ts-inject-verification|
+5. Commands .................................................. |ts-inject-commands|
 
 ==============================================================================
 1. Introduction                                              *ts-inject-intro*
@@ -16,6 +18,7 @@ Current 0.1 scope:
   - multiple host languages
   - SQL string injection
   - one debug command
+  - explicit opt-in in |ts-inject-setup|
 
 ==============================================================================
 2. Setup                                                      *ts-inject-setup*
@@ -43,6 +46,7 @@ Options:
       php = true,
       python = true,
       ruby = true,
+      scala = true,
       rust = true,
       typescript = true,
       zig = true,
@@ -66,6 +70,7 @@ Current built-in hosts:
   - php
   - python
   - ruby
+  - scala
   - rust
   - typescript
   - zig
@@ -84,7 +89,76 @@ If SQL injection highlighting disappears after `gopls` attaches, disable
 `gopls` semantic tokens in your LSP configuration.
 
 ==============================================================================
-3. Commands                                                *ts-inject-commands*
+3. Host Support                                            *ts-inject-support*
+
+Current 0.1 support is static and conservative.
+
+Host notes:
+  - c: `*_sql` multiline declarations plus `sqlite3_exec`,
+    `sqlite3_prepare_v2`, `PQexec`, and `PQprepare`
+  - cpp: raw-string `*_sql` declarations plus raw-string DB call arguments
+  - c_sharp: `...Sql`, `..._SQL`, regular/concatenated/verbatim strings,
+    common DB call sites
+  - go: Go-style names and obvious SQL-looking string content
+  - java: `...Sql`, `..._SQL`, text blocks, regular strings, concatenation,
+    common JDBC-style call sites
+  - javascript: `...Sql`, `..._SQL`, template strings, concatenation,
+    common query/execute call sites
+  - kotlin: `...Sql`, `..._SQL`, raw strings, `trimIndent()` /
+    `trimMargin()`, concatenation, common DB call sites
+  - lua: `..._sql`, `..._SQL`, long strings, concatenation, `:format(...)`,
+    DB-style call sites
+  - php: `$camelCaseSql`, `..._SQL`, regular strings, concatenation,
+    heredoc/nowdoc, common DB call sites
+  - python: `..._sql`, obvious SQL content, triple-quoted strings,
+    concatenation, `execute` / `executemany` / `executescript`
+  - ruby: `..._sql`, `..._SQL`, regular strings, SQL heredocs,
+    `execute` / `exec` / `prepare` / `find_by_sql`
+  - scala: `...Sql`, `..._SQL`, regular strings, triple-quoted strings,
+    `execute` / `exec` / `prepare` / `query`
+  - rust: Rust-style `userSql` / `USER_SQL`, regular and raw strings,
+    common SQL crate call sites
+  - typescript: same general strategy as javascript
+  - zig: Zig-style `...Sql`, multiline literals, direct DB call-site strings
+
+==============================================================================
+4. Verification                                      *ts-inject-verification*
+
+Smoke test:
+
+>
+  env XDG_DATA_HOME=./tmp/test-data \
+    XDG_STATE_HOME=./tmp/test-state \
+    XDG_CACHE_HOME=./tmp/test-cache \
+    /home/omega/.local/share/mise/installs/neovim/nightly/bin/nvim \
+    --headless -u NONE -i NONE -n -l tests/smoke.lua
+<
+
+Interactive local examples:
+
+>
+  ./tmp/verify-nvim-mini.sh --lang scala
+<
+
+Supported values:
+  - c
+  - cpp
+  - csharp
+  - go
+  - java
+  - javascript
+  - kotlin
+  - lua
+  - php
+  - python
+  - ruby
+  - scala
+  - rust
+  - typescript
+  - zig
+
+==============================================================================
+5. Commands                                                *ts-inject-commands*
 
 :TSInjectDebug [lang]
   Show parser, query, capture, node, and language-tree information for the
