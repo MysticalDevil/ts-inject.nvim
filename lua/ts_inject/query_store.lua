@@ -20,6 +20,7 @@ function M.supported_languages()
     php = true,
     python = true,
     ruby = true,
+    scala = true,
     rust = true,
     typescript = true,
     zig = true,

@@ -19,6 +19,8 @@ require("ts_inject").setup({
     lua = true,
     php = true,
     python = true,
+    ruby = true,
+    scala = true,
     rust = true,
     typescript = true,
     zig = true,
@@ -161,6 +163,13 @@ assert_injected_node("tests/fixtures/basic.py", "python", "CREATE TABLE users ("
 assert_injected_node("tests/fixtures/basic.py", "python", "DELETE FROM users", "keyword_delete")
 assert_injected_node("tests/fixtures/basic.rs", "rust", "CREATE TABLE users (", "keyword_create")
 assert_injected_node("tests/fixtures/basic.rs", "rust", "INSERT INTO users (email)", "keyword_insert")
+assert_injected_node("tests/fixtures/basic.scala", "scala", "SELECT id, email FROM users WHERE active = true", "keyword_select")
+assert_injected_node("tests/fixtures/basic.scala", "scala", "CREATE TABLE users (", "keyword_create")
+assert_injected_node("tests/fixtures/basic.scala", "scala", "GROUP BY status", "keyword_group")
+assert_injected_node("tests/fixtures/basic.scala", "scala", "UPDATE users", "keyword_update")
+assert_injected_node("tests/fixtures/basic.scala", "scala", "INSERT INTO users (email, status)", "keyword_insert")
+assert_injected_node("tests/fixtures/basic.scala", "scala", "WITH recent_users AS (", "keyword_with")
+assert_injected_node("tests/fixtures/basic.scala", "scala", "ALTER TABLE users", "keyword_alter")
 assert_injected_node("tests/fixtures/basic.ts", "typescript", "UPDATE users", "keyword_update")
 assert_injected_node("tests/fixtures/basic.ts", "typescript", "CREATE TABLE IF NOT EXISTS audit_logs (", "keyword_create")
 assert_injected_node("tests/fixtures/basic.ts", "typescript", "WITH recent_users AS (", "keyword_with")
