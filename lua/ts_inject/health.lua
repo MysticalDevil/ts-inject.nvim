@@ -34,14 +34,28 @@ function M.collect()
   local generated = {}
   local static = {}
   local host_status = {}
+  local generated_paths = {}
 
   for host, status in pairs(state.hosts or {}) do
     enabled[#enabled + 1] = host
-    host_status[#host_status + 1] = ("%s (%s, %s)"):format(
-      host,
+    local status_parts = {
       status.mode,
-      status.error and ("error: " .. status.error) or "ok"
-    )
+    }
+
+    if status.mode == "generated" then
+      status_parts[#status_parts + 1] = ("builtin=%s"):format(status.builtin_enabled and "on" or "off")
+      status_parts[#status_parts + 1] = ("builtin_rules=%d"):format(status.builtin_rule_count or 0)
+      status_parts[#status_parts + 1] = ("user_rules=%d"):format(status.user_rule_count or 0)
+      if not status.configurable_rules then
+        status_parts[#status_parts + 1] = "public_rules=locked"
+      end
+
+      local present = vim.fn.filereadable(status.path or "") == 1 and "present" or "missing"
+      generated_paths[#generated_paths + 1] = ("%s: %s (%s)"):format(host, status.path or "(none)", present)
+    end
+
+    status_parts[#status_parts + 1] = status.error and ("error: " .. status.error) or "ok"
+    host_status[#host_status + 1] = ("%s (%s)"):format(host, table.concat(status_parts, ", "))
     if status.mode == "generated" then
       generated[#generated + 1] = host
     else
@@ -51,6 +65,7 @@ function M.collect()
 
   table.sort(enabled)
   table.sort(generated)
+  table.sort(generated_paths)
   table.sort(static)
   table.sort(host_status)
 
@@ -58,6 +73,7 @@ function M.collect()
   append_section(lines, "generated hosts", generated)
   append_section(lines, "static hosts", static)
   append_section(lines, "host status", host_status)
+  append_section(lines, "generated query status", generated_paths)
 
   local parser_lines = {}
   for _, host in ipairs(enabled) do

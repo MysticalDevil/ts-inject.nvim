@@ -108,6 +108,45 @@ function M.normalize_user_rules(host, raw_rules)
   return normalized, warnings
 end
 
+function M.normalize_user_config(host, raw)
+  local config = {
+    builtin = true,
+    items = {},
+  }
+  local warnings = {}
+
+  if raw == nil then
+    return config, warnings
+  end
+
+  if vim.islist(raw) then
+    config.items = raw
+  elseif type(raw) == "table" then
+    if raw.builtin ~= nil then
+      if type(raw.builtin) == "boolean" then
+        config.builtin = raw.builtin
+      else
+        warnings[#warnings + 1] = "rules.builtin must be a boolean"
+      end
+    end
+
+    if raw.items ~= nil then
+      if vim.islist(raw.items) then
+        config.items = raw.items
+      else
+        warnings[#warnings + 1] = "rules.items must be a list"
+      end
+    end
+  else
+    warnings[#warnings + 1] = "host rules must be a list or table"
+  end
+
+  local normalized, rule_warnings = M.normalize_user_rules(host, config.items)
+  config.items = normalized
+  vim.list_extend(warnings, rule_warnings)
+  return config, warnings
+end
+
 function M.clone_rules(rules)
   local out = {}
 

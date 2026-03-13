@@ -2,6 +2,7 @@ local M = {}
 
 local builders = {
   python = require("ts_inject.host.python"),
+  ruby = require("ts_inject.host.ruby"),
   javascript = require("ts_inject.host.ecmascript"),
   lua = require("ts_inject.host.lua"),
   typescript = require("ts_inject.host.ecmascript"),

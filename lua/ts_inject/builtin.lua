@@ -30,6 +30,26 @@ local builtin = {
       source = "builtin",
     },
   },
+  ruby = {
+    {
+      kind = "name_pattern",
+      lang = "sql",
+      pattern = "^[%l_][%w_]*_sql$",
+      source = "builtin",
+    },
+    {
+      kind = "name_pattern",
+      lang = "sql",
+      pattern = "^[%u][%u%d_]*_SQL$",
+      source = "builtin",
+    },
+    {
+      kind = "call",
+      lang = "sql",
+      fn = { "execute", "exec", "prepare", "find_by_sql" },
+      source = "builtin",
+    },
+  },
   javascript = {
     {
       kind = "name_pattern",

@@ -33,6 +33,7 @@ function M.generated_languages()
     javascript = true,
     lua = true,
     python = true,
+    ruby = true,
     typescript = true,
   }
 end

@@ -36,6 +36,7 @@ local function install_query(lang)
   local mode = generated_hosts[lang] and "generated" or "static"
   local query
   local err
+  local rule_config = state.opts.rule_configs and state.opts.rule_configs[lang] or nil
 
   if mode == "generated" then
     query, err = query_builder.build(lang, state.opts.host_rules[lang] or {})
@@ -53,6 +54,10 @@ local function install_query(lang)
     mode = mode,
     error = err,
     path = runtime.query_path(lang),
+    configurable_rules = rule_config and rule_config.configurable or false,
+    builtin_enabled = rule_config and rule_config.builtin or false,
+    builtin_rule_count = rule_config and rule_config.builtin_rule_count or 0,
+    user_rule_count = rule_config and rule_config.user_rule_count or 0,
   }
 end
 
