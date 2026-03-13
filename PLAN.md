@@ -93,7 +93,7 @@ The codebase is close to a complete `0.1`, but a few release-closeout items rema
 | `lua` | yes | yes | long strings, concatenation, `:format(...)` |
 | `php` | yes | yes | regular strings, concatenation, heredoc/nowdoc |
 | `python` | yes | yes | triple-quoted strings, concatenation, execute-family calls |
-| `ruby` | yes | no | implementation exists; smoke coverage still needs to be stabilized |
+| `ruby` | yes | yes | regular strings, SQL heredocs, and common DB call sites are smoke-covered |
 | `scala` | yes | yes | regular strings, triple-quoted strings, common DB calls |
 | `rust` | yes | yes | regular and raw strings, crate call sites |
 | `typescript` | yes | yes | mirrors the JS strategy |
@@ -101,14 +101,10 @@ The codebase is close to a complete `0.1`, but a few release-closeout items rema
 
 ### Concrete remaining work
 
-`0.1` should not be considered fully closed until these are addressed:
+`0.1` is functionally complete. Remaining work is release discipline rather than
+missing behavior:
 
-1. Ruby smoke coverage parity
-   - Ruby support is implemented and documented.
-   - Formal smoke assertions are still missing from `tests/smoke.lua`.
-   - Recommended closeout: stabilize Ruby smoke coverage and add it back to the smoke suite.
-
-2. Versioned release closeout
+1. Versioned release closeout
    - README, help doc, and this plan should stay aligned on supported hosts and constraints.
    - Smoke should pass before cutting a `0.1` tag or GitHub release.
 
@@ -160,7 +156,6 @@ losing the debuggability and host-specific correctness established in `0.1`.
 
 ## Recommended `0.1` Closeout Order
 
-1. Stabilize Ruby smoke coverage.
-2. Keep README, help, and `PLAN.md` aligned.
-3. Ensure `tests/smoke.lua` passes in the documented headless flow.
-4. Tag and release `0.1`.
+1. Keep README, help, and `PLAN.md` aligned.
+2. Ensure `tests/smoke.lua` passes in the documented headless flow.
+3. Tag and release `0.1`.
