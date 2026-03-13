@@ -54,8 +54,8 @@ Nothing is enabled by default.
 Current main keeps the `0.1` compatibility path while adding `0.2` features:
 
 - static runtime-installed queries for most hosts
-- generated runtime queries for `python`, `javascript`, and `typescript`
-- experimental additive `rules` support for those generated hosts
+- generated runtime queries for `python`, `javascript`, `typescript`, and `lua`
+- experimental additive `rules` support for `python`, `javascript`, and `typescript`
 - `:TSInjectDebug`, `:TSInjectReload`, and `:TSInjectHealth`
 - built-in delimiter-driven shell heredoc injections for `bash`
 
@@ -106,8 +106,10 @@ Current generated hosts:
 - `python`
 - `javascript`
 - `typescript`
+- `lua`
 
-These hosts accept experimental additive rules in `setup({ rules = { ... } })`.
+Only `python`, `javascript`, and `typescript` currently accept experimental
+additive rules in `setup({ rules = { ... } })`.
 
 Supported experimental rule kinds:
 

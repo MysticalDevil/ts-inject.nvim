@@ -94,13 +94,15 @@ Generated hosts:
   - python
   - javascript
   - typescript
+  - lua
 
 Experimental `rules` currently support:
   - `var_suffix`
   - `call`
 
-The experimental `rules` table is additive only for now. Built-in rules stay
-enabled and there is no stable precedence or disable model yet.
+The experimental `rules` table currently applies only to `python`,
+`javascript`, and `typescript`. It is additive only for now. Built-in rules
+stay enabled and there is no stable precedence or disable model yet.
 
 Plain single-line C string assignments are intentionally left as normal
 strings for now. Plain regular C++ string literals are also currently left as

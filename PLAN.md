@@ -130,7 +130,7 @@ These items are intentionally postponed and should not block `0.1`:
 Implemented or in-progress focus:
 
 - small internal rule model for proven patterns
-- generated query path for `python`, `javascript`, and `typescript`
+- generated query path for `python`, `javascript`, `typescript`, and `lua`
 - host helper extraction for generated hosts
 - `:TSInjectReload` and `:TSInjectHealth`
 - built-in delimiter-driven `bash` heredoc injections
@@ -149,6 +149,8 @@ generic DSL.
   - `python`
   - `javascript`
   - `typescript`
+- `lua` now uses the generated host path internally, but does not accept public
+  experimental rules yet
 - user rules are additive only
 - built-in rules still have no public override / precedence model
 - non-SQL expansion is currently limited to built-in `bash` heredoc mappings
