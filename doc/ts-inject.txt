@@ -12,12 +12,15 @@ CONTENTS                                                      *ts-inject*
 ==============================================================================
 1. Introduction                                              *ts-inject-intro*
 
-ts-inject.nvim is a static Tree-sitter SQL injection plugin.
+ts-inject.nvim is a Tree-sitter injection plugin with stable static support and
+an experimental generated-query path.
 
-Current 0.1 scope:
+Current main-branch scope:
+  - stable static host support
+  - generated queries for selected hosts
   - multiple host languages
   - SQL string injection
-  - one debug command
+  - shell heredoc delimiter injections in bash
   - explicit opt-in in |ts-inject-setup|
 
 ==============================================================================
@@ -35,6 +38,7 @@ Options:
   require("ts_inject").setup({
     debug_command = "TSInjectDebug",
     enable = {
+      bash = true,
       c = true,
       cpp = true,
       c_sharp = true,
@@ -51,14 +55,19 @@ Options:
       typescript = true,
       zig = true,
     },
+    rules = {
+      python = {
+        { kind = "call", fn = { "run_sql" }, lang = "sql" },
+      },
+    },
   })
 <
 
-The plugin registers static queries at runtime for explicitly enabled host
-languages and extends the existing injection queries from Neovim or
-nvim-treesitter.
+The plugin installs runtime queries for explicitly enabled host languages and
+extends the existing injection queries from Neovim or nvim-treesitter.
 
 Current built-in hosts:
+  - bash
   - c
   - cpp
   - c_sharp
@@ -81,6 +90,18 @@ call sites like `sqlite3_exec`, `sqlite3_prepare_v2`, `PQexec`, and
 multiline declarations for now. `cpp` currently supports raw string
 declarations and raw string call arguments.
 
+Generated hosts:
+  - python
+  - javascript
+  - typescript
+
+Experimental `rules` currently support:
+  - `var_suffix`
+  - `call`
+
+The experimental `rules` table is additive only for now. Built-in rules stay
+enabled and there is no stable precedence or disable model yet.
+
 Plain single-line C string assignments are intentionally left as normal
 strings for now. Plain regular C++ string literals are also currently left as
 normal strings.
@@ -91,9 +112,11 @@ If SQL injection highlighting disappears after `gopls` attaches, disable
 ==============================================================================
 3. Host Support                                            *ts-inject-support*
 
-Current 0.1 support is static and conservative.
+Current main-branch support keeps the static `0.1` path while introducing a
+small generated-query `0.2` path.
 
 Host notes:
+  - bash: heredoc delimiter mapping for `SQL`, `PY`, `LUA`, `JS`, and `TS`
   - c: `*_sql` multiline declarations plus `sqlite3_exec`,
     `sqlite3_prepare_v2`, `PQexec`, and `PQprepare`
   - cpp: raw-string `*_sql` declarations plus raw-string DB call arguments
@@ -141,6 +164,7 @@ Interactive local examples:
 <
 
 Supported values:
+  - bash
   - c
   - cpp
   - csharp
@@ -163,5 +187,13 @@ Supported values:
 :TSInjectDebug [lang]
   Show parser, query, capture, node, and language-tree information for the
   current buffer. The default target language is `sql`.
+
+:TSInjectReload
+  Regenerate and reinstall runtime queries using the most recent `setup()`
+  options.
+
+:TSInjectHealth
+  Show enabled hosts, static vs generated query paths, parser availability,
+  and runtime warnings.
 
 vim:tw=78:ts=8:noet:ft=help:norl:

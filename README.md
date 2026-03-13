@@ -1,12 +1,11 @@
 # ts-inject.nvim
 
-Static Tree-sitter SQL injections for Neovim.
+Static and generated Tree-sitter injections for Neovim.
 
-`ts-inject.nvim` keeps 0.1 intentionally simple:
+`ts-inject.nvim` now has two layers:
 
-- static per-language injection queries
-- explicit opt-in in `setup()`
-- one debug command: `:TSInjectDebug`
+- stable static host support from `0.1`
+- a small `0.2` framework for generated queries and experimental rules
 
 The project favors stable, host-native heuristics over a generic rule engine.
 
@@ -23,6 +22,7 @@ Setup:
 ```lua
 require("ts_inject").setup({
   enable = {
+    bash = true,
     c = true,
     cpp = true,
     c_sharp = true,
@@ -39,22 +39,29 @@ require("ts_inject").setup({
     typescript = true,
     zig = true,
   },
+  rules = {
+    python = {
+      { kind = "call", fn = { "run_sql" }, lang = "sql" },
+    },
+  },
 })
 ```
 
 Nothing is enabled by default.
 
-## What 0.1 Covers
+## Current Main Branch
 
-The current release is static and conservative:
+Current main keeps the `0.1` compatibility path while adding `0.2` features:
 
-- no runtime DSL
-- no merge engine
-- no attempt to guess every string-shaped SQL fragment
-- host-language heuristics that follow common local naming and call-site patterns
+- static runtime-installed queries for most hosts
+- generated runtime queries for `python`, `javascript`, and `typescript`
+- experimental additive `rules` support for those generated hosts
+- `:TSInjectDebug`, `:TSInjectReload`, and `:TSInjectHealth`
+- built-in delimiter-driven shell heredoc injections for `bash`
 
 Supported hosts:
 
+- `bash`
 - `c`
 - `cpp`
 - `c_sharp`
@@ -75,6 +82,7 @@ Supported hosts:
 
 | Host | Primary naming / signal | Stable string forms | Notes |
 | --- | --- | --- | --- |
+| `bash` | heredoc delimiters | heredoc bodies | built-in `SQL`, `PY`, `LUA`, `JS`, `TS` delimiter mapping |
 | `c` | `*_sql`, DB API calls | backslash-continued multiline strings | plain single-line variable strings are intentionally left alone |
 | `cpp` | `*_sql`, DB API calls | raw strings | plain regular C++ string literals are intentionally left alone |
 | `c_sharp` | `camelCase ...Sql`, `..._SQL`, DB calls | regular, concatenated, verbatim | common `Query` / `Execute` / `Prepare` paths |
@@ -90,6 +98,28 @@ Supported hosts:
 | `rust` | `userSql`, `USER_SQL`, crate call sites | regular and raw strings | covers common SQL crate usage |
 | `typescript` | `camelCase ...Sql`, `PascalCase ...Sql`, `..._SQL` | template strings, concatenation | mirrors the JS strategy |
 | `zig` | `camelCase ...Sql`, DB calls | multiline literals and direct call-site strings | tuned for common Zig naming |
+
+### Generated Hosts
+
+Current generated hosts:
+
+- `python`
+- `javascript`
+- `typescript`
+
+These hosts accept experimental additive rules in `setup({ rules = { ... } })`.
+
+Supported experimental rule kinds:
+
+- `var_suffix`
+- `call`
+
+Current limits:
+
+- built-in rules stay enabled
+- user rules are additive only
+- no precedence / disable system yet
+- no stable API guarantee yet
 
 ### Current C / C++ Constraints
 
@@ -124,13 +154,28 @@ Or force the target language:
 :TSInjectDebug sql
 ```
 
-The debug view reports:
+Regenerate runtime queries:
+
+```vim
+:TSInjectReload
+```
+
+Inspect plugin/runtime state:
+
+```vim
+:TSInjectHealth
+```
+
+The debug and health views report:
 
 - parser paths
 - active query files
 - captures under cursor
 - current node info
 - nested language trees
+- enabled hosts
+- static vs generated hosts
+- runtime warnings
 
 ## Verification
 
@@ -151,11 +196,12 @@ The ignored example projects under `tmp/` use standard layouts where practical.
 Open one with:
 
 ```sh
-./tmp/verify-nvim-mini.sh --lang scala
+./tmp/verify-nvim-mini.sh --lang bash
 ```
 
 Supported values:
 
+- `bash`
 - `c`
 - `cpp`
 - `csharp`

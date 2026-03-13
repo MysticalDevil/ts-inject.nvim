@@ -2,13 +2,15 @@
 
 ## Status Snapshot
 
-Current repository status as of 2026-03-11:
+Current repository status as of 2026-03-13:
 
 - `0.1` is a static multi-language SQL injection release, not a generic rule engine
 - the public entrypoint is `require("ts_inject").setup({ enable = { ... } })`
-- the current debug command is `:TSInjectDebug`
+- the main branch now includes the first `0.2` framework slice
+- current commands are `:TSInjectDebug`, `:TSInjectReload`, and `:TSInjectHealth`
 - runtime query files are installed under `stdpath("data") .. "/ts-inject/queries/<lang>/injections.scm"`
-- the project already ships SQL injection support for:
+- the project already ships injection support for:
+  - `bash` heredoc delimiter mappings
   - `c`
   - `cpp`
   - `c_sharp`
@@ -123,20 +125,33 @@ These items are intentionally postponed and should not block `0.1`:
 
 ## `0.2` Goals
 
-`0.2` should be the first step beyond static SQL-only recipes, but it should
-still stay implementation-driven rather than abstract-first.
+`0.2` is now underway.
 
-Planned focus:
+Implemented or in-progress focus:
 
-- introduce a small internal rule model only for patterns already proven by `0.1`
-- start extracting repeated host logic into adapter-style helpers
-- add health and reload workflows around the existing runtime query installation
-- expand beyond SQL where the host/value is clear, especially shell heredoc style injections
-- improve documentation per host so supported string shapes and limits are explicit
+- small internal rule model for proven patterns
+- generated query path for `python`, `javascript`, and `typescript`
+- host helper extraction for generated hosts
+- `:TSInjectReload` and `:TSInjectHealth`
+- built-in delimiter-driven `bash` heredoc injections
+- updated docs for generated-vs-static host behavior
 
 The main purpose of `0.2` is to move from "bundle of stable static recipes" to
 "small configurable injection framework" without jumping straight to a fully
 generic DSL.
+
+### Current `0.2` limits
+
+- experimental `rules` only support:
+  - `var_suffix`
+  - `call`
+- experimental `rules` only apply to:
+  - `python`
+  - `javascript`
+  - `typescript`
+- user rules are additive only
+- built-in rules still have no public override / precedence model
+- non-SQL expansion is currently limited to built-in `bash` heredoc mappings
 
 ## `0.3` Goals
 
