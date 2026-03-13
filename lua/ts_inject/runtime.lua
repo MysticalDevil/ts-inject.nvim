@@ -25,6 +25,11 @@ function M.remove(lang)
   if vim.uv.fs_stat(path) then
     vim.fn.delete(path)
   end
+
+  local dir = root_dir .. "/queries/" .. lang
+  if vim.fn.isdirectory(dir) == 1 then
+    vim.fn.delete(dir, "d")
+  end
 end
 
 function M.enable_on_runtimepath()

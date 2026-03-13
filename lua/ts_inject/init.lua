@@ -1,16 +1,78 @@
 local M = {}
+
+local config = require("ts_inject.config")
+local query_builder = require("ts_inject.query_builder")
 local query_store = require("ts_inject.query_store")
 local runtime = require("ts_inject.runtime")
 
 local defaults = {
   debug_command = "TSInjectDebug",
   enable = {},
+  rules = {},
 }
 
 local state = {
   commands_registered = false,
   opts = vim.deepcopy(defaults),
+  runtime_state = {
+    hosts = {},
+    warnings = {},
+  },
 }
+
+local function clear_query_cache()
+  if vim.treesitter and vim.treesitter.query then
+    if vim.treesitter.query.get and vim.treesitter.query.get.clear then
+      vim.treesitter.query.get:clear()
+    end
+    if vim.treesitter.query.parse and vim.treesitter.query.parse.clear then
+      vim.treesitter.query.parse:clear()
+    end
+  end
+end
+
+local function install_query(lang)
+  local generated_hosts = query_store.generated_languages()
+  local mode = generated_hosts[lang] and "generated" or "static"
+  local query
+  local err
+
+  if mode == "generated" then
+    query, err = query_builder.build(lang, state.opts.host_rules[lang] or {})
+  else
+    query = query_store.load(lang)
+  end
+
+  if query then
+    runtime.install(lang, query)
+  else
+    runtime.remove(lang)
+  end
+
+  state.runtime_state.hosts[lang] = {
+    mode = mode,
+    error = err,
+    path = runtime.query_path(lang),
+  }
+end
+
+local function register_queries()
+  runtime.enable_on_runtimepath()
+  state.runtime_state = {
+    hosts = {},
+    warnings = vim.deepcopy(state.opts.warnings or {}),
+  }
+
+  for lang in pairs(query_store.supported_languages()) do
+    if state.opts.enable[lang] then
+      install_query(lang)
+    else
+      runtime.remove(lang)
+    end
+  end
+
+  clear_query_cache()
+end
 
 local function register_commands()
   if state.commands_registered then
@@ -26,54 +88,40 @@ local function register_commands()
     desc = "Inspect Tree-sitter injection state for the current buffer",
   })
 
+  vim.api.nvim_create_user_command("TSInjectReload", function()
+    local host_count = require("ts_inject").reload()
+    vim.notify(("ts-inject: reloaded %d host query files"):format(host_count))
+  end, {
+    desc = "Regenerate and reinstall ts-inject queries",
+  })
+
+  vim.api.nvim_create_user_command("TSInjectHealth", function()
+    require("ts_inject.health").show()
+  end, {
+    desc = "Inspect ts-inject runtime health",
+  })
+
   state.commands_registered = true
 end
 
-local function normalize_enable(enable)
-  local normalized = {}
-  local supported = query_store.supported_languages()
-
-  for lang, value in pairs(enable or {}) do
-    if supported[lang] and value then
-      normalized[lang] = true
-    end
-  end
-
-  return normalized
-end
-
-local function register_queries()
-  runtime.enable_on_runtimepath()
-  for lang in pairs(query_store.supported_languages()) do
-    if state.opts.enable[lang] then
-      runtime.install(lang, query_store.load(lang))
-    else
-      runtime.remove(lang)
-    end
-  end
-
-  if vim.treesitter and vim.treesitter.query then
-    if vim.treesitter.query.get and vim.treesitter.query.get.clear then
-      vim.treesitter.query.get:clear()
-    end
-    if vim.treesitter.query.parse and vim.treesitter.query.parse.clear then
-      vim.treesitter.query.parse:clear()
-    end
-  end
-end
-
 function M.setup(opts)
-  state.opts = vim.tbl_deep_extend("force", vim.deepcopy(defaults), opts or {})
-  state.opts.enable = normalize_enable(state.opts.enable)
-
+  state.opts = config.normalize(vim.tbl_deep_extend("force", vim.deepcopy(defaults), opts or {}))
   register_commands()
   register_queries()
-
   return state.opts
+end
+
+function M.reload()
+  register_queries()
+  return vim.tbl_count(state.runtime_state.hosts)
 end
 
 function M.get_opts()
   return state.opts
+end
+
+function M.get_runtime_state()
+  return vim.deepcopy(state.runtime_state)
 end
 
 function M.is_enabled(lang)

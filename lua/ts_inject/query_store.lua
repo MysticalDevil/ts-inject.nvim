@@ -9,6 +9,7 @@ end
 
 function M.supported_languages()
   return {
+    bash = true,
     c = true,
     cpp = true,
     go = true,
@@ -24,6 +25,14 @@ function M.supported_languages()
     rust = true,
     typescript = true,
     zig = true,
+  }
+end
+
+function M.generated_languages()
+  return {
+    javascript = true,
+    python = true,
+    typescript = true,
   }
 end
 

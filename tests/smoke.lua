@@ -4,27 +4,30 @@ local function append_if_dir(path)
   end
 end
 
+local default_enable = {
+  bash = true,
+  c = true,
+  c_sharp = true,
+  go = true,
+  java = true,
+  javascript = true,
+  kotlin = true,
+  lua = true,
+  php = true,
+  python = true,
+  ruby = true,
+  scala = true,
+  rust = true,
+  typescript = true,
+  zig = true,
+}
+
 append_if_dir(vim.fn.expand("~/.local/share/nvim-mini/site"))
 append_if_dir(vim.fn.expand("~/.local/share/nvim/site"))
 vim.opt.runtimepath:append(vim.fn.getcwd())
 
 require("ts_inject").setup({
-  enable = {
-    c = true,
-    c_sharp = true,
-    go = true,
-    java = true,
-    javascript = true,
-    kotlin = true,
-    lua = true,
-    php = true,
-    python = true,
-    ruby = true,
-    scala = true,
-    rust = true,
-    typescript = true,
-    zig = true,
-  },
+  enable = default_enable,
 })
 
 local function collect_langs(parser)
@@ -52,16 +55,35 @@ local function assert_debug_header()
   vim.api.nvim_set_current_buf(original_buf)
 end
 
-local function assert_injected_node(file, filetype, text, expected_type)
+local function assert_health_command()
+  local original_buf = vim.api.nvim_get_current_buf()
+  vim.cmd("TSInjectHealth")
+  local health_buf = vim.api.nvim_get_current_buf()
+  local lines = vim.api.nvim_buf_get_lines(health_buf, 0, -1, false)
+  local text = table.concat(lines, "\n")
+  assert(text:find("TSInject Health", 1, true), "health header missing")
+  assert(text:find("generated hosts", 1, true), "health generated hosts section missing")
+  assert(text:find("python", 1, true), "health missing generated python host")
+  vim.api.nvim_set_current_buf(original_buf)
+end
+
+local function assert_buffer_loaded(file, filetype)
   vim.cmd("silent! %bwipeout!")
   local path = vim.fn.fnamemodify(file, ":p")
   local bufnr = vim.fn.bufadd(path)
   vim.fn.bufload(bufnr)
   vim.api.nvim_set_current_buf(bufnr)
   vim.bo[bufnr].filetype = filetype
+  return bufnr
+end
+
+local function assert_injected_node(file, filetype, text, expected_type, target_lang)
+  local bufnr = assert_buffer_loaded(file, filetype)
+  local lang = target_lang or "sql"
 
   pcall(vim.treesitter.language.add, filetype)
-  pcall(vim.treesitter.language.add, "sql")
+  pcall(vim.treesitter.language.add, lang)
+
   local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
   local row, col
 
@@ -74,7 +96,7 @@ local function assert_injected_node(file, filetype, text, expected_type)
     end
   end
 
-  assert(row ~= nil, "fixture SQL not found: " .. text)
+  assert(row ~= nil, "fixture text not found: " .. text)
 
   local parser = vim.treesitter.get_parser(bufnr, filetype)
   vim.treesitter.start(bufnr, filetype)
@@ -82,29 +104,90 @@ local function assert_injected_node(file, filetype, text, expected_type)
   parser:parse(true)
 
   local langs = collect_langs(parser)
-  assert(vim.tbl_contains(langs, "sql"), "sql language tree missing for " .. filetype)
+  assert(vim.tbl_contains(langs, lang), (lang .. " language tree missing for " .. filetype))
 
   local node = vim.treesitter.get_node({
     bufnr = bufnr,
     pos = { row, col },
     ignore_injections = false,
   })
-  assert(node ~= nil, "no node found at injected SQL position for " .. filetype)
+  assert(node ~= nil, "no node found at injected position for " .. filetype)
   assert(node:type() == expected_type, ("expected %s at injected position, got %s"):format(expected_type, node:type()))
 end
 
-local function assert_debug_command(file, filetype)
-  vim.cmd("silent! %bwipeout!")
-  local path = vim.fn.fnamemodify(file, ":p")
-  local bufnr = vim.fn.bufadd(path)
-  vim.fn.bufload(bufnr)
+local function assert_language_trees(file, filetype, expected_langs)
+  local bufnr = assert_buffer_loaded(file, filetype)
+
+  pcall(vim.treesitter.language.add, filetype)
+  for _, lang in ipairs(expected_langs) do
+    pcall(vim.treesitter.language.add, lang)
+  end
+
+  local parser = vim.treesitter.get_parser(bufnr, filetype)
+  vim.treesitter.start(bufnr, filetype)
+  parser:parse(true)
+  parser:parse(true)
+
+  local langs = collect_langs(parser)
+  for _, lang in ipairs(expected_langs) do
+    assert(vim.tbl_contains(langs, lang), ("language tree missing for %s in %s"):format(lang, filetype))
+  end
+end
+
+local function assert_reload_command()
+  local opts = require("ts_inject").setup({
+    enable = {
+      python = true,
+    },
+    rules = {
+      python = {
+        { kind = "call", fn = { "run_sql" }, lang = "sql" },
+      },
+    },
+  })
+  assert(opts.rules ~= nil, "custom rules were not stored")
+
+  vim.cmd("TSInjectReload")
+
+  local bufnr = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_set_current_buf(bufnr)
-  vim.bo[bufnr].filetype = filetype
+  vim.bo[bufnr].filetype = "python"
+  vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, {
+    "def run(cursor):",
+    '  cursor.run_sql("SELECT id FROM users")',
+  })
+
+  pcall(vim.treesitter.language.add, "python")
+  pcall(vim.treesitter.language.add, "sql")
+
+  local parser = vim.treesitter.get_parser(bufnr, "python")
+  vim.treesitter.start(bufnr, "python")
+  parser:parse(true)
+  parser:parse(true)
+
+  local node = vim.treesitter.get_node({
+    bufnr = bufnr,
+    pos = { 1, 18 },
+    ignore_injections = false,
+  })
+  assert(node ~= nil, "reload test found no node")
+  assert(node:type() == "keyword_select", ("reload rule did not inject custom SQL, got %s"):format(node:type()))
+
+  require("ts_inject").setup({
+    enable = default_enable,
+  })
+end
+
+local function assert_debug_command(file, filetype)
+  assert_buffer_loaded(file, filetype)
   assert_debug_header()
 end
 
 assert_debug_command("tests/fixtures/basic.go", "go")
+assert_health_command()
+assert_reload_command()
 
+assert_language_trees("tests/fixtures/basic.sh", "bash", { "sql", "python", "lua", "javascript", "typescript" })
 assert_injected_node("tests/fixtures/basic.c", "c", "UPDATE users", "keyword_update")
 assert_injected_node("tests/fixtures/basic.c", "c", "INSERT INTO users (email, status)", "keyword_insert")
 assert_injected_node("tests/fixtures/basic.c", "c", "WITH recent_users AS (", "keyword_with")
@@ -161,7 +244,12 @@ assert_injected_node("tests/fixtures/basic.php", "php", "DELETE FROM users", "ke
 assert_injected_node("tests/fixtures/basic.php", "php", "ALTER TABLE audit_logs", "keyword_alter")
 assert_injected_node("tests/fixtures/basic.py", "python", "CREATE TABLE users (", "keyword_create")
 assert_injected_node("tests/fixtures/basic.py", "python", "DELETE FROM users", "keyword_delete")
-assert_injected_node("tests/fixtures/basic.rb", "ruby", "SELECT id, email FROM users WHERE active = true", "keyword_select")
+assert_injected_node(
+  "tests/fixtures/basic.rb",
+  "ruby",
+  "SELECT id, email FROM users WHERE active = true",
+  "keyword_select"
+)
 assert_injected_node("tests/fixtures/basic.rb", "ruby", "CREATE TABLE users (", "keyword_create")
 assert_injected_node("tests/fixtures/basic.rb", "ruby", "GROUP BY status", "keyword_group")
 assert_injected_node("tests/fixtures/basic.rb", "ruby", "UPDATE users", "keyword_update")
@@ -170,7 +258,12 @@ assert_injected_node("tests/fixtures/basic.rb", "ruby", "WITH recent_users AS ("
 assert_injected_node("tests/fixtures/basic.rb", "ruby", "ALTER TABLE users", "keyword_alter")
 assert_injected_node("tests/fixtures/basic.rs", "rust", "CREATE TABLE users (", "keyword_create")
 assert_injected_node("tests/fixtures/basic.rs", "rust", "INSERT INTO users (email)", "keyword_insert")
-assert_injected_node("tests/fixtures/basic.scala", "scala", "SELECT id, email FROM users WHERE active = true", "keyword_select")
+assert_injected_node(
+  "tests/fixtures/basic.scala",
+  "scala",
+  "SELECT id, email FROM users WHERE active = true",
+  "keyword_select"
+)
 assert_injected_node("tests/fixtures/basic.scala", "scala", "CREATE TABLE users (", "keyword_create")
 assert_injected_node("tests/fixtures/basic.scala", "scala", "GROUP BY status", "keyword_group")
 assert_injected_node("tests/fixtures/basic.scala", "scala", "UPDATE users", "keyword_update")
@@ -178,7 +271,12 @@ assert_injected_node("tests/fixtures/basic.scala", "scala", "INSERT INTO users (
 assert_injected_node("tests/fixtures/basic.scala", "scala", "WITH recent_users AS (", "keyword_with")
 assert_injected_node("tests/fixtures/basic.scala", "scala", "ALTER TABLE users", "keyword_alter")
 assert_injected_node("tests/fixtures/basic.ts", "typescript", "UPDATE users", "keyword_update")
-assert_injected_node("tests/fixtures/basic.ts", "typescript", "CREATE TABLE IF NOT EXISTS audit_logs (", "keyword_create")
+assert_injected_node(
+  "tests/fixtures/basic.ts",
+  "typescript",
+  "CREATE TABLE IF NOT EXISTS audit_logs (",
+  "keyword_create"
+)
 assert_injected_node("tests/fixtures/basic.ts", "typescript", "WITH recent_users AS (", "keyword_with")
 assert_injected_node("tests/fixtures/basic.zig", "zig", "SELECT id, email", "keyword_select")
 assert_injected_node("tests/fixtures/basic.zig", "zig", "CREATE TABLE audit_logs (", "keyword_create")
