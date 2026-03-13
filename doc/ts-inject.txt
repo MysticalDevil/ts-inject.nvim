@@ -57,7 +57,10 @@ Options:
     },
     rules = {
       python = {
-        { kind = "call", fn = { "run_sql" }, lang = "sql" },
+        builtin = false,
+        items = {
+          { kind = "call", fn = { "run_sql" }, lang = "sql" },
+        },
       },
     },
   })
@@ -95,6 +98,7 @@ Generated hosts:
   - javascript
   - typescript
   - lua
+  - ruby
 
 Experimental `rules` currently support:
   - `var_suffix`
@@ -102,7 +106,8 @@ Experimental `rules` currently support:
 
 The experimental `rules` table currently applies only to `python`,
 `javascript`, and `typescript`. It is additive only for now. Built-in rules
-stay enabled and there is no stable precedence or disable model yet.
+stay enabled by default, though configurable generated hosts can set
+`builtin = false`. There is no stable precedence or partial disable model yet.
 
 Plain single-line C string assignments are intentionally left as normal
 strings for now. Plain regular C++ string literals are also currently left as
@@ -195,7 +200,8 @@ Supported values:
   options.
 
 :TSInjectHealth
-  Show enabled hosts, static vs generated query paths, parser availability,
-  and runtime warnings.
+  Show enabled hosts, static vs generated query paths, generated query-file
+  presence, parser availability, per-host builtin/user rule counts, and
+  runtime warnings.
 
 vim:tw=78:ts=8:noet:ft=help:norl:

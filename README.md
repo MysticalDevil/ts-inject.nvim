@@ -41,7 +41,10 @@ require("ts_inject").setup({
   },
   rules = {
     python = {
-      { kind = "call", fn = { "run_sql" }, lang = "sql" },
+      builtin = false,
+      items = {
+        { kind = "call", fn = { "run_sql" }, lang = "sql" },
+      },
     },
   },
 })
@@ -54,7 +57,7 @@ Nothing is enabled by default.
 Current main keeps the `0.1` compatibility path while adding `0.2` features:
 
 - static runtime-installed queries for most hosts
-- generated runtime queries for `python`, `javascript`, `typescript`, and `lua`
+- generated runtime queries for `python`, `javascript`, `typescript`, `lua`, and `ruby`
 - experimental additive `rules` support for `python`, `javascript`, and `typescript`
 - `:TSInjectDebug`, `:TSInjectReload`, and `:TSInjectHealth`
 - built-in delimiter-driven shell heredoc injections for `bash`
@@ -107,6 +110,7 @@ Current generated hosts:
 - `javascript`
 - `typescript`
 - `lua`
+- `ruby`
 
 Only `python`, `javascript`, and `typescript` currently accept experimental
 additive rules in `setup({ rules = { ... } })`.
@@ -118,8 +122,8 @@ Supported experimental rule kinds:
 
 Current limits:
 
-- built-in rules stay enabled
-- user rules are additive only
+- built-in rules stay enabled unless a configurable generated host sets `builtin = false`
+- user rules are additive by default
 - no precedence / disable system yet
 - no stable API guarantee yet
 
@@ -177,6 +181,8 @@ The debug and health views report:
 - nested language trees
 - enabled hosts
 - static vs generated hosts
+- generated query file presence
+- builtin and user rule counts for generated hosts
 - runtime warnings
 
 ## Verification
