@@ -3,6 +3,7 @@ local M = {}
 local builders = {
   python = require("ts_inject.host.python"),
   javascript = require("ts_inject.host.ecmascript"),
+  lua = require("ts_inject.host.lua"),
   typescript = require("ts_inject.host.ecmascript"),
 }
 

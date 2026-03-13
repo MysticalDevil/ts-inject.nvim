@@ -10,8 +10,8 @@ local defaults = {
   rules = {},
 }
 
-local function generated_hosts()
-  return query_store.generated_languages()
+local function configurable_generated_hosts()
+  return query_store.configurable_generated_languages()
 end
 
 local function normalize_enable(enable)
@@ -35,10 +35,20 @@ function M.normalize(opts)
   normalized.rules = normalized.rules or {}
   normalized.host_rules = {}
 
-  local generated = generated_hosts()
+  local generated = query_store.generated_languages()
+  local configurable = configurable_generated_hosts()
   for host in pairs(generated) do
     local host_rules = builtin.rules_for(host)
-    local user_rules, user_warnings = rules.normalize_user_rules(host, normalized.rules[host] or {})
+    local user_rules = {}
+    local user_warnings = {}
+
+    if configurable[host] then
+      user_rules, user_warnings = rules.normalize_user_rules(host, normalized.rules[host] or {})
+    elseif normalized.rules[host] and not vim.tbl_isempty(normalized.rules[host]) then
+      user_warnings = {
+        "experimental rules are not supported for this generated host yet",
+      }
+    end
 
     vim.list_extend(host_rules, user_rules)
     normalized.host_rules[host] = host_rules

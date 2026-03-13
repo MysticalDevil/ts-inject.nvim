@@ -234,6 +234,7 @@ assert_injected_node("tests/fixtures/basic.lua", "lua", "SELECT id, email", "key
 assert_injected_node("tests/fixtures/basic.lua", "lua", "CREATE TABLE users (", "keyword_create")
 assert_injected_node("tests/fixtures/basic.lua", "lua", "WITH recent_users AS (", "keyword_with")
 assert_injected_node("tests/fixtures/basic.lua", "lua", "INSERT INTO users (email, status)", "keyword_insert")
+assert_injected_node("tests/fixtures/basic.lua", "lua", "UPDATE users SET status = '%s'", "keyword_update")
 assert_injected_node("tests/fixtures/basic.php", "php", "SELECT id, email", "keyword_select")
 assert_injected_node("tests/fixtures/basic.php", "php", "UPDATE users", "keyword_update")
 assert_injected_node("tests/fixtures/basic.php", "php", "INSERT INTO users (email, status)", "keyword_insert")

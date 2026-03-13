@@ -50,6 +50,32 @@ local builtin = {
       source = "builtin",
     },
   },
+  lua = {
+    {
+      kind = "name_pattern",
+      lang = "sql",
+      pattern = "^[%a_][%w_]*_?[Ss][Qq][Ll]$",
+      source = "builtin",
+    },
+    {
+      kind = "name_format",
+      lang = "sql",
+      pattern = "^[%a_][%w_]*_?[Ss][Qq][Ll]$",
+      source = "builtin",
+    },
+    {
+      kind = "call",
+      lang = "sql",
+      fn = { "query", "execute", "exec", "prepare" },
+      source = "builtin",
+    },
+    {
+      kind = "call_format",
+      lang = "sql",
+      fn = { "query", "execute", "exec", "prepare" },
+      source = "builtin",
+    },
+  },
   typescript = {
     {
       kind = "name_pattern",
