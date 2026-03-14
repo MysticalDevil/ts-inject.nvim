@@ -5,10 +5,11 @@ CONTENTS                                                      *ts-inject*
 
 1. Introduction ................................................ |ts-inject-intro|
 2. Installation ........................................ |ts-inject-installation|
-3. Setup ........................................................ |ts-inject-setup|
-4. Host Support .......................................... |ts-inject-support|
-5. Verification ...................................... |ts-inject-verification|
-6. Commands .................................................. |ts-inject-commands|
+3. Important Notes ...................................... |ts-inject-notes|
+4. Setup ........................................................ |ts-inject-setup|
+5. Host Support .......................................... |ts-inject-support|
+6. Verification ...................................... |ts-inject-verification|
+7. Commands .................................................. |ts-inject-commands|
 
 ==============================================================================
 1. Introduction                                              *ts-inject-intro*
@@ -74,21 +75,57 @@ Requirements:
 `vim.pack` is currently experimental upstream.
 
 ==============================================================================
-3. Setup                                                      *ts-inject-setup*
+3. Important Notes                                            *ts-inject-notes*
+
+Read before debugging missing highlights:
+
+  - load `ts-inject.nvim` before opening target buffers
+  - avoid lazy-loading via late events like `VeryLazy`
+  - recommended plugin-spec setting: `lazy = false`
+
+Some LSP servers' semantic tokens can visually override injected SQL
+highlighting. If SQL highlighting disappears after LSP attach, disable
+semantic tokens for that server.
+
+Example (`gopls`):
+
+>
+  gopls = {
+    settings = {
+      gopls = {
+        semanticTokens = false,
+      },
+    },
+  }
+<
+
+Current C / C++ constraints:
+
+For `c`:
+
+>
+  const char *summary_sql = "  SELECT status \
+    FROM users \
+    ORDER BY status";
+<
+
+For `cpp`:
+
+>
+  const char *schema_sql = R"sql(  CREATE TABLE audit_logs (
+    id INTEGER PRIMARY KEY,
+    message TEXT NOT NULL
+  ))sql";
+<
+
+==============================================================================
+4. Setup                                                      *ts-inject-setup*
 
 >
   require("ts_inject").setup()
 <
 
 No host-language injections are enabled by default.
-
-Load-order requirement:
-  - load `ts-inject.nvim` before opening target buffers
-  - avoid lazy-loading via late events like `VeryLazy`
-  - recommended plugin-spec setting: `lazy = false`
-
-If the plugin loads after Tree-sitter has already parsed a buffer, injections
-may not appear until reload/reopen.
 
 Options:
 
@@ -176,12 +213,6 @@ Current built-in hosts:
   - typescript
   - zig
 
-For `c` and `cpp`, SQL injection is currently limited to explicit database API
-call sites like `sqlite3_exec`, `sqlite3_prepare_v2`, `PQexec`, and
-`PQprepare`, plus `*_sql` declarations. `c` only supports backslash-continued
-multiline declarations for now. `cpp` currently supports raw string
-declarations and raw string call arguments.
-
 Generated hosts:
   - python
   - javascript
@@ -210,11 +241,8 @@ Plain single-line C string assignments are intentionally left as normal
 strings for now. Plain regular C++ string literals are also currently left as
 normal strings.
 
-If SQL injection highlighting disappears after `gopls` attaches, disable
-`gopls` semantic tokens in your LSP configuration.
-
 ==============================================================================
-4. Host Support                                            *ts-inject-support*
+5. Host Support                                            *ts-inject-support*
 
 Current main-branch support keeps the static `0.1` path while introducing a
 small generated-query `0.2` path.
@@ -249,7 +277,7 @@ Host notes:
   - zig: Zig-style `...Sql`, multiline literals, direct DB call-site strings
 
 ==============================================================================
-5. Verification                                      *ts-inject-verification*
+6. Verification                                      *ts-inject-verification*
 
 Smoke test:
 
@@ -261,32 +289,8 @@ Smoke test:
     --headless -u NONE -i NONE -n -l tests/smoke.lua
 <
 
-Interactive local examples:
-
->
-  ./tmp/verify-nvim-mini.sh --lang scala
-<
-
-Supported values:
-  - bash
-  - c
-  - cpp
-  - csharp
-  - go
-  - java
-  - javascript
-  - kotlin
-  - lua
-  - php
-  - python
-  - ruby
-  - scala
-  - rust
-  - typescript
-  - zig
-
 ==============================================================================
-6. Commands                                                *ts-inject-commands*
+7. Commands                                                *ts-inject-commands*
 
 :TSInjectDebug [lang]
   Show parser, query, capture, node, and language-tree information for the

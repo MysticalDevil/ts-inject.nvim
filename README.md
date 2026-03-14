@@ -57,6 +57,46 @@ require("ts_inject").setup({
 
 `vim.pack` is still marked experimental upstream, but suitable for daily use.
 
+## Important Notes
+
+- Load `ts-inject.nvim` before opening target buffers.
+  - Avoid late lazy-loading events like `VeryLazy`.
+  - Recommended plugin-spec setting: `lazy = false`.
+- Some LSP servers' semantic tokens can visually override injected SQL
+  highlighting. If SQL highlighting seems missing after LSP attach, disable
+  semantic tokens for that server.
+
+Example (`gopls`):
+
+```lua
+gopls = {
+  settings = {
+    gopls = {
+      semanticTokens = false,
+    },
+  },
+}
+```
+
+Current C / C++ constraints:
+
+For `c`:
+
+```c
+const char *summary_sql = "  SELECT status \
+  FROM users \
+  ORDER BY status";
+```
+
+For `cpp`:
+
+```cpp
+const char *schema_sql = R"sql(  CREATE TABLE audit_logs (
+  id INTEGER PRIMARY KEY,
+  message TEXT NOT NULL
+))sql";
+```
+
 ## Setup
 
 Full example:
@@ -98,15 +138,6 @@ require("ts_inject").setup({
 ```
 
 Nothing is enabled by default.
-
-Load order requirement:
-
-- load `ts-inject.nvim` before opening target buffers
-- avoid lazy-loading it with events like `VeryLazy`
-- recommended plugin-spec setting: `lazy = false`
-
-If `ts-inject` loads after a buffer already started Tree-sitter parsing, SQL
-injections may not appear until you reload/reopen.
 
 `rules` supports two forms for configurable generated hosts:
 
@@ -218,25 +249,6 @@ Current limits:
 - invalid `rules` entries are ignored with runtime warnings
 - invalid `query_mode` entries are ignored with runtime warnings
 
-### Current C / C++ Constraints
-
-For `c`:
-
-```c
-const char *summary_sql = "  SELECT status \
-  FROM users \
-  ORDER BY status";
-```
-
-For `cpp`:
-
-```cpp
-const char *schema_sql = R"sql(  CREATE TABLE audit_logs (
-  id INTEGER PRIMARY KEY,
-  message TEXT NOT NULL
-))sql";
-```
-
 ## Debugging
 
 Inspect the current buffer:
@@ -299,56 +311,4 @@ env XDG_DATA_HOME=./tmp/test-data \
   XDG_CACHE_HOME=./tmp/test-cache \
   /home/omega/.local/share/mise/installs/neovim/nightly/bin/nvim \
   --headless -u NONE -i NONE -n -l tests/smoke.lua
-```
-
-### Local example projects
-
-The ignored example projects under `tmp/` use standard layouts where practical.
-
-Open one with:
-
-```sh
-./tmp/verify-nvim-mini.sh --lang bash
-```
-
-Supported values:
-
-- `bash`
-- `c`
-- `cpp`
-- `csharp`
-- `go`
-- `java`
-- `javascript`
-- `kotlin`
-- `lua`
-- `php`
-- `python`
-- `ruby`
-- `scala`
-- `rust`
-- `typescript`
-- `zig`
-
-## LSP Notes
-
-If SQL injection highlighting disappears after `gopls` attaches, disable
-`gopls` semantic tokens in your LSP config so Tree-sitter injection highlighting
-stays visible.
-
-```lua
-gopls = {
-  settings = {
-    gopls = {
-      semanticTokens = false,
-    },
-  },
-}
-```
-
-## Tooling
-
-```sh
-stylua --check lua plugin
-selene lua plugin
 ```
