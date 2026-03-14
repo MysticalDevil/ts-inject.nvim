@@ -8,8 +8,7 @@ CONTENTS                                                      *ts-inject*
 3. Important Notes ...................................... |ts-inject-notes|
 4. Setup ........................................................ |ts-inject-setup|
 5. Host Support .......................................... |ts-inject-support|
-6. Verification ...................................... |ts-inject-verification|
-7. Commands .................................................. |ts-inject-commands|
+6. Commands .................................................. |ts-inject-commands|
 
 ==============================================================================
 1. Introduction                                              *ts-inject-intro*
@@ -277,20 +276,7 @@ Host notes:
   - zig: Zig-style `...Sql`, multiline literals, direct DB call-site strings
 
 ==============================================================================
-6. Verification                                      *ts-inject-verification*
-
-Smoke test:
-
->
-  env XDG_DATA_HOME=./tmp/test-data \
-    XDG_STATE_HOME=./tmp/test-state \
-    XDG_CACHE_HOME=./tmp/test-cache \
-    /home/omega/.local/share/mise/installs/neovim/nightly/bin/nvim \
-    --headless -u NONE -i NONE -n -l tests/smoke.lua
-<
-
-==============================================================================
-7. Commands                                                *ts-inject-commands*
+6. Commands                                                *ts-inject-commands*
 
 :TSInjectDebug [lang]
   Show parser, query, capture, node, and language-tree information for the
