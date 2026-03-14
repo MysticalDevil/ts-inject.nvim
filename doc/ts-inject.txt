@@ -4,10 +4,11 @@
 CONTENTS                                                      *ts-inject*
 
 1. Introduction ................................................ |ts-inject-intro|
-2. Setup ........................................................ |ts-inject-setup|
-3. Host Support .......................................... |ts-inject-support|
-4. Verification ...................................... |ts-inject-verification|
-5. Commands .................................................. |ts-inject-commands|
+2. Installation ........................................ |ts-inject-installation|
+3. Setup ........................................................ |ts-inject-setup|
+4. Host Support .......................................... |ts-inject-support|
+5. Verification ...................................... |ts-inject-verification|
+6. Commands .................................................. |ts-inject-commands|
 
 ==============================================================================
 1. Introduction                                              *ts-inject-intro*
@@ -24,7 +25,56 @@ Current main-branch scope:
   - explicit opt-in in |ts-inject-setup|
 
 ==============================================================================
-2. Setup                                                      *ts-inject-setup*
+2. Installation                                        *ts-inject-installation*
+
+Requirements:
+
+  - Neovim 0.11+
+  - Tree-sitter `sql` parser
+  - Tree-sitter host parsers for enabled languages
+
+`lazy.nvim`:
+
+>
+  {
+    "MysticalDevil/ts-inject.nvim",
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    lazy = false, -- load before opening target buffers
+    opts = {
+      enable = {
+        bash = true,
+        go = true,
+        python = true,
+        rust = true,
+        zig = true,
+      },
+    },
+  }
+<
+
+`vim.pack` (Neovim 0.12+):
+
+>
+  vim.pack.add({
+    "https://github.com/nvim-treesitter/nvim-treesitter",
+    "https://github.com/MysticalDevil/ts-inject.nvim",
+  })
+
+  require("ts_inject").setup({
+    enable = {
+      bash = true,
+      go = true,
+      python = true,
+      rust = true,
+      zig = true,
+    },
+  })
+<
+
+`vim.pack` is currently experimental upstream.
+
+==============================================================================
+3. Setup                                                      *ts-inject-setup*
 
 >
   require("ts_inject").setup()
@@ -164,7 +214,7 @@ If SQL injection highlighting disappears after `gopls` attaches, disable
 `gopls` semantic tokens in your LSP configuration.
 
 ==============================================================================
-3. Host Support                                            *ts-inject-support*
+4. Host Support                                            *ts-inject-support*
 
 Current main-branch support keeps the static `0.1` path while introducing a
 small generated-query `0.2` path.
@@ -199,7 +249,7 @@ Host notes:
   - zig: Zig-style `...Sql`, multiline literals, direct DB call-site strings
 
 ==============================================================================
-4. Verification                                      *ts-inject-verification*
+5. Verification                                      *ts-inject-verification*
 
 Smoke test:
 
@@ -236,7 +286,7 @@ Supported values:
   - zig
 
 ==============================================================================
-5. Commands                                                *ts-inject-commands*
+6. Commands                                                *ts-inject-commands*
 
 :TSInjectDebug [lang]
   Show parser, query, capture, node, and language-tree information for the

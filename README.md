@@ -9,7 +9,7 @@ Static and generated Tree-sitter injections for Neovim.
 
 The project favors stable, host-native heuristics over a generic rule engine.
 
-## Quick Start
+## Installation
 
 Requirements:
 
@@ -17,7 +17,49 @@ Requirements:
 - Tree-sitter `sql` parser
 - Tree-sitter host parsers for every language you enable
 
-Setup:
+### lazy.nvim
+
+```lua
+{
+  "MysticalDevil/ts-inject.nvim",
+  dependencies = { "nvim-treesitter/nvim-treesitter" },
+  lazy = false, -- load before opening target buffers
+  opts = {
+    enable = {
+      bash = true,
+      go = true,
+      python = true,
+      rust = true,
+      zig = true,
+    },
+  },
+}
+```
+
+### vim.pack (Neovim 0.12+)
+
+```lua
+vim.pack.add({
+  "https://github.com/nvim-treesitter/nvim-treesitter",
+  "https://github.com/MysticalDevil/ts-inject.nvim",
+})
+
+require("ts_inject").setup({
+  enable = {
+    bash = true,
+    go = true,
+    python = true,
+    rust = true,
+    zig = true,
+  },
+})
+```
+
+`vim.pack` is still marked experimental upstream, but suitable for daily use.
+
+## Setup
+
+Full example:
 
 ```lua
 require("ts_inject").setup({
