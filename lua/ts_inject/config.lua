@@ -15,6 +15,24 @@ local function configurable_generated_hosts()
   return query_store.configurable_generated_languages()
 end
 
+local function expand_host_rule(host, rule)
+  local out = { rule }
+
+  if host == "lua" then
+    if rule.kind == "name_pattern" then
+      local format_rule = vim.deepcopy(rule)
+      format_rule.kind = "name_format"
+      out[#out + 1] = format_rule
+    elseif rule.kind == "call" then
+      local format_rule = vim.deepcopy(rule)
+      format_rule.kind = "call_format"
+      out[#out + 1] = format_rule
+    end
+  end
+
+  return out
+end
+
 local function normalize_enable(enable)
   local normalized = {}
   local supported = query_store.supported_languages()
@@ -97,7 +115,9 @@ function M.normalize(opts)
     if rule_config.builtin then
       vim.list_extend(host_rules, builtin_rules)
     end
-    vim.list_extend(host_rules, rule_config.items or {})
+    for _, rule in ipairs(rule_config.items or {}) do
+      vim.list_extend(host_rules, expand_host_rule(host, rule))
+    end
     normalized.host_rules[host] = host_rules
     normalized.rule_configs[host] = rule_config
 

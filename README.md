@@ -229,7 +229,7 @@ Current generated hosts:
 - `lua`
 - `ruby`
 
-Only `python`, `javascript`, and `typescript` currently accept experimental
+`python`, `javascript`, `typescript`, `lua`, and `ruby` accept experimental
 additive rules in `setup({ rules = { ... } })`.
 
 `scm/` now represents static-runtime hosts only. Generated-host snapshots live

@@ -40,6 +40,14 @@ local function name_pattern_for(host, suffix)
     return ("^[%%a_][%%w_]*%s$"):format(escaped)
   end
 
+  if host == "lua" then
+    return ("^[%%a_][%%w_]*%s$"):format(escaped)
+  end
+
+  if host == "ruby" then
+    return ("^[%%a_][%%w_]*%s$"):format(escaped)
+  end
+
   if host == "javascript" or host == "typescript" then
     return ("^[%%a$][%%w_$]*%s$"):format(escaped)
   end

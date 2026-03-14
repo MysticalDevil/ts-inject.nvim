@@ -34,6 +34,32 @@ local function render_name_pattern(rule)
   (#set! injection.language %s)
 )
 ]]):format(q(rule.pattern), q(rule.lang)),
+    ([[
+(
+  (_
+    (assignment
+      left: (identifier) @_name
+      right: (heredoc_beginning))
+    .
+    (heredoc_body
+      (heredoc_content) @injection.content))
+  (#lua-match? @_name %s)
+  (#set! injection.language %s)
+)
+]]):format(q(rule.pattern), q(rule.lang)),
+    ([[
+(
+  (_
+    (assignment
+      left: (constant) @_name
+      right: (heredoc_beginning))
+    .
+    (heredoc_body
+      (heredoc_content) @injection.content))
+  (#lua-match? @_name %s)
+  (#set! injection.language %s)
+)
+]]):format(q(rule.pattern), q(rule.lang)),
   }
 end
 
@@ -60,6 +86,35 @@ local function render_call(rule)
     arguments: (argument_list
       (string
         (string_content) @injection.content)))
+  (#any-of? @_method %s)
+  (#set! injection.language %s)
+)
+]]):format(fn, q(rule.lang)),
+    ([[
+(
+  (_
+    (call
+      method: (identifier) @_method
+      arguments: (argument_list
+        (heredoc_beginning)))
+    .
+    (heredoc_body
+      (heredoc_content) @injection.content))
+  (#any-of? @_method %s)
+  (#set! injection.language %s)
+)
+]]):format(fn, q(rule.lang)),
+    ([[
+(
+  (_
+    (call
+      receiver: (_)
+      method: (identifier) @_method
+      arguments: (argument_list
+        (heredoc_beginning)))
+    .
+    (heredoc_body
+      (heredoc_content) @injection.content))
   (#any-of? @_method %s)
   (#set! injection.language %s)
 )

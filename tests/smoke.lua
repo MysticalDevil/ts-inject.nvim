@@ -196,6 +196,43 @@ local function assert_injected_node(file, filetype, text, expected_type, target_
   assert(node:type() == expected_type, ("expected %s at injected position, got %s"):format(expected_type, node:type()))
 end
 
+local function assert_injected_in_lines(filetype, lines, text, expected_type, target_lang)
+  local bufnr = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_set_current_buf(bufnr)
+  vim.bo[bufnr].filetype = filetype
+  vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, lines)
+
+  local lang = target_lang or "sql"
+  pcall(vim.treesitter.language.add, filetype)
+  pcall(vim.treesitter.language.add, lang)
+
+  local row, col
+  for i, line in ipairs(lines) do
+    local start_col = line:find(text, 1, true)
+    if start_col then
+      row = i - 1
+      col = start_col - 1
+      break
+    end
+  end
+
+  assert(row ~= nil, "fixture text not found: " .. text)
+
+  local parser = vim.treesitter.get_parser(bufnr, filetype)
+  vim.treesitter.start(bufnr, filetype)
+  parser:parse(true)
+  parser:parse(true)
+
+  local node = vim.treesitter.get_node({
+    bufnr = bufnr,
+    pos = { row, col },
+    ignore_injections = false,
+  })
+
+  assert(node ~= nil, "no node found at injected position for " .. filetype)
+  assert(node:type() == expected_type, ("expected %s at injected position, got %s"):format(expected_type, node:type()))
+end
+
 local function assert_language_trees(file, filetype, expected_langs)
   local bufnr = assert_buffer_loaded(file, filetype)
 
@@ -293,6 +330,83 @@ local function assert_reload_command()
   })
 end
 
+local function assert_generated_lua_ruby_rules()
+  require("ts_inject").setup({
+    enable = {
+      lua = true,
+      ruby = true,
+    },
+    rules = {
+      lua = {
+        builtin = false,
+        items = {
+          { kind = "var_suffix", suffix = "_qry", lang = "sql" },
+          { kind = "call", fn = { "run_sql" }, lang = "sql" },
+        },
+      },
+      ruby = {
+        builtin = false,
+        items = {
+          { kind = "var_suffix", suffix = "_qry", lang = "sql" },
+          { kind = "call", fn = { "run_sql" }, lang = "sql" },
+        },
+      },
+    },
+  })
+
+  vim.cmd("TSInjectReload")
+
+  assert_injected_in_lines("lua", {
+    "report_qry = [[",
+    "  SELECT id, email FROM users",
+    "]]",
+    "local db = {}",
+    "function db:run_sql(sql) return sql end",
+    'db:run_sql(("UPDATE users SET status = \'%s\' WHERE email = \'%s\'"):format("active", "alice@example.com"))',
+  }, "SELECT id, email FROM users", "keyword_select")
+  assert_injected_in_lines("lua", {
+    "report_qry = [[",
+    "  SELECT id, email FROM users",
+    "]]",
+    "local db = {}",
+    "function db:run_sql(sql) return sql end",
+    'db:run_sql(("UPDATE users SET status = \'%s\' WHERE email = \'%s\'"):format("active", "alice@example.com"))',
+  }, "UPDATE users SET status", "keyword_update")
+
+  assert_injected_in_lines("ruby", {
+    "report_qry = <<~SQL",
+    "  SELECT id, email FROM users",
+    "  WHERE active = true",
+    "SQL",
+    "DB.run_sql(<<~SQL)",
+    "  UPDATE users",
+    "  SET status = 'active'",
+    "  WHERE email = 'alice@example.com'",
+    "SQL",
+  }, "SELECT id, email FROM users", "keyword_select")
+  assert_injected_in_lines("ruby", {
+    "report_qry = <<~SQL",
+    "  SELECT id, email FROM users",
+    "  WHERE active = true",
+    "SQL",
+    "DB.run_sql(<<~SQL)",
+    "  UPDATE users",
+    "  SET status = 'active'",
+    "  WHERE email = 'alice@example.com'",
+    "SQL",
+  }, "UPDATE users", "keyword_update")
+
+  vim.cmd("TSInjectHealth")
+  local report = table.concat(vim.api.nvim_buf_get_lines(vim.api.nvim_get_current_buf(), 0, -1, false), "\n")
+  assert(report:find("lua %(generated, builtin=off", 1) ~= nil, "health missing builtin=off status for lua")
+  assert(report:find("ruby %(generated, builtin=off", 1) ~= nil, "health missing builtin=off status for ruby")
+  assert(report:find("user_rules=2", 1, true) ~= nil, "health missing user rule count for lua/ruby")
+
+  require("ts_inject").setup({
+    enable = default_enable,
+  })
+end
+
 local function assert_debug_command(file, filetype)
   assert_buffer_loaded(file, filetype)
   assert_debug_header()
@@ -301,6 +415,7 @@ end
 assert_debug_command("tests/fixtures/basic.go", "go")
 assert_health_command()
 assert_reload_command()
+assert_generated_lua_ruby_rules()
 assert_legacy_static_mode()
 
 assert_language_trees("tests/fixtures/basic.sh", "bash", { "sql", "python", "lua", "javascript", "typescript" })

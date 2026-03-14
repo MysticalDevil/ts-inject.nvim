@@ -41,7 +41,9 @@ end
 function M.configurable_generated_languages()
   return {
     javascript = true,
+    lua = true,
     python = true,
+    ruby = true,
     typescript = true,
   }
 end
