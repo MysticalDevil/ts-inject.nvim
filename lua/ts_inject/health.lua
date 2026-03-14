@@ -33,6 +33,7 @@ function M.collect()
   local enabled = {}
   local generated = {}
   local static = {}
+  local legacy_static = {}
   local host_status = {}
   local generated_paths = {}
 
@@ -54,6 +55,11 @@ function M.collect()
       generated_paths[#generated_paths + 1] = ("%s: %s (%s)"):format(host, status.path or "(none)", present)
     end
 
+    if status.mode == "static" and status.generated_capable then
+      status_parts[#status_parts + 1] = "legacy_static=on"
+      legacy_static[#legacy_static + 1] = host
+    end
+
     status_parts[#status_parts + 1] = status.error and ("error: " .. status.error) or "ok"
     host_status[#host_status + 1] = ("%s (%s)"):format(host, table.concat(status_parts, ", "))
     if status.mode == "generated" then
@@ -67,11 +73,13 @@ function M.collect()
   table.sort(generated)
   table.sort(generated_paths)
   table.sort(static)
+  table.sort(legacy_static)
   table.sort(host_status)
 
   append_section(lines, "enabled hosts", enabled)
   append_section(lines, "generated hosts", generated)
   append_section(lines, "static hosts", static)
+  append_section(lines, "legacy static hosts", legacy_static)
   append_section(lines, "host status", host_status)
   append_section(lines, "generated query status", generated_paths)
 

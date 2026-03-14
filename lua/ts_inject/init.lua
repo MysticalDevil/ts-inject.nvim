@@ -8,6 +8,7 @@ local runtime = require("ts_inject.runtime")
 local defaults = {
   debug_command = "TSInjectDebug",
   enable = {},
+  query_mode = {},
   rules = {},
 }
 
@@ -33,7 +34,7 @@ end
 
 local function install_query(lang)
   local generated_hosts = query_store.generated_languages()
-  local mode = generated_hosts[lang] and "generated" or "static"
+  local mode = (state.opts.host_modes and state.opts.host_modes[lang]) or "static"
   local query
   local err
   local rule_config = state.opts.rule_configs and state.opts.rule_configs[lang] or nil
@@ -52,12 +53,13 @@ local function install_query(lang)
 
   state.runtime_state.hosts[lang] = {
     mode = mode,
+    generated_capable = generated_hosts[lang] == true,
     error = err,
     path = runtime.query_path(lang),
-    configurable_rules = rule_config and rule_config.configurable or false,
-    builtin_enabled = rule_config and rule_config.builtin or false,
-    builtin_rule_count = rule_config and rule_config.builtin_rule_count or 0,
-    user_rule_count = rule_config and rule_config.user_rule_count or 0,
+    configurable_rules = mode == "generated" and rule_config and rule_config.configurable or false,
+    builtin_enabled = mode == "generated" and rule_config and rule_config.builtin or false,
+    builtin_rule_count = mode == "generated" and rule_config and rule_config.builtin_rule_count or 0,
+    user_rule_count = mode == "generated" and rule_config and rule_config.user_rule_count or 0,
   }
 end
 

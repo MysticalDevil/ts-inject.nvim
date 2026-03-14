@@ -63,10 +63,89 @@ local function assert_health_command()
   local text = table.concat(lines, "\n")
   assert(text:find("TSInject Health", 1, true), "health header missing")
   assert(text:find("generated hosts", 1, true), "health generated hosts section missing")
+  assert(text:find("legacy static hosts", 1, true), "health legacy static hosts section missing")
   assert(text:find("python", 1, true), "health missing generated python host")
   assert(text:find("ruby", 1, true), "health missing generated ruby host")
   assert(text:find("generated query status", 1, true), "health generated query section missing")
   vim.api.nvim_set_current_buf(original_buf)
+end
+
+local function assert_legacy_static_mode()
+  require("ts_inject").setup({
+    enable = {
+      python = true,
+    },
+    query_mode = {
+      python = "static",
+    },
+    rules = {
+      python = {
+        builtin = false,
+        items = {
+          { kind = "call", fn = { "run_sql" }, lang = "sql" },
+        },
+      },
+    },
+  })
+
+  local custom_buf = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_set_current_buf(custom_buf)
+  vim.bo[custom_buf].filetype = "python"
+  vim.api.nvim_buf_set_lines(custom_buf, 0, -1, false, {
+    "def run(cursor):",
+    '  cursor.run_sql("SELECT id FROM users")',
+  })
+  pcall(vim.treesitter.language.add, "python")
+  pcall(vim.treesitter.language.add, "sql")
+  local custom_parser = vim.treesitter.get_parser(custom_buf, "python")
+  vim.treesitter.start(custom_buf, "python")
+  custom_parser:parse(true)
+  custom_parser:parse(true)
+  local custom_node = vim.treesitter.get_node({
+    bufnr = custom_buf,
+    pos = { 1, 18 },
+    ignore_injections = false,
+  })
+  assert(custom_node ~= nil, "legacy static test found no custom node")
+  assert(
+    custom_node:type() == "string_content",
+    ("legacy static mode should ignore generated custom rule, got %s"):format(custom_node:type())
+  )
+
+  local builtin_buf = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_set_current_buf(builtin_buf)
+  vim.bo[builtin_buf].filetype = "python"
+  vim.api.nvim_buf_set_lines(builtin_buf, 0, -1, false, {
+    "def run(cursor):",
+    '  cursor.execute("SELECT id FROM users")',
+  })
+  local builtin_parser = vim.treesitter.get_parser(builtin_buf, "python")
+  vim.treesitter.start(builtin_buf, "python")
+  builtin_parser:parse(true)
+  builtin_parser:parse(true)
+  local builtin_node = vim.treesitter.get_node({
+    bufnr = builtin_buf,
+    pos = { 1, 18 },
+    ignore_injections = false,
+  })
+  assert(builtin_node ~= nil, "legacy static test found no builtin node")
+  assert(
+    builtin_node:type() == "keyword_select",
+    ("legacy static mode should still use static builtin execute injection, got %s"):format(builtin_node:type())
+  )
+
+  vim.cmd("TSInjectHealth")
+  local report = table.concat(vim.api.nvim_buf_get_lines(vim.api.nvim_get_current_buf(), 0, -1, false), "\n")
+  assert(report:find("legacy static hosts", 1, true), "health missing legacy static section")
+  assert(report:find("python", 1, true), "health missing python legacy static entry")
+  assert(
+    report:find("static mode is legacy and not recommended", 1, true) ~= nil,
+    "health missing legacy static warning"
+  )
+
+  require("ts_inject").setup({
+    enable = default_enable,
+  })
 end
 
 local function assert_buffer_loaded(file, filetype)
@@ -222,6 +301,7 @@ end
 assert_debug_command("tests/fixtures/basic.go", "go")
 assert_health_command()
 assert_reload_command()
+assert_legacy_static_mode()
 
 assert_language_trees("tests/fixtures/basic.sh", "bash", { "sql", "python", "lua", "javascript", "typescript" })
 assert_injected_node("tests/fixtures/basic.c", "c", "UPDATE users", "keyword_update")
