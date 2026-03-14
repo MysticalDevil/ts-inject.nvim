@@ -239,6 +239,7 @@ Supported experimental rule kinds:
 
 - `var_suffix`
 - `call`
+- `template_tag` (currently for `javascript` and `typescript`)
 
 Current limits:
 

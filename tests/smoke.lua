@@ -417,6 +417,74 @@ local function assert_generated_lua_ruby_rules()
   })
 end
 
+local function assert_generated_template_tag_rules()
+  require("ts_inject").setup({
+    enable = {
+      javascript = true,
+      typescript = true,
+      python = true,
+    },
+    rules = {
+      javascript = {
+        builtin = false,
+        items = {
+          { kind = "template_tag", fn = { "runSql" }, lang = "sql" },
+        },
+      },
+      typescript = {
+        builtin = false,
+        items = {
+          { kind = "template_tag", fn = { "runSql" }, lang = "sql" },
+        },
+      },
+      python = {
+        items = {
+          { kind = "template_tag", fn = { "run_sql" }, lang = "sql" },
+        },
+      },
+    },
+  })
+
+  vim.cmd("TSInjectReload")
+
+  assert_injected_in_lines("javascript", {
+    "const db = { runSql(strings, ...values) { return [strings, values]; } };",
+    "db.runSql`",
+    "  SELECT id, email FROM users",
+    "  WHERE status = 'active'",
+    "`;",
+  }, "SELECT id, email FROM users", "keyword_select")
+
+  assert_injected_in_lines("typescript", {
+    "const db = { runSql(_strings: TemplateStringsArray, ..._values: unknown[]) { return []; } };",
+    "db.runSql`",
+    "  WITH recent_users AS (",
+    "    SELECT id, email FROM users",
+    "  )",
+    "  SELECT id, email FROM recent_users",
+    "`;",
+  }, "WITH recent_users AS (", "keyword_with")
+
+  vim.cmd("TSInjectHealth")
+  local report = table.concat(vim.api.nvim_buf_get_lines(vim.api.nvim_get_current_buf(), 0, -1, false), "\n")
+  assert(
+    report:find("python: template_tag rules are not supported for host python", 1, true) ~= nil,
+    "health missing unsupported template_tag warning for python"
+  )
+  assert(
+    report:find("javascript %(generated, builtin=off", 1) ~= nil,
+    "health missing builtin=off status for javascript"
+  )
+  assert(
+    report:find("typescript %(generated, builtin=off", 1) ~= nil,
+    "health missing builtin=off status for typescript"
+  )
+
+  require("ts_inject").setup({
+    enable = default_enable,
+  })
+end
+
 local function assert_debug_command(file, filetype)
   assert_buffer_loaded(file, filetype)
   assert_debug_header()
@@ -426,6 +494,7 @@ assert_debug_command("tests/fixtures/basic.go", "go")
 assert_health_command()
 assert_reload_command()
 assert_generated_lua_ruby_rules()
+assert_generated_template_tag_rules()
 assert_legacy_static_mode()
 
 assert_language_trees("tests/fixtures/basic.sh", "bash", { "sql", "python", "lua", "javascript", "typescript" })

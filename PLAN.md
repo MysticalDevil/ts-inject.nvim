@@ -146,6 +146,7 @@ generic DSL.
 - experimental `rules` only support:
   - `var_suffix`
   - `call`
+  - `template_tag` (for `javascript` and `typescript`)
 - experimental `rules` only apply to:
   - `python`
   - `javascript`

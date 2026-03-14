@@ -55,6 +55,10 @@ local function name_pattern_for(host, suffix)
   return nil
 end
 
+local function template_tag_supported(host)
+  return host == "javascript" or host == "typescript"
+end
+
 function M.normalize_user_rule(host, rule)
   if type(rule) ~= "table" then
     return nil, "rule must be a table"
@@ -91,6 +95,24 @@ function M.normalize_user_rule(host, rule)
 
     return {
       kind = "call",
+      lang = lang,
+      fn = fn,
+      source = "user",
+    }
+  end
+
+  if rule.kind == "template_tag" then
+    if not template_tag_supported(host) then
+      return nil, ("template_tag rules are not supported for host %s"):format(host)
+    end
+
+    local fn = normalize_fn_list(rule.fn)
+    if not fn then
+      return nil, "template_tag rules require fn as a string or non-empty list"
+    end
+
+    return {
+      kind = "template_tag",
       lang = lang,
       fn = fn,
       source = "user",
