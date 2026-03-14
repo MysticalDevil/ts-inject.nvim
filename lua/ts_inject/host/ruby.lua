@@ -122,6 +122,95 @@ local function render_call(rule)
   }
 end
 
+local function render_content_prefix(rule)
+  local blocks = {}
+
+  for _, pattern in ipairs(rule.patterns or {}) do
+    blocks[#blocks + 1] = ([[
+(
+  (assignment
+    left: (_)
+    right: (string
+      (string_content) @injection.content))
+  (#lua-match? @injection.content %s)
+  (#set! injection.language %s)
+)
+]]):format(q(pattern), q(rule.lang))
+
+    blocks[#blocks + 1] = ([[
+(
+  (_
+    (assignment
+      left: (_)
+      right: (heredoc_beginning))
+    .
+    (heredoc_body
+      (heredoc_content) @injection.content))
+  (#lua-match? @injection.content %s)
+  (#set! injection.language %s)
+)
+]]):format(q(pattern), q(rule.lang))
+
+    blocks[#blocks + 1] = ([[
+(
+  (call
+    method: (identifier)
+    arguments: (argument_list
+      (string
+        (string_content) @injection.content)))
+  (#lua-match? @injection.content %s)
+  (#set! injection.language %s)
+)
+]]):format(q(pattern), q(rule.lang))
+
+    blocks[#blocks + 1] = ([[
+(
+  (call
+    receiver: (_)
+    method: (identifier)
+    arguments: (argument_list
+      (string
+        (string_content) @injection.content)))
+  (#lua-match? @injection.content %s)
+  (#set! injection.language %s)
+)
+]]):format(q(pattern), q(rule.lang))
+
+    blocks[#blocks + 1] = ([[
+(
+  (_
+    (call
+      method: (identifier)
+      arguments: (argument_list
+        (heredoc_beginning)))
+    .
+    (heredoc_body
+      (heredoc_content) @injection.content))
+  (#lua-match? @injection.content %s)
+  (#set! injection.language %s)
+)
+]]):format(q(pattern), q(rule.lang))
+
+    blocks[#blocks + 1] = ([[
+(
+  (_
+    (call
+      receiver: (_)
+      method: (identifier)
+      arguments: (argument_list
+        (heredoc_beginning)))
+    .
+    (heredoc_body
+      (heredoc_content) @injection.content))
+  (#lua-match? @injection.content %s)
+  (#set! injection.language %s)
+)
+]]):format(q(pattern), q(rule.lang))
+  end
+
+  return blocks
+end
+
 function M.build(rules)
   local blocks = { "; extends" }
 
@@ -130,6 +219,8 @@ function M.build(rules)
 
     if rule.kind == "name_pattern" then
       rendered = render_name_pattern(rule)
+    elseif rule.kind == "content_prefix" then
+      rendered = render_content_prefix(rule)
     elseif rule.kind == "call" then
       rendered = render_call(rule)
     else

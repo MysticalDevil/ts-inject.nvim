@@ -147,12 +147,13 @@ generic DSL.
   - `var_suffix`
   - `call`
   - `template_tag` (for `javascript` and `typescript`)
+  - `content_prefix` (for `python`, `ruby`, and `lua`)
 - experimental `rules` only apply to:
   - `python`
   - `javascript`
   - `typescript`
-- `lua`
-- `ruby`
+  - `lua`
+  - `ruby`
 - configurable generated hosts can set `builtin = false`
 - generated-capable hosts can be forced to `static` via `query_mode.<host> = "static"` (legacy, not recommended)
 - there is still no per-rule precedence or partial builtin disable model

@@ -168,11 +168,11 @@ rules = {
 
 ## Current Main Branch
 
-Current main keeps the `0.1` compatibility path while adding `0.2` features:
+Current main keeps the `0.1` compatibility path while adding `0.2+` features:
 
 - static runtime-installed queries for most hosts
 - generated runtime queries for `python`, `javascript`, `typescript`, `lua`, and `ruby`
-- experimental additive `rules` support for `python`, `javascript`, and `typescript`
+- experimental additive `rules` support for `python`, `javascript`, `typescript`, `lua`, and `ruby`
 - `:TSInjectDebug`, `:TSInjectReload`, and `:TSInjectHealth`
 - built-in delimiter-driven shell heredoc injections for `bash`
 
@@ -240,6 +240,7 @@ Supported experimental rule kinds:
 - `var_suffix`
 - `call`
 - `template_tag` (currently for `javascript` and `typescript`)
+- `content_prefix` (currently for `python`, `ruby`, and `lua`)
 
 Current limits:
 

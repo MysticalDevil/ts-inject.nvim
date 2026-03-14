@@ -180,6 +180,84 @@ local function render_call_format(rule)
   }
 end
 
+local function render_content_prefix(rule)
+  local blocks = {}
+
+  for _, pattern in ipairs(rule.patterns or {}) do
+    blocks[#blocks + 1] = ([[
+(
+  (assignment_statement
+    (variable_list
+      (_))
+    (expression_list
+      (string
+        (string_content) @injection.content)))
+  (#lua-match? @injection.content %s)
+  (#set! injection.language %s)
+)
+]]):format(q(pattern), q(rule.lang))
+
+    blocks[#blocks + 1] = ([[
+(
+  (assignment_statement
+    (variable_list
+      (_))
+    (expression_list
+      (binary_expression
+        left: (string
+          (string_content) @injection.content)
+        right: (string
+          (string_content) @injection.content))))
+  (#any-lua-match? @injection.content %s)
+  (#set! injection.combined)
+  (#set! injection.language %s)
+)
+]]):format(q(pattern), q(rule.lang))
+
+    blocks[#blocks + 1] = ([[
+(
+  (function_call
+    name: %s
+    arguments: (arguments
+      "("
+      .
+      (string
+        (string_content) @injection.content)
+      . [
+        ","
+        ")"
+      ]))
+  (#lua-match? @injection.content %s)
+  (#set! injection.language %s)
+)
+]]):format(call_name_pattern(), q(pattern), q(rule.lang))
+
+    blocks[#blocks + 1] = ([[
+(
+  (function_call
+    name: %s
+    arguments: (arguments
+      "("
+      .
+      (binary_expression
+        left: (string
+          (string_content) @injection.content)
+        right: (string
+          (string_content) @injection.content))
+      . [
+        ","
+        ")"
+      ]))
+  (#any-lua-match? @injection.content %s)
+  (#set! injection.combined)
+  (#set! injection.language %s)
+)
+]]):format(call_name_pattern(), q(pattern), q(rule.lang))
+  end
+
+  return blocks
+end
+
 function M.build(rules)
   local blocks = { "; extends" }
 
@@ -194,6 +272,8 @@ function M.build(rules)
       rendered = render_call(rule)
     elseif rule.kind == "call_format" then
       rendered = render_call_format(rule)
+    elseif rule.kind == "content_prefix" then
+      rendered = render_content_prefix(rule)
     else
       return nil, ("unsupported lua rule kind: %s"):format(rule.kind)
     end

@@ -59,6 +59,29 @@ local function template_tag_supported(host)
   return host == "javascript" or host == "typescript"
 end
 
+local function content_prefix_supported(host)
+  return host == "python" or host == "ruby" or host == "lua"
+end
+
+local function normalize_pattern_list(patterns)
+  if type(patterns) ~= "table" or vim.tbl_isempty(patterns) then
+    return nil
+  end
+
+  local out = {}
+  for _, item in ipairs(patterns) do
+    if type(item) == "string" and item ~= "" then
+      out[#out + 1] = item
+    end
+  end
+
+  if vim.tbl_isempty(out) then
+    return nil
+  end
+
+  return out
+end
+
 function M.normalize_user_rule(host, rule)
   if type(rule) ~= "table" then
     return nil, "rule must be a table"
@@ -115,6 +138,24 @@ function M.normalize_user_rule(host, rule)
       kind = "template_tag",
       lang = lang,
       fn = fn,
+      source = "user",
+    }
+  end
+
+  if rule.kind == "content_prefix" then
+    if not content_prefix_supported(host) then
+      return nil, ("content_prefix rules are not supported for host %s"):format(host)
+    end
+
+    local patterns = normalize_pattern_list(rule.patterns)
+    if not patterns then
+      return nil, "content_prefix rules require patterns as a non-empty list"
+    end
+
+    return {
+      kind = "content_prefix",
+      lang = lang,
+      patterns = patterns,
       source = "user",
     }
   end

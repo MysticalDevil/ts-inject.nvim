@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- Experimental `template_tag` user rules for generated `javascript` and `typescript` hosts.
+- Configurable generated-host rules for `lua` and `ruby` (matching `python`/`javascript`/`typescript` host-object flow).
+
+### Changed
+
+- README/help docs were reorganized:
+  - installation moved earlier with `lazy.nvim` and `vim.pack` examples
+  - important notes are now front-loaded (load order, semantic tokens, C/C++ constraints)
+  - verification/tooling sections were removed
+- Smoke test now avoids hardcoded local runtime paths via `TS_INJECT_TEST_RUNTIMEPATH`.
+
+### Testing
+
+- Expanded smoke coverage for:
+  - `lua`/`ruby` configurable generated rules (`builtin = false`, user rule counts, heredoc/format paths)
+  - `template_tag` user-rule behavior in `javascript` and `typescript`
+  - warning reporting for unsupported host/rule combinations in `TSInjectHealth`
+
 ## [0.2.0] - 2026-03-15
 
 ### Added

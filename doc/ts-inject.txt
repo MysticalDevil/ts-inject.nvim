@@ -229,6 +229,7 @@ Experimental `rules` currently support:
   - `var_suffix`
   - `call`
   - `template_tag` (currently for `javascript` and `typescript`)
+  - `content_prefix` (currently for `python`, `ruby`, and `lua`)
 
 The experimental `rules` table currently applies to `python`, `javascript`,
 `typescript`, `lua`, and `ruby`. It is additive only for now. Built-in rules

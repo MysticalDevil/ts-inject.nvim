@@ -485,6 +485,79 @@ local function assert_generated_template_tag_rules()
   })
 end
 
+local function assert_generated_script_content_prefix_rules()
+  require("ts_inject").setup({
+    enable = {
+      python = true,
+      ruby = true,
+      lua = true,
+      javascript = true,
+    },
+    rules = {
+      python = {
+        builtin = false,
+        items = {
+          { kind = "content_prefix", patterns = { "^%s*[Ss][Ee][Ll][Ee][Cc][Tt]%s+" }, lang = "sql" },
+        },
+      },
+      ruby = {
+        builtin = false,
+        items = {
+          { kind = "content_prefix", patterns = { "^%s*[Ww][Ii][Tt][Hh]%s+" }, lang = "sql" },
+        },
+      },
+      lua = {
+        builtin = false,
+        items = {
+          { kind = "content_prefix", patterns = { "^%s*[Uu][Pp][Dd][Aa][Tt][Ee]%s+" }, lang = "sql" },
+        },
+      },
+      javascript = {
+        items = {
+          { kind = "content_prefix", patterns = { "^%s*[Ss][Ee][Ll][Ee][Cc][Tt]%s+" }, lang = "sql" },
+        },
+      },
+    },
+  })
+
+  vim.cmd("TSInjectReload")
+
+  assert_injected_in_lines("python", {
+    "def run():",
+    '  statement = "SELECT id, email FROM users"',
+  }, "SELECT id, email FROM users", "keyword_select")
+
+  assert_injected_in_lines("ruby", {
+    "statement = <<~SQL",
+    "  WITH recent_users AS (",
+    "    SELECT id, email FROM users",
+    "  )",
+    "  SELECT id, email FROM recent_users",
+    "SQL",
+  }, "WITH recent_users AS (", "keyword_with")
+
+  assert_injected_in_lines("lua", {
+    "run_sql(",
+    "  \"UPDATE users SET status = 'active' \" ..",
+    "  \"WHERE email = 'alice@example.com'\"",
+    ")",
+  }, "UPDATE users", "keyword_update")
+
+  vim.cmd("TSInjectHealth")
+  local report = table.concat(vim.api.nvim_buf_get_lines(vim.api.nvim_get_current_buf(), 0, -1, false), "\n")
+  assert(
+    report:find("javascript: content_prefix rules are not supported for host javascript", 1, true) ~= nil,
+    "health missing unsupported content_prefix warning for javascript"
+  )
+  assert(report:find("python %(generated, builtin=off", 1) ~= nil, "health missing builtin=off status for python")
+  assert(report:find("ruby %(generated, builtin=off", 1) ~= nil, "health missing builtin=off status for ruby")
+  assert(report:find("lua %(generated, builtin=off", 1) ~= nil, "health missing builtin=off status for lua")
+
+  require("ts_inject").setup({
+    enable = default_enable,
+  })
+end
+
 local function assert_debug_command(file, filetype)
   assert_buffer_loaded(file, filetype)
   assert_debug_header()
@@ -495,6 +568,7 @@ assert_health_command()
 assert_reload_command()
 assert_generated_lua_ruby_rules()
 assert_generated_template_tag_rules()
+assert_generated_script_content_prefix_rules()
 assert_legacy_static_mode()
 
 assert_language_trees("tests/fixtures/basic.sh", "bash", { "sql", "python", "lua", "javascript", "typescript" })
