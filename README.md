@@ -39,6 +39,11 @@ require("ts_inject").setup({
     typescript = true,
     zig = true,
   },
+  query_mode = {
+    -- Optional per-host override:
+    -- "generated" (default for generated-capable hosts) or "static" (legacy)
+    python = "generated",
+  },
   rules = {
     python = {
       builtin = false,
@@ -72,6 +77,12 @@ rules = {
   },
 }
 ```
+
+`query_mode` is optional and host-specific:
+
+- generated-capable hosts default to `generated`
+- all other hosts are `static`
+- setting `query_mode.<host> = "static"` on a generated-capable host enables a legacy path and is not recommended
 
 ## Current Main Branch
 
@@ -154,6 +165,7 @@ Current limits:
 - no precedence / disable system yet
 - no stable API guarantee yet
 - invalid `rules` entries are ignored with runtime warnings
+- invalid `query_mode` entries are ignored with runtime warnings
 
 ### Current C / C++ Constraints
 
@@ -211,6 +223,7 @@ The debug and health views report:
 - static vs generated hosts
 - generated query file presence
 - builtin and user rule counts for generated hosts
+- legacy static hosts (generated-capable hosts forced to `static`)
 - runtime warnings
 
 `TSInjectHealth` is the quickest way to confirm:

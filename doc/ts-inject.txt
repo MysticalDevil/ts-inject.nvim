@@ -55,6 +55,11 @@ Options:
       typescript = true,
       zig = true,
     },
+    query_mode = {
+      -- Optional per-host mode override:
+      -- "generated" (default for generated-capable hosts) or "static" (legacy)
+      python = "generated",
+    },
     rules = {
       python = {
         builtin = false,
@@ -126,6 +131,12 @@ Generated hosts:
   - lua
   - ruby
 
+`query_mode` is optional and host-specific:
+  - generated-capable hosts default to `generated`
+  - all other hosts are `static`
+  - setting `query_mode.<host> = "static"` on a generated-capable host enables
+    a legacy path and is not recommended
+
 Experimental `rules` currently support:
   - `var_suffix`
   - `call`
@@ -135,6 +146,7 @@ The experimental `rules` table currently applies only to `python`,
 stay enabled by default, though configurable generated hosts can set
 `builtin = false`. There is no stable precedence or partial disable model yet.
 Invalid `rules` entries are ignored with runtime warnings.
+Invalid `query_mode` entries are also ignored with runtime warnings.
 
 Plain single-line C string assignments are intentionally left as normal
 strings for now. Plain regular C++ string literals are also currently left as
@@ -228,8 +240,8 @@ Supported values:
 
 :TSInjectHealth
   Show enabled hosts, static vs generated query paths, generated query-file
-  presence, parser availability, per-host builtin/user rule counts, and
-  runtime warnings.
+  presence, parser availability, per-host builtin/user rule counts,
+  legacy-static host status, and runtime warnings.
 
   Use this to quickly verify:
     - a host is static or generated
