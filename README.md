@@ -57,6 +57,15 @@ require("ts_inject").setup({
 
 Nothing is enabled by default.
 
+Load order requirement:
+
+- load `ts-inject.nvim` before opening target buffers
+- avoid lazy-loading it with events like `VeryLazy`
+- recommended plugin-spec setting: `lazy = false`
+
+If `ts-inject` loads after a buffer already started Tree-sitter parsing, SQL
+injections may not appear until you reload/reopen.
+
 `rules` supports two forms for configurable generated hosts:
 
 ```lua
@@ -205,6 +214,12 @@ Regenerate runtime queries:
 ```vim
 :TSInjectReload
 ```
+
+If injections still do not appear after startup-order fixes:
+
+1. Run `:TSInjectReload`
+2. Reopen the file (or restart Neovim)
+3. Place cursor on an SQL keyword and run `:TSInjectDebug`
 
 Inspect plugin/runtime state:
 

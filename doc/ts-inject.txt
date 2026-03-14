@@ -32,6 +32,14 @@ Current main-branch scope:
 
 No host-language injections are enabled by default.
 
+Load-order requirement:
+  - load `ts-inject.nvim` before opening target buffers
+  - avoid lazy-loading via late events like `VeryLazy`
+  - recommended plugin-spec setting: `lazy = false`
+
+If the plugin loads after Tree-sitter has already parsed a buffer, injections
+may not appear until reload/reopen.
+
 Options:
 
 >
@@ -237,6 +245,11 @@ Supported values:
 :TSInjectReload
   Regenerate and reinstall runtime queries using the most recent `setup()`
   options.
+
+  If injections are still missing after fixing startup order:
+    1. run `:TSInjectReload`
+    2. reopen the file (or restart Neovim)
+    3. place cursor on an SQL keyword and run `:TSInjectDebug`
 
 :TSInjectHealth
   Show enabled hosts, static vs generated query paths, generated query-file
