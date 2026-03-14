@@ -135,6 +135,7 @@ Implemented or in-progress focus:
 - `:TSInjectReload` and `:TSInjectHealth`
 - built-in delimiter-driven `bash` heredoc injections
 - updated docs for generated-vs-static host behavior
+- generated-host static snapshots moved to `archive/scm-generated/`
 
 The main purpose of `0.2` is to move from "bundle of stable static recipes" to
 "small configurable injection framework" without jumping straight to a fully
@@ -156,6 +157,18 @@ generic DSL.
 - configurable generated hosts can set `builtin = false`
 - there is still no per-rule precedence or partial builtin disable model
 - non-SQL expansion is currently limited to built-in `bash` heredoc mappings
+
+### `0.2` Closeout Checklist
+
+1. `stylua --check lua tests/smoke.lua` passes.
+2. `selene lua tests` passes.
+3. Headless smoke test passes in the documented flow.
+4. `:TSInjectHealth` reports:
+   - generated vs static hosts
+   - generated query file status
+   - builtin/user rule counts for generated hosts
+5. `README.md`, `doc/ts-inject.txt`, and `PLAN.md` are aligned.
+6. Branch is clean and pushed to `origin/main`.
 
 ## `0.3` Goals
 

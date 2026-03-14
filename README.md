@@ -52,6 +52,27 @@ require("ts_inject").setup({
 
 Nothing is enabled by default.
 
+`rules` supports two forms for configurable generated hosts:
+
+```lua
+-- legacy list form (builtin rules stay enabled)
+rules = {
+  python = {
+    { kind = "call", fn = { "run_sql" }, lang = "sql" },
+  },
+}
+
+-- host-object form
+rules = {
+  python = {
+    builtin = false, -- replace builtin rules for this host
+    items = {
+      { kind = "call", fn = { "run_sql" }, lang = "sql" },
+    },
+  },
+}
+```
+
 ## Current Main Branch
 
 Current main keeps the `0.1` compatibility path while adding `0.2` features:
@@ -61,6 +82,9 @@ Current main keeps the `0.1` compatibility path while adding `0.2` features:
 - experimental additive `rules` support for `python`, `javascript`, and `typescript`
 - `:TSInjectDebug`, `:TSInjectReload`, and `:TSInjectHealth`
 - built-in delimiter-driven shell heredoc injections for `bash`
+
+Generated-host static query snapshots are kept in `archive/scm-generated/` for
+reference only; runtime loading uses generated queries for those hosts.
 
 Supported hosts:
 
@@ -115,6 +139,9 @@ Current generated hosts:
 Only `python`, `javascript`, and `typescript` currently accept experimental
 additive rules in `setup({ rules = { ... } })`.
 
+`scm/` now represents static-runtime hosts only. Generated-host snapshots live
+under `archive/scm-generated/`.
+
 Supported experimental rule kinds:
 
 - `var_suffix`
@@ -126,6 +153,7 @@ Current limits:
 - user rules are additive by default
 - no precedence / disable system yet
 - no stable API guarantee yet
+- invalid `rules` entries are ignored with runtime warnings
 
 ### Current C / C++ Constraints
 
@@ -184,6 +212,12 @@ The debug and health views report:
 - generated query file presence
 - builtin and user rule counts for generated hosts
 - runtime warnings
+
+`TSInjectHealth` is the quickest way to confirm:
+
+- a host is `generated` vs `static`
+- `builtin` is on/off for configurable generated hosts
+- generated query files are present on disk
 
 ## Verification
 

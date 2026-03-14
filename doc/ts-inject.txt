@@ -66,8 +66,34 @@ Options:
   })
 <
 
+`rules` accepts two shapes for configurable generated hosts:
+
+>
+  -- legacy list form (builtin rules stay enabled)
+  rules = {
+    python = {
+      { kind = "call", fn = { "run_sql" }, lang = "sql" },
+    },
+  }
+<
+
+>
+  -- host-object form
+  rules = {
+    python = {
+      builtin = false,
+      items = {
+        { kind = "call", fn = { "run_sql" }, lang = "sql" },
+      },
+    },
+  }
+<
+
 The plugin installs runtime queries for explicitly enabled host languages and
 extends the existing injection queries from Neovim or nvim-treesitter.
+
+`scm/` contains hosts that still load static runtime queries. Generated-host
+snapshots are stored in `archive/scm-generated/` for reference only.
 
 Current built-in hosts:
   - bash
@@ -108,6 +134,7 @@ The experimental `rules` table currently applies only to `python`,
 `javascript`, and `typescript`. It is additive only for now. Built-in rules
 stay enabled by default, though configurable generated hosts can set
 `builtin = false`. There is no stable precedence or partial disable model yet.
+Invalid `rules` entries are ignored with runtime warnings.
 
 Plain single-line C string assignments are intentionally left as normal
 strings for now. Plain regular C++ string literals are also currently left as
@@ -203,5 +230,10 @@ Supported values:
   Show enabled hosts, static vs generated query paths, generated query-file
   presence, parser availability, per-host builtin/user rule counts, and
   runtime warnings.
+
+  Use this to quickly verify:
+    - a host is static or generated
+    - generated query files were written
+    - builtin rules are enabled or disabled for configurable generated hosts
 
 vim:tw=78:ts=8:noet:ft=help:norl:
