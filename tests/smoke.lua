@@ -4,6 +4,17 @@ local function append_if_dir(path)
   end
 end
 
+local function append_env_rtp(env_name)
+  local value = vim.env[env_name]
+  if not value or value == "" then
+    return
+  end
+
+  for _, path in ipairs(vim.split(value, ":", { plain = true, trimempty = true })) do
+    append_if_dir(vim.fn.expand(path))
+  end
+end
+
 local default_enable = {
   bash = true,
   c = true,
@@ -22,8 +33,7 @@ local default_enable = {
   zig = true,
 }
 
-append_if_dir(vim.fn.expand("~/.local/share/nvim-mini/site"))
-append_if_dir(vim.fn.expand("~/.local/share/nvim/site"))
+append_env_rtp("TS_INJECT_TEST_RUNTIMEPATH")
 vim.opt.runtimepath:append(vim.fn.getcwd())
 
 require("ts_inject").setup({
