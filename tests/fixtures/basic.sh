@@ -19,3 +19,19 @@ deno <<'TS'
 const message: string = "hello"
 console.log(message)
 TS
+
+ruby <<'RB'
+puts "hello"
+RB
+
+ruby <<'RUBY'
+puts "hello again"
+RUBY
+
+perl <<'PL'
+print "hello\n";
+PL
+
+perl <<'PERL'
+print "hello again\n";
+PERL

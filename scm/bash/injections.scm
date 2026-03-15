@@ -29,3 +29,15 @@
   (heredoc_end) @_lang)
   (#eq? @_lang "TS")
   (#set! injection.language "typescript"))
+
+((heredoc_redirect
+  (heredoc_body) @injection.content
+  (heredoc_end) @_lang)
+  (#any-of? @_lang "RB" "RUBY")
+  (#set! injection.language "ruby"))
+
+((heredoc_redirect
+  (heredoc_body) @injection.content
+  (heredoc_end) @_lang)
+  (#any-of? @_lang "PL" "PERL")
+  (#set! injection.language "perl"))

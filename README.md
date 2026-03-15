@@ -272,7 +272,7 @@ Supported hosts:
 
 | Host | Primary naming / signal | Stable string forms | Notes |
 | --- | --- | --- | --- |
-| `bash` | heredoc delimiters | heredoc bodies | built-in `SQL`, `PY`, `LUA`, `JS`, `TS` delimiter mapping |
+| `bash` | heredoc delimiters | heredoc bodies | built-in `SQL`, `PY`, `LUA`, `JS`, `TS`, `RB`/`RUBY`, `PL`/`PERL` delimiter mapping |
 | `c` | `*_sql`, DB API calls | backslash-continued multiline strings | plain single-line variable strings are intentionally left alone |
 | `cpp` | `*_sql`, DB API calls | raw strings | plain regular C++ string literals are intentionally left alone |
 | `c_sharp` | `camelCase ...Sql`, `..._SQL`, DB calls | regular, concatenated, verbatim | common `Query` / `Execute` / `Prepare` paths |
@@ -288,6 +288,21 @@ Supported hosts:
 | `rust` | `userSql`, `USER_SQL`, crate call sites | regular and raw strings | covers common SQL crate usage |
 | `typescript` | `camelCase ...Sql`, `PascalCase ...Sql`, `..._SQL` | template strings, concatenation | mirrors the JS strategy |
 | `zig` | `camelCase ...Sql`, DB calls | multiline literals and direct call-site strings | tuned for common Zig naming |
+
+### Shell Heredoc Tags
+
+Built-in shell delimiter mappings:
+
+- `SQL` -> `sql`
+- `PY` -> `python`
+- `LUA` -> `lua`
+- `JS` -> `javascript`
+- `TS` -> `typescript`
+- `RB`, `RUBY` -> `ruby`
+- `PL`, `PERL` -> `perl`
+
+A complete shell example covering every supported heredoc tag lives at
+[`tmp/shell-heredoc-all.sh`](./tmp/shell-heredoc-all.sh).
 
 ### Generated Hosts
 

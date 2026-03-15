@@ -571,7 +571,7 @@ assert_generated_template_tag_rules()
 assert_generated_script_content_prefix_rules()
 assert_legacy_static_mode()
 
-assert_language_trees("tests/fixtures/basic.sh", "bash", { "sql", "python", "lua", "javascript", "typescript" })
+assert_language_trees("tests/fixtures/basic.sh", "bash", { "sql", "python", "lua", "javascript", "typescript", "ruby", "perl" })
 assert_injected_node("tests/fixtures/basic.c", "c", "UPDATE users", "keyword_update")
 assert_injected_node("tests/fixtures/basic.c", "c", "INSERT INTO users (email, status)", "keyword_insert")
 assert_injected_node("tests/fixtures/basic.c", "c", "WITH recent_users AS (", "keyword_with")
