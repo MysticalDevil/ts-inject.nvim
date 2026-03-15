@@ -46,6 +46,8 @@ local function normalize_enable(enable)
   return normalized
 end
 
+---@param opts? TSInjectOpts
+---@return TSInjectResolvedOpts
 function M.normalize(opts)
   local normalized = vim.tbl_deep_extend("force", vim.deepcopy(defaults), opts or {})
   local warnings = {}

@@ -111,6 +111,8 @@ local function register_commands()
   state.commands_registered = true
 end
 
+---@param opts? TSInjectOpts
+---@return TSInjectResolvedOpts
 function M.setup(opts)
   state.opts = config.normalize(vim.tbl_deep_extend("force", vim.deepcopy(defaults), opts or {}))
   register_commands()
@@ -118,19 +120,24 @@ function M.setup(opts)
   return state.opts
 end
 
+---@return integer
 function M.reload()
   register_queries()
   return vim.tbl_count(state.runtime_state.hosts)
 end
 
+---@return TSInjectResolvedOpts
 function M.get_opts()
   return state.opts
 end
 
+---@return TSInjectRuntimeState
 function M.get_runtime_state()
   return vim.deepcopy(state.runtime_state)
 end
 
+---@param lang string
+---@return boolean
 function M.is_enabled(lang)
   return state.opts.enable[lang] == true
 end
