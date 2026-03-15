@@ -15,6 +15,10 @@ All notable changes to this project will be documented in this file.
   - installation moved earlier with `lazy.nvim` and `vim.pack` examples
   - important notes are now front-loaded (load order, semantic tokens, C/C++ constraints)
   - verification/tooling sections were removed
+- README/help configuration sections now document:
+  - configurable generated hosts for `rules`
+  - rule kinds and required fields (`var_suffix`, `call`, `template_tag`, `content_prefix`)
+  - per-kind host support boundaries and Lua `:format(...)` expansion behavior
 - Smoke test now avoids hardcoded local runtime paths via `TS_INJECT_TEST_RUNTIMEPATH`.
 
 ### Testing

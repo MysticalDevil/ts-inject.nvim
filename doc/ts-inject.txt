@@ -188,6 +188,35 @@ Options:
   }
 <
 
+Configurable generated hosts for `rules`:
+  - python
+  - javascript
+  - typescript
+  - lua
+  - ruby
+
+Rule kinds:
+  - `var_suffix`
+    - required: `suffix`
+    - optional: `lang` (default: `sql`)
+    - hosts: `python`, `javascript`, `typescript`, `lua`, `ruby`
+  - `call`
+    - required: `fn` (string or list of strings)
+    - optional: `lang` (default: `sql`)
+    - hosts: `python`, `javascript`, `typescript`, `lua`, `ruby`
+  - `template_tag`
+    - required: `fn` (string or list of strings)
+    - optional: `lang` (default: `sql`)
+    - hosts: `javascript`, `typescript`
+  - `content_prefix`
+    - required: `patterns` (non-empty list of Lua-pattern strings)
+    - optional: `lang` (default: `sql`)
+    - hosts: `python`, `ruby`, `lua`
+
+Lua-specific note for user rules:
+  - `var_suffix` also covers `:format(...)` assignment forms.
+  - `call` also covers `:format(...)` call-argument forms.
+
 The plugin installs runtime queries for explicitly enabled host languages and
 extends the existing injection queries from Neovim or nvim-treesitter.
 

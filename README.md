@@ -97,11 +97,49 @@ const char *schema_sql = R"sql(  CREATE TABLE audit_logs (
 ))sql";
 ```
 
-## Setup
+## Configuration
 
-Full example:
+Default Settings:
 
 ```lua
+---@type TSInjectOpts
+{
+  -- Command name used for the debug buffer.
+  -- type: string
+  debug_command = "TSInjectDebug",
+  -- Explicit host opt-in. Empty means no injections are enabled.
+  -- key options:
+  --   bash | c | cpp | c_sharp | go | java | javascript | kotlin
+  --   lua | php | python | ruby | scala | rust | typescript | zig
+  -- value: boolean
+  enable = {},
+  -- Optional per-host mode override.
+  -- key options: same as `enable`
+  -- value options: "generated" | "static"
+  -- Defaults:
+  -- - generated-capable hosts => "generated"
+  -- - all other hosts => "static"
+  query_mode = {},
+  -- Optional experimental user rules for configurable generated hosts.
+  -- Hosts: python, javascript, typescript, lua, ruby
+  -- rule kinds:
+  -- - var_suffix: { kind = "var_suffix", suffix = "..." [, lang = "sql"] }
+  -- - call: { kind = "call", fn = "..." | { "...", ... } [, lang = "sql"] }
+  -- - template_tag (javascript/typescript only):
+  --   { kind = "template_tag", fn = "..." | { "...", ... } [, lang = "sql"] }
+  -- - content_prefix (python/ruby/lua only):
+  --   { kind = "content_prefix", patterns = { "...", ... } [, lang = "sql"] }
+  -- host rule forms:
+  -- - list form: rules.<host> = { <rule>, ... }
+  -- - object form: rules.<host> = { builtin = boolean, items = { <rule>, ... } }
+  rules = {},
+}
+```
+
+Example:
+
+```lua
+---@type TSInjectOpts
 require("ts_inject").setup({
   enable = {
     bash = true,
@@ -137,7 +175,7 @@ require("ts_inject").setup({
 })
 ```
 
-Nothing is enabled by default.
+`enable = {}` by default, so nothing is injected unless you explicitly enable hosts.
 
 `rules` supports two forms for configurable generated hosts:
 
@@ -159,6 +197,38 @@ rules = {
   },
 }
 ```
+
+Configurable generated hosts for `rules`:
+
+- `python`
+- `javascript`
+- `typescript`
+- `lua`
+- `ruby`
+
+Rule kinds:
+
+- `var_suffix`
+  - required: `suffix`
+  - optional: `lang` (defaults to `"sql"`)
+  - hosts: `python`, `javascript`, `typescript`, `lua`, `ruby`
+- `call`
+  - required: `fn` (string or list of strings)
+  - optional: `lang` (defaults to `"sql"`)
+  - hosts: `python`, `javascript`, `typescript`, `lua`, `ruby`
+- `template_tag`
+  - required: `fn` (string or list of strings)
+  - optional: `lang` (defaults to `"sql"`)
+  - hosts: `javascript`, `typescript`
+- `content_prefix`
+  - required: `patterns` (non-empty list of Lua-pattern strings)
+  - optional: `lang` (defaults to `"sql"`)
+  - hosts: `python`, `ruby`, `lua`
+
+Lua-specific note for user rules:
+
+- `var_suffix` is expanded internally to include `:format(...)` assignment forms.
+- `call` is expanded internally to include `:format(...)` call-argument forms.
 
 `query_mode` is optional and host-specific:
 
