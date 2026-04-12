@@ -17,12 +17,22 @@ Requirements:
 - Tree-sitter `sql` parser
 - Tree-sitter host parsers for every language you enable
 
+`ts-inject.nvim` uses Neovim's built-in `vim.treesitter` APIs. It does not
+require `nvim-treesitter` as a hard dependency.
+
+`nvim-treesitter` was archived upstream. That is unfortunate, and this project
+owes a lot to its years of work for the Neovim Tree-sitter ecosystem. Thank you
+to its maintainers and contributors.
+
+If you already use `nvim-treesitter`, it remains a convenient way to install and
+manage parsers and query files. Treat it as a helpful manager, not a required
+dependency.
+
 ### lazy.nvim
 
 ```lua
 {
   "MysticalDevil/ts-inject.nvim",
-  dependencies = { "nvim-treesitter/nvim-treesitter" },
   lazy = false, -- load before opening target buffers
   opts = {
     enable = {
@@ -40,7 +50,6 @@ Requirements:
 
 ```lua
 vim.pack.add({
-  "https://github.com/nvim-treesitter/nvim-treesitter",
   "https://github.com/MysticalDevil/ts-inject.nvim",
 })
 
@@ -131,7 +140,8 @@ Default Settings:
   --   { kind = "content_prefix", patterns = { "...", ... } [, lang = "sql"] }
   -- host rule forms:
   -- - list form: rules.<host> = { <rule>, ... }
-  -- - object form: rules.<host> = { builtin = boolean, items = { <rule>, ... } }
+  -- - object form:
+  --   rules.<host> = { builtin = boolean, items = { <rule>, ... } }
   rules = {},
 }
 ```
@@ -234,15 +244,18 @@ Lua-specific note for user rules:
 
 - generated-capable hosts default to `generated`
 - all other hosts are `static`
-- setting `query_mode.<host> = "static"` on a generated-capable host enables a legacy path and is not recommended
+- setting `query_mode.<host> = "static"` on a generated-capable host enables
+  a legacy path and is not recommended
 
 ## Current Main Branch
 
 Current main keeps the `0.1` compatibility path while adding `0.2+` features:
 
 - static runtime-installed queries for most hosts
-- generated runtime queries for `python`, `javascript`, `typescript`, `lua`, and `ruby`
-- experimental additive `rules` support for `python`, `javascript`, `typescript`, `lua`, and `ruby`
+- generated runtime queries for `python`, `javascript`, `typescript`, `lua`,
+  and `ruby`
+- experimental additive `rules` support for `python`, `javascript`,
+  `typescript`, `lua`, and `ruby`
 - `:TSInjectDebug`, `:TSInjectReload`, and `:TSInjectHealth`
 - built-in delimiter-driven shell heredoc injections for `bash`
 
@@ -301,8 +314,8 @@ Built-in shell delimiter mappings:
 - `RB`, `RUBY` -> `ruby`
 - `PL`, `PERL` -> `perl`
 
-A complete shell example covering every supported heredoc tag lives at
-[`tmp/shell-heredoc-all.sh`](./tmp/shell-heredoc-all.sh).
+A complete shell example covering every supported heredoc tag is described in
+the ignored `tmp/shell-heredoc-all.sh` fixture path.
 
 ### Generated Hosts
 
@@ -329,7 +342,8 @@ Supported experimental rule kinds:
 
 Current limits:
 
-- built-in rules stay enabled unless a configurable generated host sets `builtin = false`
+- built-in rules stay enabled unless a configurable generated host sets
+  `builtin = false`
 - user rules are additive by default
 - no precedence / disable system yet
 - no stable API guarantee yet
