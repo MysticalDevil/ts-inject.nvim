@@ -1,3 +1,40 @@
+import org.apache.ibatis.annotations.Delete
+import org.apache.ibatis.annotations.Insert
+import org.apache.ibatis.annotations.Select
+import org.apache.ibatis.annotations.Update
+import org.springframework.data.jpa.repository.Query
+
+interface UserMapper {
+  @Select("SELECT id FROM kotlin_annotated_users WHERE id = #{id}")
+  fun findById(id: Long): Any
+
+  @Select(
+    arrayOf(
+      "SELECT active_id, email",
+      "FROM kotlin_annotated_active_users",
+      "WHERE active = true",
+    ),
+  )
+  fun findActive(): List<Any>
+
+  @Insert("INSERT INTO kotlin_annotated_users (email, status) VALUES (#{email}, #{status})")
+  fun insert(user: Any): Int
+
+  @Update("UPDATE kotlin_annotated_users SET status = ? WHERE id = ?")
+  fun update(user: Any): Int
+
+  @Delete("DELETE FROM kotlin_annotated_users WHERE active = false")
+  fun deleteInactive(): Int
+}
+
+interface SpringUserRepository {
+  @Query(value = "SELECT id FROM kotlin_spring_users WHERE active = true", nativeQuery = true)
+  fun nativeUsers(): List<Any>
+
+  @Query(nativeQuery = true, value = "SELECT id FROM kotlin_spring_reversed_users WHERE active = true")
+  fun nativeUsersReversed(): List<Any>
+}
+
 fun main() {
   val USERS_SQL = """
     SELECT id, email

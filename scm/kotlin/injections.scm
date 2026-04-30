@@ -1,5 +1,110 @@
 ; extends
 
+; MyBatis SQL annotations with direct SQL strings.
+(
+  (prefix_expression
+    (annotation
+      (user_type
+        (type_identifier) @_annotation))
+    (parenthesized_expression
+      (string_literal
+        (string_content) @injection.content)))
+  (#any-of? @_annotation "Select" "Insert" "Update" "Delete")
+  (#set! injection.language "sql")
+)
+
+(
+  (annotation
+    (constructor_invocation
+      (user_type
+        (type_identifier) @_annotation)
+      (value_arguments
+        (value_argument
+          (string_literal
+            (string_content) @injection.content)))))
+  (#any-of? @_annotation "Select" "Insert" "Update" "Delete")
+  (#set! injection.language "sql")
+)
+
+; MyBatis SQL annotations with arrayOf string fragments.
+(
+  (prefix_expression
+    (annotation
+      (user_type
+        (type_identifier) @_annotation))
+    (parenthesized_expression
+      (call_expression
+        (simple_identifier) @_array
+        (call_suffix
+          (value_arguments
+            (value_argument
+              (string_literal
+                (string_content) @injection.content))+)))))
+  (#any-of? @_annotation "Select" "Insert" "Update" "Delete")
+  (#eq? @_array "arrayOf")
+  (#set! injection.language "sql")
+)
+
+(
+  (annotation
+    (constructor_invocation
+      (user_type
+        (type_identifier) @_annotation)
+      (value_arguments
+        (value_argument
+          (call_expression
+            (simple_identifier) @_array
+            (call_suffix
+              (value_arguments
+                (value_argument
+                  (string_literal
+                    (string_content) @injection.content))+)))))))
+  (#any-of? @_annotation "Select" "Insert" "Update" "Delete")
+  (#eq? @_array "arrayOf")
+  (#set! injection.language "sql")
+)
+
+; Spring Data JPA native SQL queries.
+(
+  (annotation
+    (constructor_invocation
+      (user_type
+        (type_identifier) @_annotation)
+      (value_arguments
+        (value_argument
+          (simple_identifier) @_key
+          (string_literal
+            (string_content) @injection.content))
+        (value_argument
+          (simple_identifier) @_native_key
+          (boolean_literal) @_native_value))))
+  (#eq? @_annotation "Query")
+  (#eq? @_key "value")
+  (#eq? @_native_key "nativeQuery")
+  (#eq? @_native_value "true")
+  (#set! injection.language "sql")
+)
+
+(
+  (annotation
+    (constructor_invocation
+      (user_type
+        (type_identifier) @_annotation)
+      (value_arguments
+        (value_argument
+          (simple_identifier) @_native_key
+          (boolean_literal) @_native_value)
+        (value_argument
+          (simple_identifier) @_key
+          (string_literal
+            (string_content) @injection.content)))))
+  (#eq? @_annotation "Query")
+  (#eq? @_key "value")
+  (#eq? @_native_key "nativeQuery")
+  (#eq? @_native_value "true")
+  (#set! injection.language "sql")
+)
+
 ; SQL assignment like `val userSql = """...""".trimIndent()` or `"..." + "..."`
 (
   (property_declaration
