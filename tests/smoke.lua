@@ -18,6 +18,7 @@ end
 local default_enable = {
   bash = true,
   c = true,
+  cpp = true,
   c_sharp = true,
   elixir = true,
   go = true,
@@ -199,6 +200,12 @@ end
 local function assert_buffer_loaded(file, filetype)
   vim.cmd("silent! %bwipeout!")
   local path = vim.fn.fnamemodify(file, ":p")
+  -- Ensure any existing buffer for this path is deleted first
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_get_name(buf) == path then
+      vim.api.nvim_buf_delete(buf, { force = true })
+    end
+  end
   local bufnr = vim.fn.bufadd(path)
   vim.fn.bufload(bufnr)
   vim.api.nvim_set_current_buf(bufnr)
@@ -229,6 +236,7 @@ local function assert_injected_node(file, filetype, text, expected_type, target_
 
   local parser = vim.treesitter.get_parser(bufnr, filetype)
   vim.treesitter.start(bufnr, filetype)
+  parser:parse(true)
   parser:parse(true)
   parser:parse(true)
 
