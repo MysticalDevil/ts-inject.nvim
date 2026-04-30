@@ -41,6 +41,14 @@ void run(PGconn *conn, sqlite3 *db) {
   assignedSql =
       (R"sql(  ALTER TABLE audit_logs ADD COLUMN updated_at TEXT)sql");
 
+  // sql
+  auto marked_query = "  SELECT id "
+                      "FROM marked_users "
+                      "WHERE active = true";
+
+  auto inline_marked = /* sql */ R"sql(  DELETE FROM marked_users
+      WHERE active = false)sql";
+
   sqlite3_exec(db,
                R"sql(  UPDATE users
       SET status = 'active'
@@ -97,6 +105,26 @@ void run(PGconn *conn, sqlite3 *db) {
   wrapper.query("  SELECT count(*) "
                 "FROM events");
 
+  QSqlQuery qt_query("  SELECT id "
+                     "FROM qt_users "
+                     "WHERE active = 1");
+
+  SQLite::Statement sqlite_statement(db, "  SELECT id "
+                                         "FROM sqlite_users "
+                                         "WHERE deleted = 0");
+
+  query("  SELECT id "
+        "FROM free_query_users "
+        "WHERE active = true");
+
+  sql << "  SELECT id "
+         "FROM soci_users "
+         "WHERE active = 1";
+
+  soci::statement soci_statement = (sql.prepare << "  SELECT id "
+                                                   "FROM soci_prepared_users "
+                                                   "WHERE id = :id");
+
   (void)users_sql;
   (void)schema_sql;
   (void)activitySql;
@@ -106,4 +134,6 @@ void run(PGconn *conn, sqlite3 *db) {
   (void)suffixSql;
   (void)castSql;
   (void)assignedSql;
+  (void)marked_query;
+  (void)inline_marked;
 }
