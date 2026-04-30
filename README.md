@@ -87,7 +87,7 @@ gopls = {
 }
 ```
 
-Current C / C++ constraints:
+Current C / C++ support:
 
 For `c`:
 
@@ -104,7 +104,34 @@ const char *schema_sql = R"sql(  CREATE TABLE audit_logs (
   id INTEGER PRIMARY KEY,
   message TEXT NOT NULL
 ))sql";
+
+// sql
+auto marked_query = "SELECT id FROM marked_users";
+
+auto inline_marked = /* sql */ R"sql(
+  DELETE FROM marked_users
+  WHERE active = false
+)sql";
+
+QSqlQuery qt_query("SELECT id FROM qt_users");
+SQLite::Statement statement(db, "SELECT id FROM sqlite_users");
+sql << "SELECT id FROM soci_users";
 ```
+
+C++ SQL injection supports common string forms and DB call sites:
+
+- variable names ending in `sql` / `Sql` / `SQL`
+- assignment to SQL-named variables
+- regular, adjacent, raw, UTF/wide-prefixed, suffixed, parenthesized, and casted
+  C++ string literals
+- explicit `sql` comments before declarations or inside initializers
+- C APIs such as `sqlite3_exec`, `sqlite3_prepare_v2`, `PQexec`,
+  `PQexecParams`, `PQprepare`, `mysql_query`, `SQLExecDirect`
+- C++ helpers named `exec`, `execute`, `prepare`, or `query`
+- query constructors such as `QSqlQuery`, `query`, `statement`, and
+  `SQLite::Statement`
+- SOCI-style stream expressions such as `sql << "..."` and
+  `sql.prepare << "..."`
 
 ## Configuration
 
