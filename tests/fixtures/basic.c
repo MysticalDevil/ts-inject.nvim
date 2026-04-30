@@ -2,9 +2,9 @@
 #include <sqlite3.h>
 
 void run(PGconn *conn, sqlite3 *db) {
-  const char *summary_sql = "  SELECT status \
-      FROM users \
-      ORDER BY status";
+  const char *summary_sql = "  SELECT status "
+                            "FROM users "
+                            "ORDER BY status";
 
   const char schema_sql[] = "  CREATE TABLE projects ("
                             "id INTEGER PRIMARY KEY, "
@@ -31,9 +31,9 @@ void run(PGconn *conn, sqlite3 *db) {
   assigned_sql = ("  DELETE FROM projects "
                   "WHERE id = 2");
 
-  sqlite3_exec(db, "  UPDATE users \
-      SET status = 'active' \
-      WHERE email = 'alice@example.com'",
+  sqlite3_exec(db, "  UPDATE users "
+                      "SET status = 'active' "
+                      "WHERE email = 'alice@example.com'",
                0, 0, 0);
 
   sqlite3_exec(db,
@@ -41,9 +41,9 @@ void run(PGconn *conn, sqlite3 *db) {
                "WHERE created_at < '2024-01-01'",
                0, 0, 0);
 
-  PQexec(conn, "  INSERT INTO users (email, status) \
-      VALUES ('alice@example.com', 'active') \
-      RETURNING id, email, status");
+  PQexec(conn, "  INSERT INTO users (email, status) "
+                 "VALUES ('alice@example.com', 'active') "
+                 "RETURNING id, email, status");
 
   PQexec(conn, "  CREATE INDEX "
                "idx_users_email "

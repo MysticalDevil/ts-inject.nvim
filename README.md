@@ -92,10 +92,21 @@ Current C / C++ support:
 For `c`:
 
 ```c
-const char *summary_sql = "  SELECT status \
-  FROM users \
-  ORDER BY status";
+const char *summary_sql = "  SELECT status "
+                          "FROM users "
+                          "ORDER BY status";
 ```
+
+Backslash continuation (`"..." \`) is intentionally not supported
+because Neovim's `injection.combined` merges across **all matches**
+of a pattern, not just within a single `string_literal`.  A C file
+with multiple SQL-hinted variables would end up with a single giant
+injection spanning the entire declaration block, breaking every
+injection.
+
+Use adjacent string concatenation instead — it is equivalent C and
+produces the same `concatenated_string` tree-sitter node, so the
+injection works identically.
 
 For `cpp`:
 
