@@ -327,7 +327,7 @@ Supported hosts:
 | `python` | `snake_case ..._sql`, obvious SQL content, DB calls | regular, triple-quoted, concatenated | includes `execute` / `executemany` / `executescript` |
 | `ruby` | `snake_case ..._sql`, `..._SQL`, DB calls | regular strings, SQL heredocs | includes `execute`, `exec`, `prepare`, `find_by_sql` |
 | `scala` | `camelCase ...Sql`, `..._SQL`, DB calls | regular and triple-quoted strings | includes common `execute` / `exec` / `prepare` / `query` call sites |
-| `rust` | `userSql`, `USER_SQL`, crate call sites | regular and raw strings | covers common SQL crate usage |
+| `rust` | `userSql`, `USER_SQL`, crate call sites | regular and raw strings | covers sqlx, diesel, SeaORM, and common wrapper methods |
 | `typescript` | `camelCase ...Sql`, `PascalCase ...Sql`, `..._SQL` | template strings, concatenation | mirrors the JS strategy |
 | `xml` | MyBatis mapper SQL tags | element text and CDATA | injects SQL in `select`, `insert`, `update`, `delete`, and `sql` mapper tags |
 | `zig` | `camelCase ...Sql`, DB calls | multiline literals and direct call-site strings | tuned for common Zig naming |

@@ -342,7 +342,7 @@ Host notes:
   - scala: `...Sql`, `..._SQL`, regular strings, triple-quoted strings,
     `execute` / `exec` / `prepare` / `query`
   - rust: Rust-style `userSql` / `USER_SQL`, regular and raw strings,
-    common SQL crate call sites
+    sqlx generics, SeaORM statement builders, and common DB wrapper methods
   - typescript: same general strategy as javascript
   - xml: MyBatis mapper `select`, `insert`, `update`, `delete`, and `sql`
     tag text or CDATA

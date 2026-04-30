@@ -2,18 +2,6 @@
 
 ; MyBatis SQL annotations with direct SQL strings.
 (
-  (prefix_expression
-    (annotation
-      (user_type
-        (type_identifier) @_annotation))
-    (parenthesized_expression
-      (string_literal
-        (string_content) @injection.content)))
-  (#any-of? @_annotation "Select" "Insert" "Update" "Delete")
-  (#set! injection.language "sql")
-)
-
-(
   (annotation
     (constructor_invocation
       (user_type
@@ -28,24 +16,6 @@
 
 ; MyBatis SQL annotations with arrayOf string fragments.
 (
-  (prefix_expression
-    (annotation
-      (user_type
-        (type_identifier) @_annotation))
-    (parenthesized_expression
-      (call_expression
-        (simple_identifier) @_array
-        (call_suffix
-          (value_arguments
-            (value_argument
-              (string_literal
-                (string_content) @injection.content))+)))))
-  (#any-of? @_annotation "Select" "Insert" "Update" "Delete")
-  (#eq? @_array "arrayOf")
-  (#set! injection.language "sql")
-)
-
-(
   (annotation
     (constructor_invocation
       (user_type
@@ -58,7 +28,7 @@
               (value_arguments
                 (value_argument
                   (string_literal
-                    (string_content) @injection.content))+)))))))
+                    (string_content) @injection.content)))))))))
   (#any-of? @_annotation "Select" "Insert" "Update" "Delete")
   (#eq? @_array "arrayOf")
   (#set! injection.language "sql")

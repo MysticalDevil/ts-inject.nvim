@@ -97,7 +97,7 @@ The codebase is close to a complete `0.1`, but a few release-closeout items rema
 | `python` | yes | yes | triple-quoted strings, concatenation, execute-family calls |
 | `ruby` | yes | yes | regular strings, SQL heredocs, and common DB call sites are smoke-covered |
 | `scala` | yes | yes | regular strings, triple-quoted strings, common DB calls |
-| `rust` | yes | yes | regular and raw strings, crate call sites |
+| `rust` | yes | yes | regular and raw strings, sqlx generics, SeaORM, DB wrapper methods |
 | `typescript` | yes | yes | mirrors the JS strategy |
 | `zig` | yes | yes | multiline literals and direct DB call-site strings |
 
