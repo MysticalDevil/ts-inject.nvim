@@ -4,9 +4,7 @@ local USERS_SQL = [[
   WHERE status = 'active'
 ]]
 
-local summary_sql = "SELECT status, count(*) AS total " ..
-  "FROM users " ..
-  "GROUP BY status"
+local summary_sql = "SELECT status, count(*) AS total " .. "FROM users " .. "GROUP BY status"
 
 local lookup_sql = ("SELECT id, email FROM users WHERE email = '%s'"):format("alice@example.com")
 
@@ -28,17 +26,15 @@ db:query([[
 ]])
 
 db:execute(
-  "WITH recent_users AS ( " ..
-    "SELECT id, email FROM users " ..
-    "WHERE created_at >= NOW() - INTERVAL '7 days' " ..
-  ") " ..
-  "SELECT id, email FROM recent_users"
+  "WITH recent_users AS ( "
+    .. "SELECT id, email FROM users "
+    .. "WHERE created_at >= NOW() - INTERVAL '7 days' "
+    .. ") "
+    .. "SELECT id, email FROM recent_users"
 )
 
 db:execute(
-  "INSERT INTO users (email, status) " ..
-    "VALUES ($1, $2) " ..
-    "RETURNING id, email, status",
+  "INSERT INTO users (email, status) " .. "VALUES ($1, $2) " .. "RETURNING id, email, status",
   "alice@example.com",
   "active"
 )

@@ -36,6 +36,41 @@ local default_enable = {
 append_env_rtp("TS_INJECT_TEST_RUNTIMEPATH")
 vim.opt.runtimepath:append(vim.fn.getcwd())
 
+local required_parsers = vim.tbl_keys(default_enable)
+required_parsers[#required_parsers + 1] = "sql"
+required_parsers[#required_parsers + 1] = "perl"
+table.sort(required_parsers)
+
+local function require_parser(lang)
+  local ok, err = pcall(function()
+    vim.treesitter.language.add(lang)
+    vim.treesitter.get_string_parser("", lang)
+  end)
+  assert(ok, ("missing Tree-sitter parser for %s: %s"):format(lang, tostring(err)))
+end
+
+local function assert_debug_command_reconfigure()
+  local ts_inject = require("ts_inject")
+
+  ts_inject.setup({
+    debug_command = "TSInjectSmokeDebugOne",
+  })
+  assert(vim.fn.exists(":TSInjectSmokeDebugOne") == 2, "custom debug command was not registered")
+  assert(vim.fn.exists(":TSInjectDebug") == 0, "default debug command should not be registered")
+
+  ts_inject.setup({
+    debug_command = "TSInjectSmokeDebugTwo",
+  })
+  assert(vim.fn.exists(":TSInjectSmokeDebugTwo") == 2, "updated custom debug command was not registered")
+  assert(vim.fn.exists(":TSInjectSmokeDebugOne") == 0, "old custom debug command was not removed")
+end
+
+assert_debug_command_reconfigure()
+
+for _, lang in ipairs(required_parsers) do
+  require_parser(lang)
+end
+
 require("ts_inject").setup({
   enable = default_enable,
 })
@@ -105,8 +140,8 @@ local function assert_legacy_static_mode()
     "def run(cursor):",
     '  cursor.run_sql("SELECT id FROM users")',
   })
-  pcall(vim.treesitter.language.add, "python")
-  pcall(vim.treesitter.language.add, "sql")
+  require_parser("python")
+  require_parser("sql")
   local custom_parser = vim.treesitter.get_parser(custom_buf, "python")
   vim.treesitter.start(custom_buf, "python")
   custom_parser:parse(true)
@@ -172,8 +207,8 @@ local function assert_injected_node(file, filetype, text, expected_type, target_
   local bufnr = assert_buffer_loaded(file, filetype)
   local lang = target_lang or "sql"
 
-  pcall(vim.treesitter.language.add, filetype)
-  pcall(vim.treesitter.language.add, lang)
+  require_parser(filetype)
+  require_parser(lang)
 
   local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
   local row, col
@@ -213,8 +248,8 @@ local function assert_injected_in_lines(filetype, lines, text, expected_type, ta
   vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, lines)
 
   local lang = target_lang or "sql"
-  pcall(vim.treesitter.language.add, filetype)
-  pcall(vim.treesitter.language.add, lang)
+  require_parser(filetype)
+  require_parser(lang)
 
   local row, col
   for i, line in ipairs(lines) do
@@ -246,9 +281,9 @@ end
 local function assert_language_trees(file, filetype, expected_langs)
   local bufnr = assert_buffer_loaded(file, filetype)
 
-  pcall(vim.treesitter.language.add, filetype)
+  require_parser(filetype)
   for _, lang in ipairs(expected_langs) do
-    pcall(vim.treesitter.language.add, lang)
+    require_parser(lang)
   end
 
   local parser = vim.treesitter.get_parser(bufnr, filetype)
@@ -288,8 +323,8 @@ local function assert_reload_command()
     '  cursor.run_sql("SELECT id FROM users")',
   })
 
-  pcall(vim.treesitter.language.add, "python")
-  pcall(vim.treesitter.language.add, "sql")
+  require_parser("python")
+  require_parser("sql")
 
   local parser = vim.treesitter.get_parser(bufnr, "python")
   vim.treesitter.start(bufnr, "python")
@@ -571,13 +606,32 @@ assert_generated_template_tag_rules()
 assert_generated_script_content_prefix_rules()
 assert_legacy_static_mode()
 
-assert_language_trees("tests/fixtures/basic.sh", "bash", { "sql", "python", "lua", "javascript", "typescript", "ruby", "perl" })
+assert_language_trees(
+  "tests/fixtures/basic.sh",
+  "bash",
+  { "sql", "python", "lua", "javascript", "typescript", "ruby", "perl" }
+)
 assert_injected_node("tests/fixtures/basic.c", "c", "UPDATE users", "keyword_update")
 assert_injected_node("tests/fixtures/basic.c", "c", "INSERT INTO users (email, status)", "keyword_insert")
 assert_injected_node("tests/fixtures/basic.c", "c", "WITH recent_users AS (", "keyword_with")
 assert_injected_node("tests/fixtures/basic.c", "c", "CREATE TABLE audit_logs (", "keyword_create")
 assert_injected_node("tests/fixtures/basic.c", "c", "ORDER BY status", "keyword_order")
 assert_injected_node("tests/fixtures/basic.c", "c", "ALTER TABLE audit_logs", "keyword_alter")
+assert_injected_node("tests/fixtures/basic.c", "c", "GROUP BY user_id", "keyword_group")
+assert_injected_node("tests/fixtures/basic.c", "c", "DELETE FROM audit_logs", "keyword_delete")
+assert_injected_node("tests/fixtures/basic.c", "c", "CREATE INDEX", "keyword_create")
+assert_injected_node("tests/fixtures/basic.c", "c", "row_number() OVER", "identifier")
+assert_injected_node("tests/fixtures/basic.c", "c", "INSERT INTO audit_logs", "keyword_insert")
+assert_injected_node("tests/fixtures/basic.c", "c", "CREATE TABLE projects", "keyword_create")
+assert_injected_node("tests/fixtures/basic.c", "c", "SELECT email", "keyword_select")
+assert_injected_node("tests/fixtures/basic.c", "c", "UPDATE projects", "keyword_update")
+assert_injected_node("tests/fixtures/basic.c", "c", "INSERT INTO projects", "keyword_insert")
+assert_injected_node("tests/fixtures/basic.c", "c", "DELETE FROM projects", "keyword_delete")
+assert_injected_node("tests/fixtures/basic.c", "c", "WHERE name = 'core'", "keyword_where")
+assert_injected_node("tests/fixtures/basic.c", "c", "WHERE id = $1", "keyword_where")
+assert_injected_node("tests/fixtures/basic.c", "c", "WHERE name = $1", "keyword_where")
+assert_injected_node("tests/fixtures/basic.c", "c", "ORDER BY name", "keyword_order")
+assert_injected_node("tests/fixtures/basic.c", "c", "WHERE id > 0", "keyword_where")
 assert_injected_node("tests/fixtures/basic.cpp", "cpp", "SELECT id, email", "keyword_select")
 assert_injected_node("tests/fixtures/basic.cpp", "cpp", "UPDATE users", "keyword_update")
 assert_injected_node("tests/fixtures/basic.cpp", "cpp", "INSERT INTO users (email, status)", "keyword_insert")

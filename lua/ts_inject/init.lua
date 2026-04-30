@@ -14,6 +14,7 @@ local defaults = {
 
 local state = {
   commands_registered = false,
+  debug_command = nil,
   opts = vim.deepcopy(defaults),
   runtime_state = {
     hosts = {},
@@ -81,9 +82,13 @@ local function register_queries()
   clear_query_cache()
 end
 
-local function register_commands()
-  if state.commands_registered then
+local function register_debug_command()
+  if state.debug_command == state.opts.debug_command then
     return
+  end
+
+  if state.debug_command then
+    pcall(vim.api.nvim_del_user_command, state.debug_command)
   end
 
   vim.api.nvim_create_user_command(state.opts.debug_command, function(opts)
@@ -94,6 +99,16 @@ local function register_commands()
     nargs = "?",
     desc = "Inspect Tree-sitter injection state for the current buffer",
   })
+
+  state.debug_command = state.opts.debug_command
+end
+
+local function register_commands()
+  register_debug_command()
+
+  if state.commands_registered then
+    return
+  end
 
   vim.api.nvim_create_user_command("TSInjectReload", function()
     local host_count = require("ts_inject").reload()

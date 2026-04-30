@@ -1,2 +1,4 @@
 .nvimlog
+nvim.log
+.codex
 tmp/
