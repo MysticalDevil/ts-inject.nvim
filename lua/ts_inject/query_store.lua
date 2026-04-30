@@ -12,6 +12,7 @@ function M.supported_languages()
     bash = true,
     c = true,
     cpp = true,
+    elixir = true,
     go = true,
     c_sharp = true,
     java = true,

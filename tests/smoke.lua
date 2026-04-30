@@ -19,6 +19,7 @@ local default_enable = {
   bash = true,
   c = true,
   c_sharp = true,
+  elixir = true,
   go = true,
   java = true,
   javascript = true,
@@ -716,6 +717,15 @@ assert_injected_node("tests/fixtures/basic.kt", "kotlin", "UPDATE kotlin_annotat
 assert_injected_node("tests/fixtures/basic.kt", "kotlin", "DELETE FROM kotlin_annotated_users", "keyword_delete")
 assert_injected_node("tests/fixtures/basic.kt", "kotlin", "FROM kotlin_spring_users", "keyword_from")
 assert_injected_node("tests/fixtures/basic.kt", "kotlin", "FROM kotlin_spring_reversed_users", "keyword_from")
+assert_injected_node("tests/fixtures/basic.ex", "elixir", "SELECT id, email", "keyword_select")
+assert_injected_node("tests/fixtures/basic.ex", "elixir", "SELECT status, count(*) AS total", "keyword_select")
+assert_injected_node("tests/fixtures/basic.ex", "elixir", "SELECT id FROM users", "keyword_select")
+assert_injected_node("tests/fixtures/basic.ex", "elixir", "UPDATE users SET status", "keyword_update")
+assert_injected_node("tests/fixtures/basic.ex", "elixir", "INSERT INTO users", "keyword_insert")
+assert_injected_node("tests/fixtures/basic.ex", "elixir", "DELETE FROM users", "keyword_delete")
+assert_injected_node("tests/fixtures/basic.ex", "elixir", "CREATE TABLE audit_logs", "keyword_create")
+assert_injected_node("tests/fixtures/basic.ex", "elixir", "ALTER TABLE users", "keyword_alter")
+assert_injected_node("tests/fixtures/basic.ex", "elixir", "SELECT id FROM logs", "keyword_select")
 assert_injected_node("tests/fixtures/basic.lua", "lua", "SELECT id, email", "keyword_select")
 assert_injected_node("tests/fixtures/basic.lua", "lua", "CREATE TABLE users (", "keyword_create")
 assert_injected_node("tests/fixtures/basic.lua", "lua", "WITH recent_users AS (", "keyword_with")
