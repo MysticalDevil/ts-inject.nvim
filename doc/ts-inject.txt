@@ -182,6 +182,7 @@ Options:
       scala = true,
       rust = true,
       typescript = true,
+      xml = true,
       zig = true,
     },
     query_mode = {
@@ -274,6 +275,7 @@ Current built-in hosts:
   - scala
   - rust
   - typescript
+  - xml
   - zig
 
 Generated hosts:
@@ -303,8 +305,8 @@ Invalid `rules` entries are ignored with runtime warnings.
 Invalid `query_mode` entries are also ignored with runtime warnings.
 
 Plain single-line C string assignments are intentionally left as normal
-strings for now. Plain regular C++ string literals are also currently left as
-normal strings.
+strings for now. C++ regular strings are injected when a supported SQL naming,
+comment, or DB call-site signal is present.
 
 ==============================================================================
 5. Host Support                                            *ts-inject-support*
@@ -316,12 +318,15 @@ Host notes:
   - bash: heredoc delimiter mapping for `SQL`, `PY`, `LUA`, `JS`, and `TS`
   - c: `*_sql` multiline declarations plus `sqlite3_exec`,
     `sqlite3_prepare_v2`, `PQexec`, and `PQprepare`
-  - cpp: raw-string `*_sql` declarations plus raw-string DB call arguments
+  - cpp: SQL-named variables, explicit `sql` comments, common C/C++ DB APIs,
+    Qt, SQLiteCpp, SOCI, and regular/adjacent/raw/prefixed/suffixed/casted
+    strings
   - c_sharp: `...Sql`, `..._SQL`, regular/concatenated/verbatim strings,
     common DB call sites
   - go: Go-style names and obvious SQL-looking string content
   - java: `...Sql`, `..._SQL`, text blocks, regular strings, concatenation,
-    common JDBC-style call sites
+    JDBC, JdbcTemplate, JDBI, JPA/Hibernate query APIs, jOOQ plain SQL, and
+    MyBatis/Spring/Hibernate annotation SQL
   - javascript: `...Sql`, `..._SQL`, template strings, concatenation,
     common query/execute call sites
   - kotlin: `...Sql`, `..._SQL`, raw strings, `trimIndent()` /
@@ -339,6 +344,8 @@ Host notes:
   - rust: Rust-style `userSql` / `USER_SQL`, regular and raw strings,
     common SQL crate call sites
   - typescript: same general strategy as javascript
+  - xml: MyBatis mapper `select`, `insert`, `update`, `delete`, and `sql`
+    tag text or CDATA
   - zig: Zig-style `...Sql`, multiline literals, direct DB call-site strings
 
 ==============================================================================

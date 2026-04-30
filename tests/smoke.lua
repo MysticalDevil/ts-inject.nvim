@@ -30,6 +30,7 @@ local default_enable = {
   scala = true,
   rust = true,
   typescript = true,
+  xml = true,
   zig = true,
 }
 
@@ -675,6 +676,24 @@ assert_injected_node("tests/fixtures/basic.java", "java", "CREATE TABLE audit_lo
 assert_injected_node("tests/fixtures/basic.java", "java", "GROUP BY status", "keyword_group")
 assert_injected_node("tests/fixtures/basic.java", "java", "DELETE FROM users", "keyword_delete")
 assert_injected_node("tests/fixtures/basic.java", "java", "ALTER TABLE audit_logs", "keyword_alter")
+assert_injected_node("tests/fixtures/basic.java", "java", "FROM annotated_users", "keyword_from")
+assert_injected_node("tests/fixtures/basic.java", "java", "SELECT active_id", "keyword_select")
+assert_injected_node("tests/fixtures/basic.java", "java", "INSERT INTO annotated_users", "keyword_insert")
+assert_injected_node("tests/fixtures/basic.java", "java", "UPDATE annotated_users", "keyword_update")
+assert_injected_node("tests/fixtures/basic.java", "java", "DELETE FROM annotated_users", "keyword_delete")
+assert_injected_node("tests/fixtures/basic.java", "java", "FROM spring_users", "keyword_from")
+assert_injected_node("tests/fixtures/basic.java", "java", "FROM spring_reversed_users", "keyword_from")
+assert_injected_node("tests/fixtures/basic.java", "java", "FROM hibernate_subselect_users", "keyword_from")
+assert_injected_node("tests/fixtures/basic.java", "java", "INSERT INTO hibernate_users", "keyword_insert")
+assert_injected_node("tests/fixtures/basic.java", "java", "DELETE FROM hibernate_users", "keyword_delete")
+assert_injected_node("tests/fixtures/basic.java", "java", "FROM jpa_native_users", "keyword_from")
+assert_injected_node("tests/fixtures/basic.java", "java", "FROM User u", "keyword_from")
+assert_injected_node("tests/fixtures/basic.java", "java", "FROM jdbc_template_users", "keyword_from")
+assert_injected_node("tests/fixtures/basic.java", "java", "UPDATE jdbc_template_users", "keyword_update")
+assert_injected_node("tests/fixtures/basic.java", "java", "FROM jdbi_users", "keyword_from")
+assert_injected_node("tests/fixtures/basic.java", "java", "UPDATE jdbi_users", "keyword_update")
+assert_injected_node("tests/fixtures/basic.java", "java", "FROM jooq_users", "keyword_from")
+assert_injected_node("tests/fixtures/basic.java", "java", "FROM jooq_result_users", "keyword_from")
 assert_injected_node("tests/fixtures/basic.js", "javascript", "SELECT id, email", "keyword_select")
 assert_injected_node("tests/fixtures/basic.js", "javascript", "GROUP BY status", "keyword_group")
 assert_injected_node("tests/fixtures/basic.js", "javascript", "UPDATE users", "keyword_update")
@@ -737,6 +756,10 @@ assert_injected_node(
   "keyword_create"
 )
 assert_injected_node("tests/fixtures/basic.ts", "typescript", "WITH recent_users AS (", "keyword_with")
+assert_injected_node("tests/fixtures/basic.xml", "xml", "FROM xml_users", "keyword_from")
+assert_injected_node("tests/fixtures/basic.xml", "xml", "INSERT INTO xml_users", "keyword_insert")
+assert_injected_node("tests/fixtures/basic.xml", "xml", "UPDATE xml_users", "keyword_update")
+assert_injected_node("tests/fixtures/basic.xml", "xml", "DELETE FROM xml_users", "keyword_delete")
 assert_injected_node("tests/fixtures/basic.zig", "zig", "SELECT id, email", "keyword_select")
 assert_injected_node("tests/fixtures/basic.zig", "zig", "CREATE TABLE audit_logs (", "keyword_create")
 assert_injected_node("tests/fixtures/basic.zig", "zig", "WITH recent_users AS (", "keyword_with")

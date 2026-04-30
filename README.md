@@ -146,7 +146,7 @@ Default Settings:
   -- Explicit host opt-in. Empty means no injections are enabled.
   -- key options:
   --   bash | c | cpp | c_sharp | go | java | javascript | kotlin
-  --   lua | php | python | ruby | scala | rust | typescript | zig
+  --   lua | php | python | ruby | scala | rust | typescript | xml | zig
   -- value: boolean
   enable = {},
   -- Optional per-host mode override.
@@ -194,6 +194,7 @@ require("ts_inject").setup({
     scala = true,
     rust = true,
     typescript = true,
+    xml = true,
     zig = true,
   },
   query_mode = {
@@ -306,6 +307,7 @@ Supported hosts:
 - `scala`
 - `rust`
 - `typescript`
+- `xml`
 - `zig`
 
 ## Host Matrix
@@ -314,10 +316,10 @@ Supported hosts:
 | --- | --- | --- | --- |
 | `bash` | heredoc delimiters | heredoc bodies | built-in `SQL`, `PY`, `LUA`, `JS`, `TS`, `RB`/`RUBY`, `PL`/`PERL` delimiter mapping |
 | `c` | `*_sql`, DB API calls | backslash-continued multiline strings | plain single-line variable strings are intentionally left alone |
-| `cpp` | `*_sql`, DB API calls | raw strings | plain regular C++ string literals are intentionally left alone |
+| `cpp` | `*_sql`, DB API calls, `sql` comments | regular, adjacent, raw, prefixed, suffixed, parenthesized, casted | includes SQLite/libpq/MySQL/ODBC, Qt, SQLiteCpp, SOCI, common wrappers |
 | `c_sharp` | `camelCase ...Sql`, `..._SQL`, DB calls | regular, concatenated, verbatim | common `Query` / `Execute` / `Prepare` paths |
 | `go` | Go-style `userQuery`, SQL-looking content | raw and interpreted strings | favors obvious SQL text |
-| `java` | `camelCase ...Sql`, `..._SQL`, DB calls | regular, concatenated, text blocks | common JDBC-style call sites |
+| `java` | `camelCase ...Sql`, `..._SQL`, DB calls, SQL annotations | regular, concatenated, text blocks, annotation strings/arrays | includes JDBC, JdbcTemplate, JDBI, JPA/Hibernate query APIs, jOOQ plain SQL, MyBatis annotations |
 | `javascript` | `camelCase ...Sql`, `PascalCase ...Sql`, `..._SQL` | template strings, concatenation | common query / execute call sites |
 | `kotlin` | `camelCase ...Sql`, `..._SQL`, DB calls | raw strings, `trimIndent`, `trimMargin`, concatenation | focuses on common Kotlin SQL shapes |
 | `lua` | `snake_case ..._sql`, `..._SQL`, DB calls | long strings, concatenation, `:format(...)` | Lua-specific helper syntax is supported |
@@ -327,6 +329,7 @@ Supported hosts:
 | `scala` | `camelCase ...Sql`, `..._SQL`, DB calls | regular and triple-quoted strings | includes common `execute` / `exec` / `prepare` / `query` call sites |
 | `rust` | `userSql`, `USER_SQL`, crate call sites | regular and raw strings | covers common SQL crate usage |
 | `typescript` | `camelCase ...Sql`, `PascalCase ...Sql`, `..._SQL` | template strings, concatenation | mirrors the JS strategy |
+| `xml` | MyBatis mapper SQL tags | element text and CDATA | injects SQL in `select`, `insert`, `update`, `delete`, and `sql` mapper tags |
 | `zig` | `camelCase ...Sql`, DB calls | multiline literals and direct call-site strings | tuned for common Zig naming |
 
 ### Shell Heredoc Tags

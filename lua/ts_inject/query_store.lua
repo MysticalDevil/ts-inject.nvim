@@ -24,6 +24,7 @@ function M.supported_languages()
     scala = true,
     rust = true,
     typescript = true,
+    xml = true,
     zig = true,
   }
 end

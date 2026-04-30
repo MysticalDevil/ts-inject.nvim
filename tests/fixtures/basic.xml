@@ -1,0 +1,29 @@
+<mapper namespace="UserMapper">
+  <sql id="userColumns">
+    id, email, status
+  </sql>
+
+  <select id="findById" resultType="User">
+    SELECT id, email, status
+    FROM xml_users
+    WHERE id = #{id}
+  </select>
+
+  <insert id="insertUser">
+    <![CDATA[
+      INSERT INTO xml_users (email, status)
+      VALUES (#{email}, #{status})
+    ]]>
+  </insert>
+
+  <update id="activateUser">
+    UPDATE xml_users
+    SET status = 'active'
+    WHERE id = #{id}
+  </update>
+
+  <delete id="deleteInactive">
+    DELETE FROM xml_users
+    WHERE active = false
+  </delete>
+</mapper>
