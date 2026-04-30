@@ -26,4 +26,56 @@
     DELETE FROM xml_users
     WHERE active = false
   </delete>
+
+  <select id="findDynamic" resultType="User">
+    SELECT id, email, status
+    FROM dynamic_xml_users
+    <where>
+      <if test="status != null">
+        status = #{status}
+      </if>
+      <choose>
+        <when test="email != null">
+          AND email = #{email}
+        </when>
+        <otherwise>
+          AND active = true
+        </otherwise>
+      </choose>
+      <foreach item="id" collection="ids" open="AND id IN (" separator="," close=")">
+        #{id}
+      </foreach>
+    </where>
+  </select>
+
+  <update id="updateDynamic">
+    UPDATE dynamic_xml_users
+    <set>
+      <if test="email != null">
+        email = #{email},
+      </if>
+      <if test="status != null">
+        status = #{status}
+      </if>
+    </set>
+    WHERE id = #{id}
+  </update>
+
+  <select id="findTrimmed" resultType="User">
+    SELECT id, email
+    FROM dynamic_xml_users
+    <trim prefix="WHERE" prefixOverrides="AND |OR ">
+      <if test="active != null">
+        AND active = #{active}
+      </if>
+    </trim>
+  </select>
+
+  <select id="nestedCompleteSql" resultType="User">
+    <if test="includeArchived">
+      SELECT id, email
+      FROM conditional_xml_users
+      WHERE archived = true
+    </if>
+  </select>
 </mapper>

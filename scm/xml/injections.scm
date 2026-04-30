@@ -14,13 +14,29 @@
     "insert"
     "update"
     "delete"
-    "sql")
+    "sql"
+    "where"
+    "set"
+    "trim"
+    "foreach"
+    "if"
+    "choose"
+    "when"
+    "otherwise")
   (#any-of? @_end_tag
     "select"
     "insert"
     "update"
     "delete"
-    "sql")
+    "sql"
+    "where"
+    "set"
+    "trim"
+    "foreach"
+    "if"
+    "choose"
+    "when"
+    "otherwise")
   (#set! injection.language "sql")
 )
 
@@ -39,12 +55,28 @@
     "insert"
     "update"
     "delete"
-    "sql")
+    "sql"
+    "where"
+    "set"
+    "trim"
+    "foreach"
+    "if"
+    "choose"
+    "when"
+    "otherwise")
   (#any-of? @_end_tag
     "select"
     "insert"
     "update"
     "delete"
-    "sql")
+    "sql"
+    "where"
+    "set"
+    "trim"
+    "foreach"
+    "if"
+    "choose"
+    "when"
+    "otherwise")
   (#set! injection.language "sql")
 )
