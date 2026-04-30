@@ -676,6 +676,8 @@ assert_injected_node("tests/fixtures/basic.java", "java", "CREATE TABLE audit_lo
 assert_injected_node("tests/fixtures/basic.java", "java", "GROUP BY status", "keyword_group")
 assert_injected_node("tests/fixtures/basic.java", "java", "DELETE FROM users", "keyword_delete")
 assert_injected_node("tests/fixtures/basic.java", "java", "ALTER TABLE audit_logs", "keyword_alter")
+assert_injected_node("tests/fixtures/basic.java", "java", "FROM comment_marked_users", "keyword_from")
+assert_injected_node("tests/fixtures/basic.java", "java", "DELETE FROM comment_marked_users", "keyword_delete")
 assert_injected_node("tests/fixtures/basic.java", "java", "FROM annotated_users", "keyword_from")
 assert_injected_node("tests/fixtures/basic.java", "java", "SELECT active_id", "keyword_select")
 assert_injected_node("tests/fixtures/basic.java", "java", "INSERT INTO annotated_users", "keyword_insert")

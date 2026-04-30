@@ -1,5 +1,69 @@
 ; extends
 
+; Explicit SQL marker comments before a variable declaration.
+(
+  (_
+    [
+      (line_comment) @_marker
+      (block_comment) @_marker
+    ]
+    .
+    (local_variable_declaration
+      declarator: (variable_declarator
+        value: [
+          (string_literal
+            (string_fragment) @injection.content)
+          (string_literal
+            (multiline_string_fragment) @injection.content)
+          (binary_expression
+            left: (string_literal
+              (string_fragment) @injection.content)
+            right: (string_literal
+              (string_fragment) @injection.content))
+          (binary_expression
+            left: (binary_expression
+              left: (string_literal
+                (string_fragment) @injection.content)
+              right: (string_literal
+                (string_fragment) @injection.content))
+            right: (string_literal
+              (string_fragment) @injection.content))
+        ])))
+  (#lua-match? @_marker "[Ss][Qq][Ll]")
+  (#set! injection.language "sql")
+)
+
+; Explicit SQL marker comments inside a variable initializer.
+(
+  (local_variable_declaration
+    declarator: (variable_declarator
+      [
+        (line_comment) @_marker
+        (block_comment) @_marker
+      ]
+      value: [
+        (string_literal
+          (string_fragment) @injection.content)
+        (string_literal
+          (multiline_string_fragment) @injection.content)
+        (binary_expression
+          left: (string_literal
+            (string_fragment) @injection.content)
+          right: (string_literal
+            (string_fragment) @injection.content))
+        (binary_expression
+          left: (binary_expression
+            left: (string_literal
+              (string_fragment) @injection.content)
+            right: (string_literal
+              (string_fragment) @injection.content))
+          right: (string_literal
+            (string_fragment) @injection.content))
+      ]))
+  (#lua-match? @_marker "[Ss][Qq][Ll]")
+  (#set! injection.language "sql")
+)
+
 ; MyBatis SQL annotations with direct SQL strings.
 (
   (annotation

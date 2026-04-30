@@ -72,6 +72,16 @@ class Main {
     String deleteSql = "DELETE FROM users " +
       "WHERE status = 'inactive'";
 
+    // sql
+    String markedQuery = "SELECT id "
+      + "FROM comment_marked_users "
+      + "WHERE active = true";
+
+    String inlineMarked = /* sql */ """
+      DELETE FROM comment_marked_users
+      WHERE active = false
+      """;
+
     var rows = db.execute("""
       UPDATE users
       SET status = ?
@@ -118,5 +128,7 @@ class Main {
     System.out.println(stmt);
     System.out.println(deleteSql);
     System.out.println(alter);
+    System.out.println(markedQuery);
+    System.out.println(inlineMarked);
   }
 }
