@@ -196,6 +196,71 @@
   (#any-of? @_fn "query" "query_as" "query_scalar" "sql_query" "prepare")
   (#set! injection.language "sql"))
 
+; Generic sqlx functions like `sqlx::query_as::<_, T>("...")`.
+(
+  (call_expression
+    function: (generic_function
+      function: [
+        (identifier) @_fn
+        (scoped_identifier
+          name: (identifier) @_fn)
+      ])
+    arguments: (arguments
+      [
+        (string_literal
+          (string_content) @injection.content)
+        (raw_string_literal
+          (string_content) @injection.content)
+      ]
+      . (_)*))
+  (#any-of? @_fn "query" "query_as" "query_scalar" "query_file_as")
+  (#set! injection.language "sql"))
+
+; SeaORM statement builders with SQL as the second argument.
+(
+  (call_expression
+    function: (scoped_identifier
+      name: (identifier) @_fn)
+    arguments: (arguments
+      (_)
+      [
+        (string_literal
+          (string_content) @injection.content)
+        (raw_string_literal
+          (string_content) @injection.content)
+      ]
+      . (_)*))
+  (#any-of? @_fn "from_string" "from_sql_and_values")
+  (#set! injection.language "sql"))
+
+; Common Rust DB wrapper methods with SQL as the first argument.
+(
+  (call_expression
+    function: (field_expression
+      field: (field_identifier) @_method)
+    arguments: (arguments
+      [
+        (string_literal
+          (string_content) @injection.content)
+        (raw_string_literal
+          (string_content) @injection.content)
+      ]
+      . (_)*))
+  (#any-of? @_method
+    "exec"
+    "exec_stmt"
+    "execute"
+    "execute_unprepared"
+    "fetch"
+    "fetch_all"
+    "fetch_one"
+    "fetch_optional"
+    "prepare"
+    "query"
+    "query_all"
+    "query_one")
+  (#set! injection.language "sql"))
+
 ; sqlx macros like `query!`, `query_as!`, `query_scalar!`.
 (
   (macro_invocation

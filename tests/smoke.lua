@@ -745,6 +745,13 @@ assert_injected_node("tests/fixtures/basic.rb", "ruby", "WITH recent_users AS ("
 assert_injected_node("tests/fixtures/basic.rb", "ruby", "ALTER TABLE users", "keyword_alter")
 assert_injected_node("tests/fixtures/basic.rs", "rust", "CREATE TABLE users (", "keyword_create")
 assert_injected_node("tests/fixtures/basic.rs", "rust", "INSERT INTO users (email)", "keyword_insert")
+assert_injected_node("tests/fixtures/basic.rs", "rust", "FROM sqlx_query_as_users", "keyword_from")
+assert_injected_node("tests/fixtures/basic.rs", "rust", "FROM sqlx_scalar_users", "keyword_from")
+assert_injected_node("tests/fixtures/basic.rs", "rust", "FROM diesel_users", "keyword_from")
+assert_injected_node("tests/fixtures/basic.rs", "rust", "FROM sea_orm_users", "keyword_from")
+assert_injected_node("tests/fixtures/basic.rs", "rust", "UPDATE sea_orm_users", "keyword_update")
+assert_injected_node("tests/fixtures/basic.rs", "rust", "FROM manager_users", "keyword_from")
+assert_injected_node("tests/fixtures/basic.rs", "rust", "DELETE FROM manager_users", "keyword_delete")
 assert_injected_node(
   "tests/fixtures/basic.scala",
   "scala",
