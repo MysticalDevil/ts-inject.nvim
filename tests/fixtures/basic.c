@@ -109,4 +109,9 @@ void run(PGconn *conn, sqlite3 *db) {
   (void)utf8_sql;
   (void)cast_sql;
   (void)assigned_sql;
+
+  asm("nop");
+  __asm__("mov %0, %1");
+  __asm__ volatile ("cli");
+  asm("push" " %eax");
 }
