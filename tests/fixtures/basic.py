@@ -47,4 +47,22 @@ def run(cursor):
   SELECT id, email FROM ranked WHERE rn <= 5
   """
 
-  return query_sql, join_sql, window_sql
+  get_user_gql = """
+  query GetUser($id: ID!) {
+    user(id: $id) {
+      id
+      name
+    }
+  }
+  """
+
+  create_user_gql = """
+  mutation CreateUser($input: CreateUserInput!) {
+    createUser(input: $input) {
+      id
+      name
+    }
+  }
+  """
+
+  return query_sql, join_sql, window_sql, get_user_gql, create_user_gql

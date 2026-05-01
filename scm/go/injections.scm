@@ -1,5 +1,15 @@
 ; extends
 
+; GraphQL by content prefix
+([
+  (interpreted_string_literal_content)
+  (raw_string_literal_content)
+] @injection.content
+  (#match?
+    @injection.content
+    "^[[:space:]]*(query|mutation|subscription|fragment)[[:space:]]")
+  (#set! injection.language "graphql"))
+
 ([
   (interpreted_string_literal_content)
   (raw_string_literal_content)

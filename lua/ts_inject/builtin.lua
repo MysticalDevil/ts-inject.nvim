@@ -29,6 +29,17 @@ local builtin = {
       },
       source = "builtin",
     },
+    {
+      kind = "content_prefix",
+      lang = "graphql",
+      patterns = {
+        "^%s*[Qq][Uu][Ee][Rr][Yy]%s+",
+        "^%s*[Mm][Uu][Tt][Aa][Tt][Ii][Oo][Nn]%s+",
+        "^%s*[Ss][Uu][Bb][Ss][Cc][Rr][Ii][Pp][Tt][Ii][Oo][Nn]%s+",
+        "^%s*[Ff][Rr][Aa][Gg][Mm][Ee][Nn][Tt]%s+",
+      },
+      source = "builtin",
+    },
   },
   ruby = {
     {

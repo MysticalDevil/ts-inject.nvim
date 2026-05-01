@@ -23,5 +23,23 @@ func sample() {
   FROM users
   `
 
-  _, _, _, _, _ = rawQuery, inlineQuery, plainText, joinQuery, windowQuery
+  getUserGQL := `
+  query GetUser($id: ID!) {
+    user(id: $id) {
+      id
+      name
+    }
+  }
+  `
+
+  createUserGQL := `
+  mutation CreateUser($input: CreateUserInput!) {
+    createUser(input: $input) {
+      id
+      name
+    }
+  }
+  `
+
+  _, _, _, _, _, _, _ = rawQuery, inlineQuery, plainText, joinQuery, windowQuery, getUserGQL, createUserGQL
 }
