@@ -6,7 +6,8 @@
     (const_element
       (name) @_name
       (nowdoc
-        value: (nowdoc_body) @injection.content)))
+        (nowdoc_body
+          (nowdoc_string)+ @injection.content))))
   (#lua-match? @_name "^[%u][%u%d_]*_SQL$")
   (#set! injection.language "sql")
 )
@@ -17,7 +18,8 @@
       left: (variable_name
         (name) @_name)
       right: (nowdoc
-        value: (nowdoc_body) @injection.content)))
+        (nowdoc_body
+          (nowdoc_string)+ @injection.content))))
   (#lua-match? @_name "^[%l][%w]*Sql$")
   (#set! injection.language "sql")
 )
@@ -93,7 +95,8 @@
       .
       (argument
         (nowdoc
-          value: (nowdoc_body) @injection.content))))
+          (nowdoc_body
+            (nowdoc_string)+ @injection.content)))))
   (#any-of? @_fn "query" "execute" "prepare")
   (#set! injection.language "sql")
 )
