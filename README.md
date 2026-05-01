@@ -143,6 +143,8 @@ C++ SQL injection supports common string forms and DB call sites:
   `SQLite::Statement`
 - SOCI-style stream expressions such as `sql << "..."` and
   `sql.prepare << "..."`
+- inline assembly (`asm`, `__asm__`, `__asm__ volatile`) injected as `asm`
+  (C and C++)
 
 ## Configuration
 
@@ -326,7 +328,7 @@ Supported hosts:
 | Host | Primary naming / signal | Stable string forms | Notes |
 | --- | --- | --- | --- |
 | `bash` | heredoc delimiters | heredoc bodies | built-in `SQL`, `PY`, `LUA`, `JS`, `TS`, `RB`/`RUBY`, `PL`/`PERL` delimiter mapping |
-| `c` | `*_sql`, DB API calls | backslash-continued multiline strings | plain single-line variable strings are intentionally left alone |
+| `c` | `*_sql`, DB API calls | adjacent string literals | includes SQLite/libpq/MySQL/ODBC APIs; also injects `asm` into `gnu_asm_expression` |
 | `cpp` | `*_sql`, DB API calls, `sql` comments | regular, adjacent, raw, prefixed, suffixed, parenthesized, casted | includes SQLite/libpq/MySQL/ODBC, Qt, SQLiteCpp, SOCI, common wrappers |
 | `c_sharp` | `camelCase ...Sql`, `..._SQL`, DB calls | regular, concatenated, verbatim | common `Query` / `Execute` / `Prepare` paths |
 | `go` | Go-style `userQuery`, SQL-looking content | raw and interpreted strings | favors obvious SQL text |
@@ -341,6 +343,7 @@ Supported hosts:
 | `rust` | `userSql`, `USER_SQL`, crate call sites | regular and raw strings | covers sqlx, diesel, SeaORM, and common wrapper methods |
 | `typescript` | `camelCase ...Sql`, `PascalCase ...Sql`, `..._SQL` | template strings, concatenation | mirrors the JS strategy |
 | `xml` | MyBatis mapper SQL tags | element text and CDATA | injects SQL in `select`, `insert`, `update`, `delete`, and `sql` mapper tags |
+| `elixir` | `snake_case ..._sql`, `camelCase ...Sql`, `UPPER_SNAKE_CASE_SQL`, DB calls | regular strings, sigils, concatenation (`<>`) | includes `Ecto.Adapters.SQL.query!` and comment-marker `# sql` |
 | `zig` | `camelCase ...Sql`, DB calls | multiline literals and direct call-site strings | tuned for common Zig naming |
 
 ### Shell Heredoc Tags

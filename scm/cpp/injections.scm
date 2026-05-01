@@ -509,3 +509,17 @@
     "query")
   (#set! injection.language "sql")
 )
+
+; Inline assembly (GCC extended asm)
+(
+  (gnu_asm_expression
+    [
+      (string_literal
+        (string_content) @injection.content)+
+      (concatenated_string
+        (string_literal
+          (string_content) @injection.content)+)
+    ])
+  (#set! injection.language "asm")
+)
+

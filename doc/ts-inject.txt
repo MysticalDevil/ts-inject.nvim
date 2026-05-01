@@ -112,9 +112,12 @@ Current C / C++ support:
 For `c`:
 
 >
-  const char *summary_sql = "  SELECT status \
-    FROM users \
-    ORDER BY status";
+  const char *summary_sql = "  SELECT status "
+    "FROM users "
+    "ORDER BY status";
+
+  asm("nop");
+  __asm__ volatile ("cli");
 <
 
 For `cpp`:
@@ -138,11 +141,11 @@ For `cpp`:
   sql << "SELECT id FROM soci_users";
 <
 
-C++ SQL injection supports common string forms and DB call sites:
+C/C++ SQL injection supports common string forms and DB call sites:
   - variable names ending in `sql` / `Sql` / `SQL`
   - assignment to SQL-named variables
   - regular, adjacent, raw, UTF/wide-prefixed, suffixed, parenthesized, and
-    casted C++ string literals
+    casted C/C++ string literals
   - explicit `sql` comments before declarations or inside initializers
   - C APIs such as `sqlite3_exec`, `sqlite3_prepare_v2`, `PQexec`,
     `PQexecParams`, `PQprepare`, `mysql_query`, `SQLExecDirect`
@@ -151,6 +154,7 @@ C++ SQL injection supports common string forms and DB call sites:
     `SQLite::Statement`
   - SOCI-style stream expressions such as `sql << "..."` and
     `sql.prepare << "..."`
+  - inline assembly (`asm`, `__asm__`, `__asm__ volatile`) injected as `asm`
 
 ==============================================================================
 4. Setup                                                      *ts-inject-setup*
@@ -264,11 +268,13 @@ Current built-in hosts:
   - c
   - cpp
   - c_sharp
+  - elixir
   - go
   - java
   - javascript
   - kotlin
   - lua
+  - perl
   - php
   - python
   - ruby
@@ -308,6 +314,14 @@ Plain single-line C string assignments are intentionally left as normal
 strings for now. C++ regular strings are injected when a supported SQL naming,
 comment, or DB call-site signal is present.
 
+Backslash continuation (`"..." \`) is intentionally not supported in C
+because Neovim's `injection.combined` merges across all matches of a pattern,
+not just within a single `string_literal`. A file with multiple SQL-hinted
+backslash-continued declarations would end up with a single giant injection
+spanning the entire declaration block, breaking every injection. Use adjacent
+string concatenation instead — it is equivalent C and produces the same
+`concatenated_string` tree-sitter node, so the injection works identically.
+
 ==============================================================================
 5. Host Support                                            *ts-inject-support*
 
@@ -316,13 +330,17 @@ small generated-query `0.2` path.
 
 Host notes:
   - bash: heredoc delimiter mapping for `SQL`, `PY`, `LUA`, `JS`, and `TS`
-  - c: `*_sql` multiline declarations plus `sqlite3_exec`,
-    `sqlite3_prepare_v2`, `PQexec`, and `PQprepare`
+  - c: SQL via adjacent-string `*_sql` declarations and common C DB APIs
+    (`sqlite3_exec`, `sqlite3_prepare_v2`, `PQexec`, `PQprepare`, etc.);
+    also injects `asm` into `gnu_asm_expression`
   - cpp: SQL-named variables, explicit `sql` comments, common C/C++ DB APIs,
-    Qt, SQLiteCpp, SOCI, and regular/adjacent/raw/prefixed/suffixed/casted
-    strings
+    Qt, SQLiteCpp, SOCI, regular/adjacent/raw/prefixed/suffixed/casted strings,
+    and inline assembly (`asm` / `__asm__` / `__asm__ volatile`)
   - c_sharp: `...Sql`, `..._SQL`, regular/concatenated/verbatim strings,
     common DB call sites
+  - elixir: `snake_case ..._sql`, `camelCase ...Sql`, `UPPER_SNAKE_CASE_SQL`,
+    strings, sigils, `<>` concatenation, `Ecto.Adapters.SQL.query!`, comment
+    marker `# sql`
   - go: Go-style names and obvious SQL-looking string content
   - java: `...Sql`, `..._SQL`, text blocks, regular strings, concatenation,
     JDBC, JdbcTemplate, JDBI, JPA/Hibernate query APIs, jOOQ plain SQL, and
@@ -333,6 +351,8 @@ Host notes:
     `trimMargin()`, concatenation, common DB call sites
   - lua: `..._sql`, `..._SQL`, long strings, concatenation, `:format(...)`,
     DB-style call sites
+  - perl: `..._sql`, `..._SQL`, regular strings, heredocs,
+    DBI `prepare` / `execute` / `selectall_arrayref` / `do`
   - php: `$camelCaseSql`, `..._SQL`, regular strings, concatenation,
     heredoc/nowdoc, common DB call sites
   - python: `..._sql`, obvious SQL content, triple-quoted strings,

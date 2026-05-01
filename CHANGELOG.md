@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- C inline assembly injection (`asm`, `__asm__`, `__asm__ volatile`) via `gnu_asm_expression`.
+- Elixir SQL injection support (strings, sigils, `<>` concatenation, Ecto calls, `# sql` comment marker).
+- Perl SQL injection support (strings, heredocs, DBI call sites).
+- PHP nowdoc SQL injection fixed by replacing `injection.combined` with `(nowdoc_string)+` fragment matching.
+- XML MyBatis mapper SQL tag injection (static support).
 - Experimental `template_tag` user rules for generated `javascript` and `typescript` hosts.
 - Configurable generated-host rules for `lua` and `ruby` (matching `python`/`javascript`/`typescript` host-object flow).
 

@@ -14,17 +14,20 @@ Current repository status as of 2026-03-13:
   - `c`
   - `cpp`
   - `c_sharp`
+  - `elixir`
   - `go`
   - `java`
   - `javascript`
   - `kotlin`
   - `lua`
+  - `perl`
   - `php`
   - `python`
   - `ruby`
   - `scala`
   - `rust`
   - `typescript`
+  - `xml` (MyBatis mapper tags)
   - `zig`
 
 This file is the current implementation plan and release-tracking document.
@@ -69,8 +72,9 @@ This file is the current implementation plan and release-tracking document.
 Stable constraints that are already part of the shipped contract:
 
 - `c`
-  - supports backslash-continued multiline `*_sql` declarations
-  - supports explicit DB API call sites like `sqlite3_exec`, `sqlite3_prepare_v2`, `PQexec`, and `PQprepare`
+  - supports adjacent-string `*_sql` declarations and explicit DB API call sites
+    (`sqlite3_exec`, `sqlite3_prepare_v2`, `PQexec`, `PQprepare`, etc.)
+  - injects `asm` into `gnu_asm_expression` (basic asm, `__asm__`, `__asm__ volatile`)
   - plain single-line C string assignments are intentionally left as normal strings
 - `cpp`
   - supports raw-string `*_sql` declarations
@@ -85,8 +89,8 @@ The codebase is close to a complete `0.1`, but a few release-closeout items rema
 
 | Host | Implemented | Smoke-covered | Notes |
 | --- | --- | --- | --- |
-| `c` | yes | yes | constrained to multiline declarations and explicit DB calls |
-| `cpp` | yes | yes | constrained to raw strings and explicit DB calls |
+| `c` | yes | yes | SQL via adjacent strings and DB calls; also `asm` injection |
+| `cpp` | yes | yes | SQL via raw strings, comments, and DB calls |
 | `c_sharp` | yes | yes | regular, concatenated, verbatim strings |
 | `go` | yes | yes | SQL-looking strings and Go-style naming |
 | `java` | yes | yes | regular strings, concatenation, text blocks |
@@ -99,6 +103,9 @@ The codebase is close to a complete `0.1`, but a few release-closeout items rema
 | `scala` | yes | yes | regular strings, triple-quoted strings, common DB calls |
 | `rust` | yes | yes | regular and raw strings, sqlx generics, SeaORM, DB wrapper methods |
 | `typescript` | yes | yes | mirrors the JS strategy |
+| `elixir` | yes | yes | strings, sigils, `<>` concatenation, Ecto calls |
+| `perl` | yes | yes | regular strings, heredocs, DBI call sites |
+| `xml` | yes | yes | MyBatis `select`/`insert`/`update`/`delete`/`sql` tags |
 | `zig` | yes | yes | multiline literals and direct DB call-site strings |
 
 ### Concrete remaining work
