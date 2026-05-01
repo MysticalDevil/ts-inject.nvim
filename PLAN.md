@@ -47,7 +47,7 @@ This file is the current implementation plan and release-tracking document.
 - a generic Lua rule DSL
 - a host adapter abstraction layer
 - runtime query synthesis from declarative rules
-- shell, markdown, or non-SQL embedded-language support
+- shell or non-SQL embedded-language support
 - extra command families like `TSInjectReload` or `TSInjectHealth`
 - semantic-token conflict management inside the plugin itself
 
@@ -125,7 +125,7 @@ These items are intentionally postponed and should not block `0.1`:
 - normalized rule model and query builder
 - host adapter abstraction layer
 - shell heredoc and delimiter-based language injections
-- markdown fence alias normalization
+- more non-SQL embedded-language recipes
 - non-SQL embedded language support
 - health/reload command expansion
 - richer conflict handling for semantic tokens and host highlight overrides
@@ -186,7 +186,7 @@ general embedded-language tool.
 Planned focus:
 
 - richer user-defined rule support built on top of the `0.2` internal model
-- shell and markdown normalization features
+- shell normalization features and more non-SQL recipes
 - more built-in non-SQL recipes
 - better override / merge semantics between built-in and user-provided rules
 - stronger debugging and health reporting for generated or merged queries
