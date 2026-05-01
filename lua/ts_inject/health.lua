@@ -96,16 +96,52 @@ function M.collect()
   return lines
 end
 
+local function open_float(lines, title)
+  local bufnr = vim.api.nvim_create_buf(false, true)
+  vim.bo[bufnr].bufhidden = "wipe"
+  vim.bo[bufnr].buftype = "nofile"
+  vim.bo[bufnr].swapfile = false
+  vim.bo[bufnr].filetype = "markdown"
+  vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, lines)
+  vim.bo[bufnr].modifiable = false
+
+  local editor_width = vim.o.columns
+  local editor_height = vim.o.lines
+  local width = math.min(80, editor_width - 8)
+  local height = math.min(math.max(10, #lines + 2), editor_height - 6)
+  local row = math.floor((editor_height - height) / 2)
+  local col = math.floor((editor_width - width) / 2)
+
+  local win = vim.api.nvim_open_win(bufnr, true, {
+    relative = "editor",
+    row = row,
+    col = col,
+    width = width,
+    height = height,
+    style = "minimal",
+    border = "rounded",
+    title = " " .. title .. " ",
+    title_pos = "center",
+  })
+
+  vim.wo[win].wrap = false
+  vim.wo[win].cursorline = true
+
+  local close = function()
+    if vim.api.nvim_win_is_valid(win) then
+      vim.api.nvim_win_close(win, true)
+    end
+  end
+
+  vim.keymap.set("n", "q", close, { buffer = bufnr, silent = true, nowait = true })
+  vim.keymap.set("n", "<Esc>", close, { buffer = bufnr, silent = true, nowait = true })
+
+  return bufnr, win
+end
+
 function M.show()
   local lines = M.collect()
-  local out = vim.api.nvim_create_buf(false, true)
-  vim.bo[out].bufhidden = "wipe"
-  vim.bo[out].buftype = "nofile"
-  vim.bo[out].swapfile = false
-  vim.bo[out].filetype = "markdown"
-  vim.api.nvim_buf_set_lines(out, 0, -1, false, lines)
-  vim.api.nvim_set_current_buf(out)
-  return out
+  return open_float(lines, "TSInject Health")
 end
 
 return M
