@@ -1,0 +1,6 @@
+assert_injected_node("tests/fixtures/basic.ts", "typescript", "UPDATE users", "keyword_update")
+assert_injected_node("tests/fixtures/basic.ts", "typescript", "WITH recent_users AS (", "keyword_with")
+assert_injected_node("tests/fixtures/basic.ts", "typescript", "LEFT JOIN projects", "keyword_left")
+assert_injected_node("tests/fixtures/basic.ts", "typescript", "HAVING COUNT(*) > 1", "keyword_having")
+assert_injected_node("tests/fixtures/basic.ts", "typescript", "WITH ranked AS", "keyword_with")
+assert_injected_node("tests/fixtures/basic.ts", "typescript", "row_number() OVER", "identifier")

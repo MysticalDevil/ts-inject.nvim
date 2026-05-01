@@ -1,0 +1,6 @@
+assert_injected_node("tests/fixtures/basic.py", "python", "CREATE TABLE users (", "keyword_create")
+assert_injected_node("tests/fixtures/basic.py", "python", "DELETE FROM users", "keyword_delete")
+assert_injected_node("tests/fixtures/basic.py", "python", "LEFT JOIN projects", "keyword_left")
+assert_injected_node("tests/fixtures/basic.py", "python", "HAVING COUNT(*) > 1", "keyword_having")
+assert_injected_node("tests/fixtures/basic.py", "python", "WITH ranked AS", "keyword_with")
+assert_injected_node("tests/fixtures/basic.py", "python", "row_number() OVER", "identifier")
