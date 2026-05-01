@@ -4,7 +4,7 @@ Static and generated Tree-sitter injections for Neovim.
 
 `ts-inject.nvim` now has two layers:
 
-- stable static host support from `0.1`
+- stable static host support from `0.1` (SQL and GraphQL)
 - a small `0.2` framework for generated queries and experimental rules
 
 The project favors stable, host-native heuristics over a generic rule engine.
@@ -14,7 +14,8 @@ The project favors stable, host-native heuristics over a generic rule engine.
 Requirements:
 
 - Neovim `0.11+`
-- Tree-sitter `sql` parser
+- Tree-sitter `sql` parser (for SQL injection)
+- Tree-sitter `graphql` parser (for GraphQL injection in JS/TS and Rust)
 - Tree-sitter host parsers for every language you enable
 
 `ts-inject.nvim` uses Neovim's built-in `vim.treesitter` APIs. It does not
@@ -333,15 +334,15 @@ Supported hosts:
 | `c_sharp` | `camelCase ...Sql`, `..._SQL`, DB calls | regular, concatenated, verbatim | common `Query` / `Execute` / `Prepare` paths |
 | `go` | Go-style `userQuery`, SQL-looking content | raw and interpreted strings | favors obvious SQL text |
 | `java` | `camelCase ...Sql`, `..._SQL`, DB calls, SQL annotations | regular, concatenated, text blocks, annotation strings/arrays | includes JDBC, JdbcTemplate, JDBI, JPA/Hibernate query APIs, jOOQ plain SQL, MyBatis annotations |
-| `javascript` | `camelCase ...Sql`, `PascalCase ...Sql`, `..._SQL` | template strings, concatenation | common query / execute call sites |
+| `javascript` | `camelCase ...Sql`, `PascalCase ...Sql`, `..._SQL` | template strings, concatenation | SQL: common query / execute call sites; GraphQL: `gql`/`graphql`/`gqlRequest` template tags |
 | `kotlin` | `camelCase ...Sql`, `..._SQL`, DB calls | raw strings, `trimIndent`, `trimMargin`, concatenation | focuses on common Kotlin SQL shapes |
 | `lua` | `snake_case ..._sql`, `..._SQL`, DB calls | long strings, concatenation, `:format(...)` | Lua-specific helper syntax is supported |
 | `php` | `$camelCaseSql`, `..._SQL`, DB calls | regular strings, concatenation, heredoc/nowdoc | common PDO-style usage |
 | `python` | `snake_case ..._sql`, obvious SQL content, DB calls | regular, triple-quoted, concatenated | includes `execute` / `executemany` / `executescript` |
 | `ruby` | `snake_case ..._sql`, `..._SQL`, DB calls | regular strings, SQL heredocs | includes `execute`, `exec`, `prepare`, `find_by_sql` |
 | `scala` | `camelCase ...Sql`, `..._SQL`, DB calls | regular and triple-quoted strings | includes common `execute` / `exec` / `prepare` / `query` call sites |
-| `rust` | `userSql`, `USER_SQL`, crate call sites | regular and raw strings | covers sqlx, diesel, SeaORM, and common wrapper methods |
-| `typescript` | `camelCase ...Sql`, `PascalCase ...Sql`, `..._SQL` | template strings, concatenation | mirrors the JS strategy |
+| `rust` | `userSql`, `USER_SQL`, crate call sites | regular and raw strings | SQL: sqlx, diesel, SeaORM, and common wrapper methods; GraphQL: `*_gql` / `*Graphql` suffix, content prefix, `graphql!` / `gql!` macros |
+| `typescript` | `camelCase ...Sql`, `PascalCase ...Sql`, `..._SQL` | template strings, concatenation | SQL: mirrors the JS strategy; GraphQL: same template_tag support as JS |
 | `xml` | MyBatis mapper SQL tags | element text and CDATA | injects SQL in `select`, `insert`, `update`, `delete`, and `sql` mapper tags |
 | `elixir` | `snake_case ..._sql`, `camelCase ...Sql`, `UPPER_SNAKE_CASE_SQL`, DB calls | regular strings, sigils, concatenation (`<>`) | includes `Ecto.Adapters.SQL.query!` and comment-marker `# sql` |
 | `zig` | `camelCase ...Sql`, DB calls | multiline literals and direct call-site strings | tuned for common Zig naming |
@@ -381,7 +382,7 @@ Supported experimental rule kinds:
 
 - `var_suffix`
 - `call`
-- `template_tag` (currently for `javascript` and `typescript`)
+- `template_tag` (currently for `javascript` and `typescript`, supports `sql` and `graphql`)
 - `content_prefix` (currently for `python`, `ruby`, and `lua`)
 
 Current limits:

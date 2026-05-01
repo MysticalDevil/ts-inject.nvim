@@ -153,7 +153,7 @@ generic DSL.
 - experimental `rules` only support:
   - `var_suffix`
   - `call`
-  - `template_tag` (for `javascript` and `typescript`)
+  - `template_tag` (for `javascript` and `typescript`, supports `sql` and `graphql`)
   - `content_prefix` (for `python`, `ruby`, and `lua`)
 - experimental `rules` only apply to:
   - `python`
@@ -164,7 +164,8 @@ generic DSL.
 - configurable generated hosts can set `builtin = false`
 - generated-capable hosts can be forced to `static` via `query_mode.<host> = "static"` (legacy, not recommended)
 - there is still no per-rule precedence or partial builtin disable model
-- non-SQL expansion is currently limited to built-in `bash` heredoc mappings
+- non-SQL expansion includes built-in `bash` heredoc mappings and built-in
+    GraphQL support for `javascript`, `typescript`, and `rust`
 
 ### `0.2` Closeout Checklist
 
