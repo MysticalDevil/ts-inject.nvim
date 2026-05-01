@@ -12,8 +12,7 @@ These instructions apply to the entire repository.
 
 ## Example projects
 
-- Keep language examples in `tmp/` out of git unless explicitly requested otherwise.
-- Example projects should use standard ecosystem layouts where practical.
+- Example projects and temporary exploration files should use standard ecosystem layouts where practical.
 - Prefer complete, realistic project shapes over single loose files.
 - Current preferred layouts:
   - Go: normal module with `go.mod`
@@ -41,8 +40,43 @@ These instructions apply to the entire repository.
   - placeholders and bound parameters
   - dialect-friendly features like `RETURNING`, `ON CONFLICT`, or window functions when relevant
 
+## GraphQL example coverage
+
+- GraphQL examples should cover more than simple `query` fields.
+- When adding or updating examples, aim to cover a representative mix of common GraphQL forms:
+  - Queries with variables (`query GetUser($id: ID!)`)
+  - Mutations with input objects (`mutation CreateUser($input: CreateUserInput!)`)
+  - Subscriptions (`subscription OnUserUpdated(...)`)
+  - Fragment definitions and spreads (`fragment UserFields on User { ... }` / `...UserFields`)
+  - Aliases (`activeUsers: users(...)`)
+  - Directives (`@include(if: $bool)`)
+  - Inline fragments (`... on User { ... }` / `... on Organization { ... }`)
+  - Meta fields (`__typename`)
+  - Nested selections
+
+## Scripts
+
+- `scripts/preview-inject.sh` is the local verification script for previewing injection highlights.
+- It supports `--lang`, `--inject`, `--line`, and `--list` flags.
+- See `./scripts/preview-inject.sh --help` for usage.
+
+## Smoke tests
+
+- Smoke tests live in `tests/smoke/` and are organized as:
+  - `tests/smoke/init.lua`: shared utilities (returned as a module table)
+  - `tests/smoke/lang/*.lua`: per-language / per-injection-type assertion modules
+  - `tests/smoke/integration/*.lua`: integration tests (debug, health, reload, custom_rules, legacy)
+- Submodules must use `local smoke = require("tests.smoke.init")` and call functions via the module table.
+- Do not inject test utilities into `_G`.
+
+## Code style
+
+- Lua code must pass `stylua --check lua tests/smoke.lua tests/smoke/`.
+- Lua code must pass `selene lua tests/`.
+- Run both before committing.
+
 ## Validation
 
 - When adjusting injection behavior, prefer verifying with both:
   - repo smoke tests
-  - the ignored example project opened through the local verification script
+  - the preview script (`scripts/preview-inject.sh --lang <host> --inject <type>`)

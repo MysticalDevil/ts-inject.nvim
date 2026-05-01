@@ -13,6 +13,13 @@ All notable changes to this project will be documented in this file.
 - XML MyBatis mapper SQL tag injection (static support).
 - Experimental `template_tag` user rules for generated `javascript` and `typescript` hosts.
 - Configurable generated-host rules for `lua` and `ruby` (matching `python`/`javascript`/`typescript` host-object flow).
+- **GraphQL injection support:**
+  - JavaScript / TypeScript: `gql` / `graphql` / `gqlRequest` template tags (including `member_expression` like `client.graphql`)
+  - Rust: `*_gql` / `*Graphql` naming suffix, content prefix (`query` / `mutation` / `subscription` / `fragment`), and `graphql!` / `gql!` macros
+  - Python: built-in `content_prefix` rules for GraphQL
+  - Go: static regex-based content prefix rules for GraphQL
+- `:TSInjectDebug` and `:TSInjectHealth` now open in a centered floating window with `q` / `<Esc>` to close.
+- `scripts/preview-inject.sh` (moved from `tmp/`) with improved UX: `--list`, `--line`, parser availability checks, and colorized output.
 
 ### Changed
 
@@ -24,7 +31,12 @@ All notable changes to this project will be documented in this file.
   - configurable generated hosts for `rules`
   - rule kinds and required fields (`var_suffix`, `call`, `template_tag`, `content_prefix`)
   - per-kind host support boundaries and Lua `:format(...)` expansion behavior
-- Smoke test now avoids hardcoded local runtime paths via `TS_INJECT_TEST_RUNTIMEPATH`.
+- Smoke test architecture refactored from monolithic `tests/smoke/assertions.lua` into modular structure:
+  - `tests/smoke/init.lua`: shared utilities returned as a module table
+  - `tests/smoke/lang/*.lua`: per-language / per-injection-type assertions
+  - `tests/smoke/integration/*.lua`: integration tests
+  - Submodules use `require("tests.smoke.init")` instead of `_G` globals.
+- `selene.toml` cleaned up; smoke test globals removed after module-pattern refactor.
 
 ### Testing
 
@@ -32,6 +44,8 @@ All notable changes to this project will be documented in this file.
   - `lua`/`ruby` configurable generated rules (`builtin = false`, user rule counts, heredoc/format paths)
   - `template_tag` user-rule behavior in `javascript` and `typescript`
   - warning reporting for unsupported host/rule combinations in `TSInjectHealth`
+  - SQL example coverage across all 19 language fixtures (DDL, CTE, JOIN, subquery, aggregate, window function)
+  - GraphQL assertions for JavaScript, TypeScript, Rust, Python, and Go
 
 ## [0.2.0] - 2026-03-15
 
