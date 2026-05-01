@@ -57,6 +57,22 @@ perl <<'PL'
 print "hello\n";
 PL
 
+cat <<'SQL' | sqlite3
+SELECT u.id, u.email, p.name
+FROM users u
+LEFT JOIN projects p ON u.id = p.user_id
+WHERE u.id IN (SELECT user_id FROM audit_logs GROUP BY user_id HAVING COUNT(*) > 1)
+ORDER BY u.created_at
+SQL
+
+cat <<'SQL' | sqlite3
+WITH ranked AS (
+  SELECT id, email, row_number() OVER (PARTITION BY status ORDER BY created_at) AS rn
+  FROM users
+)
+SELECT id, email FROM ranked WHERE rn <= 5
+SQL
+
 perl <<'PERL'
 print "hello again\n";
 PERL

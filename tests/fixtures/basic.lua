@@ -41,4 +41,20 @@ db:execute(
 
 db:execute(("UPDATE users SET status = '%s' WHERE email = '%s'"):format("active", "alice@example.com"))
 
-return USERS_SQL, summary_sql, lookup_sql
+local join_sql = [[
+  SELECT u.id, u.email, p.name
+  FROM users u
+  LEFT JOIN projects p ON u.id = p.user_id
+  WHERE u.id IN (SELECT user_id FROM audit_logs GROUP BY user_id HAVING COUNT(*) > 1)
+  ORDER BY u.created_at
+]]
+
+local window_sql = [[
+  WITH ranked AS (
+    SELECT id, email, row_number() OVER (PARTITION BY status ORDER BY created_at) AS rn
+    FROM users
+  )
+  SELECT id, email FROM ranked WHERE rn <= 5
+]]
+
+return USERS_SQL, summary_sql, lookup_sql, join_sql, window_sql

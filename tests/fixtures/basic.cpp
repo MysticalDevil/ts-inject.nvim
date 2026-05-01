@@ -136,4 +136,19 @@ void run(PGconn *conn, sqlite3 *db) {
   (void)assignedSql;
   (void)marked_query;
   (void)inline_marked;
+
+  const char *join_sql = R"sql(  SELECT u.id, u.email, p.name
+      FROM users u
+      LEFT JOIN projects p ON u.id = p.user_id
+      WHERE u.id IN (SELECT user_id FROM audit_logs GROUP BY user_id HAVING COUNT(*) > 1)
+      ORDER BY u.created_at)sql";
+
+  const char *window_sql = R"sql(  WITH ranked AS (
+      SELECT id, email, row_number() OVER (PARTITION BY status ORDER BY created_at) AS rn
+      FROM users
+    )
+    SELECT id, email FROM ranked WHERE rn <= 5)sql";
+
+  (void)join_sql;
+  (void)window_sql;
 }
