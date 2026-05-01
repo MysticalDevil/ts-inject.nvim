@@ -1,3 +1,5 @@
+local M = {}
+
 local function append_if_dir(path)
   if vim.fn.isdirectory(path) == 1 then
     vim.opt.runtimepath:append(path)
@@ -252,7 +254,7 @@ local function assert_injected_node(file, filetype, text, expected_type, target_
   assert(node ~= nil, "no node found at injected position for " .. filetype)
   assert(node:type() == expected_type, ("expected %s at injected position, got %s"):format(expected_type, node:type()))
 end
-_G.assert_injected_node = assert_injected_node
+M.assert_injected_node = assert_injected_node
 
 local function assert_injected_in_lines(filetype, lines, text, expected_type, target_lang)
   local bufnr = vim.api.nvim_create_buf(false, true)
@@ -309,12 +311,13 @@ local function assert_language_trees(file, filetype, expected_langs)
     assert(vim.tbl_contains(langs, lang), ("language tree missing for %s in %s"):format(lang, filetype))
   end
 end
-_G.assert_language_trees = assert_language_trees
+M.assert_language_trees = assert_language_trees
 
--- Expose shared utilities for integration tests
-_G.assert_buffer_loaded = assert_buffer_loaded
-_G.assert_debug_header = assert_debug_header
-_G.assert_injected_in_lines = assert_injected_in_lines
-_G.assert_health_command = assert_health_command
-_G.assert_legacy_static_mode = assert_legacy_static_mode
-_G.require_parser = require_parser
+M.assert_buffer_loaded = assert_buffer_loaded
+M.assert_debug_header = assert_debug_header
+M.assert_injected_in_lines = assert_injected_in_lines
+M.assert_health_command = assert_health_command
+M.assert_legacy_static_mode = assert_legacy_static_mode
+M.require_parser = require_parser
+
+return M

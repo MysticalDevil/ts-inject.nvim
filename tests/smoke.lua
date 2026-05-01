@@ -1,18 +1,17 @@
 local script_dir = vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":h")
-dofile(script_dir .. "/smoke/init.lua")
 
 -- Integration tests
-dofile(script_dir .. "/smoke/integration/debug.lua")
-dofile(script_dir .. "/smoke/integration/health.lua")
-dofile(script_dir .. "/smoke/integration/reload.lua")
-dofile(script_dir .. "/smoke/integration/custom_rules.lua")
-dofile(script_dir .. "/smoke/integration/legacy.lua")
+require("tests.smoke.integration.debug")
+require("tests.smoke.integration.health")
+require("tests.smoke.integration.reload")
+require("tests.smoke.integration.custom_rules")
+require("tests.smoke.integration.legacy")
 
 -- Language-specific fixture tests
 local lang_dir = script_dir .. "/smoke/lang"
 for _, file in ipairs(vim.fn.readdir(lang_dir)) do
   if file:match("%.lua$") then
-    dofile(lang_dir .. "/" .. file)
+    require("tests.smoke.lang." .. file:gsub("%.lua$", ""))
   end
 end
 

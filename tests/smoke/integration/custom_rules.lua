@@ -1,3 +1,4 @@
+local smoke = require("tests.smoke.init")
 local function assert_generated_lua_ruby_rules()
   require("ts_inject").setup({
     enable = {
@@ -24,7 +25,7 @@ local function assert_generated_lua_ruby_rules()
 
   vim.cmd("TSInjectReload")
 
-  assert_injected_in_lines("lua", {
+  smoke.assert_injected_in_lines("lua", {
     "report_qry = [[",
     "  SELECT id, email FROM users",
     "]]",
@@ -32,7 +33,7 @@ local function assert_generated_lua_ruby_rules()
     "function db:run_sql(sql) return sql end",
     'db:run_sql(("UPDATE users SET status = \'%s\' WHERE email = \'%s\'"):format("active", "alice@example.com"))',
   }, "SELECT id, email FROM users", "keyword_select")
-  assert_injected_in_lines("lua", {
+  smoke.assert_injected_in_lines("lua", {
     "report_qry = [[",
     "  SELECT id, email FROM users",
     "]]",
@@ -41,7 +42,7 @@ local function assert_generated_lua_ruby_rules()
     'db:run_sql(("UPDATE users SET status = \'%s\' WHERE email = \'%s\'"):format("active", "alice@example.com"))',
   }, "UPDATE users SET status", "keyword_update")
 
-  assert_injected_in_lines("ruby", {
+  smoke.assert_injected_in_lines("ruby", {
     "report_qry = <<~SQL",
     "  SELECT id, email FROM users",
     "  WHERE active = true",
@@ -52,7 +53,7 @@ local function assert_generated_lua_ruby_rules()
     "  WHERE email = 'alice@example.com'",
     "SQL",
   }, "SELECT id, email FROM users", "keyword_select")
-  assert_injected_in_lines("ruby", {
+  smoke.assert_injected_in_lines("ruby", {
     "report_qry = <<~SQL",
     "  SELECT id, email FROM users",
     "  WHERE active = true",
@@ -71,7 +72,7 @@ local function assert_generated_lua_ruby_rules()
   assert(report:find("user_rules=2", 1, true) ~= nil, "health missing user rule count for lua/ruby")
 
   require("ts_inject").setup({
-    enable = default_enable,
+    enable = smoke.default_enable,
   })
 end
 
@@ -105,7 +106,7 @@ local function assert_generated_template_tag_rules()
 
   vim.cmd("TSInjectReload")
 
-  assert_injected_in_lines("javascript", {
+  smoke.assert_injected_in_lines("javascript", {
     "const db = { runSql(strings, ...values) { return [strings, values]; } };",
     "db.runSql`",
     "  SELECT id, email FROM users",
@@ -113,7 +114,7 @@ local function assert_generated_template_tag_rules()
     "`;",
   }, "SELECT id, email FROM users", "keyword_select")
 
-  assert_injected_in_lines("typescript", {
+  smoke.assert_injected_in_lines("typescript", {
     "const db = { runSql(_strings: TemplateStringsArray, ..._values: unknown[]) { return []; } };",
     "db.runSql`",
     "  WITH recent_users AS (",
@@ -139,7 +140,7 @@ local function assert_generated_template_tag_rules()
   )
 
   require("ts_inject").setup({
-    enable = default_enable,
+    enable = smoke.default_enable,
   })
 end
 
@@ -180,12 +181,12 @@ local function assert_generated_script_content_prefix_rules()
 
   vim.cmd("TSInjectReload")
 
-  assert_injected_in_lines("python", {
+  smoke.assert_injected_in_lines("python", {
     "def run():",
     '  statement = "SELECT id, email FROM users"',
   }, "SELECT id, email FROM users", "keyword_select")
 
-  assert_injected_in_lines("ruby", {
+  smoke.assert_injected_in_lines("ruby", {
     "statement = <<~SQL",
     "  WITH recent_users AS (",
     "    SELECT id, email FROM users",
@@ -194,7 +195,7 @@ local function assert_generated_script_content_prefix_rules()
     "SQL",
   }, "WITH recent_users AS (", "keyword_with")
 
-  assert_injected_in_lines("lua", {
+  smoke.assert_injected_in_lines("lua", {
     "run_sql(",
     "  \"UPDATE users SET status = 'active' \" ..",
     "  \"WHERE email = 'alice@example.com'\"",
@@ -212,7 +213,7 @@ local function assert_generated_script_content_prefix_rules()
   assert(report:find("lua %(generated, builtin=off", 1) ~= nil, "health missing builtin=off status for lua")
 
   require("ts_inject").setup({
-    enable = default_enable,
+    enable = smoke.default_enable,
   })
 end
 

@@ -1,3 +1,4 @@
+local smoke = require("tests.smoke.init")
 local function assert_reload_command()
   local opts = require("ts_inject").setup({
     enable = {
@@ -24,8 +25,8 @@ local function assert_reload_command()
     '  cursor.run_sql("SELECT id FROM users")',
   })
 
-  require_parser("python")
-  require_parser("sql")
+  smoke.require_parser("python")
+  smoke.require_parser("sql")
 
   local parser = vim.treesitter.get_parser(bufnr, "python")
   vim.treesitter.start(bufnr, "python")
@@ -72,7 +73,7 @@ local function assert_reload_command()
   assert(report:find("user_rules=1", 1, true) ~= nil, "health missing user rule count")
 
   require("ts_inject").setup({
-    enable = default_enable,
+    enable = smoke.default_enable,
   })
 end
 
