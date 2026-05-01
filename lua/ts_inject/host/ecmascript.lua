@@ -148,8 +148,11 @@ local function render_template_tag(rule)
     ([[
 (
   (call_expression
-    function: (member_expression
-      property: (property_identifier) @_fn)
+    function: [
+      (identifier) @_fn
+      (member_expression
+        property: (property_identifier) @_fn)
+    ]
     arguments: (template_string) @injection.content)
   (#any-of? @_fn %s)
   (#offset! @injection.content 0 1 0 -1)

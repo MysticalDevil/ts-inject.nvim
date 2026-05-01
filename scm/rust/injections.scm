@@ -279,3 +279,98 @@
       . (_)*))
   (#any-of? @_macro "query" "query_as" "query_scalar")
   (#set! injection.language "sql"))
+
+; === GraphQL ===
+
+; GraphQL variable by suffix like `get_users_gql` or `getUsersGraphql`.
+(
+  (let_declaration
+    pattern: (identifier) @_name
+    value: [
+      (string_literal
+        (string_content) @injection.content)
+      (raw_string_literal
+        (string_content) @injection.content)
+    ])
+  (#lua-match? @_name "^[%a_][%w_]*[Gg][Qq][Ll]$")
+  (#set! injection.language "graphql"))
+
+(
+  (let_declaration
+    pattern: (identifier) @_name
+    value: [
+      (string_literal
+        (string_content) @injection.content)
+      (raw_string_literal
+        (string_content) @injection.content)
+    ])
+  (#lua-match? @_name "^[%a_][%w_]*[Gg][Rr][Aa][Pp][Hh][Qq][Ll]$")
+  (#set! injection.language "graphql"))
+
+; GraphQL by recognizable content prefix.
+(
+  (let_declaration
+    pattern: (identifier)
+    value: [
+      (string_literal
+        (string_content) @injection.content)
+      (raw_string_literal
+        (string_content) @injection.content)
+    ])
+  (#lua-match? @injection.content "^%s*[Qq][Uu][Ee][Rr][Yy]%s+")
+  (#set! injection.language "graphql"))
+
+(
+  (let_declaration
+    pattern: (identifier)
+    value: [
+      (string_literal
+        (string_content) @injection.content)
+      (raw_string_literal
+        (string_content) @injection.content)
+    ])
+  (#lua-match? @injection.content "^%s*[Mm][Uu][Tt][Aa][Tt][Ii][Oo][Nn]%s+")
+  (#set! injection.language "graphql"))
+
+(
+  (let_declaration
+    pattern: (identifier)
+    value: [
+      (string_literal
+        (string_content) @injection.content)
+      (raw_string_literal
+        (string_content) @injection.content)
+    ])
+  (#lua-match? @injection.content "^%s*[Ss][Uu][Bb][Ss][Cc][Rr][Ii][Pp][Tt][Ii][Oo][Nn]%s+")
+  (#set! injection.language "graphql"))
+
+(
+  (let_declaration
+    pattern: (identifier)
+    value: [
+      (string_literal
+        (string_content) @injection.content)
+      (raw_string_literal
+        (string_content) @injection.content)
+    ])
+  (#lua-match? @injection.content "^%s*[Ff][Rr][Aa][Gg][Mm][Ee][Nn][Tt]%s+")
+  (#set! injection.language "graphql"))
+
+; GraphQL macros like `graphql!`, `gql!`.
+(
+  (macro_invocation
+    macro: [
+      (identifier) @_macro
+      (scoped_identifier
+        name: (identifier) @_macro)
+    ]
+    (token_tree
+      [
+        (string_literal
+          (string_content) @injection.content)
+        (raw_string_literal
+          (string_content) @injection.content)
+      ]
+      . (_)*))
+  (#any-of? @_macro "graphql" "gql")
+  (#set! injection.language "graphql"))

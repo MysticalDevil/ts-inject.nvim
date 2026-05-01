@@ -69,6 +69,12 @@ local builtin = {
       fn = { "$queryRaw", "$executeRaw", "queryRaw", "executeRaw", "sql" },
       source = "builtin",
     },
+    {
+      kind = "template_tag",
+      lang = "graphql",
+      fn = { "gql", "graphql", "gqlRequest" },
+      source = "builtin",
+    },
   },
   lua = {
     {
@@ -113,6 +119,12 @@ local builtin = {
       kind = "template_tag",
       lang = "sql",
       fn = { "$queryRaw", "$executeRaw", "queryRaw", "executeRaw", "sql" },
+      source = "builtin",
+    },
+    {
+      kind = "template_tag",
+      lang = "graphql",
+      fn = { "gql", "graphql", "gqlRequest" },
       source = "builtin",
     },
   },
