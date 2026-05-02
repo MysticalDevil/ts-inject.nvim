@@ -33,6 +33,17 @@ local function clear_query_cache()
   end
 end
 
+local function validate_query(lang, query)
+  if not query then
+    return nil
+  end
+  local ok, parse_err = pcall(vim.treesitter.query.parse, lang, query)
+  if not ok then
+    return parse_err
+  end
+  return nil
+end
+
 local function install_query(lang)
   local generated_hosts = query_store.generated_languages()
   local mode = (state.opts.host_modes and state.opts.host_modes[lang]) or "static"
@@ -47,7 +58,13 @@ local function install_query(lang)
   end
 
   if query then
-    runtime.install(lang, query)
+    local parse_err = validate_query(lang, query)
+    if parse_err then
+      err = parse_err
+      runtime.remove(lang)
+    else
+      runtime.install(lang, query)
+    end
   else
     runtime.remove(lang)
   end
