@@ -86,3 +86,49 @@
   (#offset! @injection.content 0 3 0 -3)
   (#set! injection.language "graphql")
 )
+
+; === Regex ===
+
+; *_REGEX / *Regex suffix variables
+(
+  (val_definition
+    pattern: (identifier) @_name
+    value: (string) @injection.content)
+  (#lua-match? @_name "^[%l][%w]*Regex$")
+  (#not-lua-match? @injection.content "^\"\"\"")
+  (#offset! @injection.content 0 1 0 -1)
+  (#set! injection.language "regex")
+)
+
+(
+  (val_definition
+    pattern: (identifier) @_name
+    value: (string) @injection.content)
+  (#lua-match? @_name "^[%u][%u%d_]*_REGEX$")
+  (#not-lua-match? @injection.content "^\"\"\"")
+  (#offset! @injection.content 0 1 0 -1)
+  (#set! injection.language "regex")
+)
+
+; "pattern".r
+(
+  (field_expression
+    (string) @injection.content
+    (identifier) @_suffix)
+  (#eq? @_suffix "r")
+  (#not-lua-match? @injection.content "^\"\"\"")
+  (#offset! @injection.content 0 1 0 -1)
+  (#set! injection.language "regex")
+)
+
+; new Regex("pattern")
+(
+  (instance_expression
+    (type_identifier) @_class
+    (arguments
+      (string) @injection.content))
+  (#eq? @_class "Regex")
+  (#not-lua-match? @injection.content "^\"\"\"")
+  (#offset! @injection.content 0 1 0 -1)
+  (#set! injection.language "regex")
+)

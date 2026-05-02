@@ -16,7 +16,7 @@ Requirements:
 - Neovim `0.11+`
 - Tree-sitter `sql` parser (for SQL injection)
 - Tree-sitter `graphql` parser (for GraphQL injection in Go, JavaScript, TypeScript, Python, Rust, Java, Kotlin, C#, PHP, and Scala)
-- Tree-sitter `regex` parser (for Regex injection in Java, C#, and PHP)
+- Tree-sitter `regex` parser (for Regex injection in Java, C#, PHP, and Scala)
 - Tree-sitter host parsers for every language you enable
 
 `ts-inject.nvim` uses Neovim's built-in `vim.treesitter` APIs. It does not
@@ -341,7 +341,7 @@ Supported hosts:
 | `php` | `$camelCaseSql`, `..._SQL`, DB calls | regular strings, concatenation, heredoc/nowdoc | SQL: common PDO-style usage; GraphQL: `*_GQL` / `*Gql` suffix; Regex: `preg_match` / `preg_replace` / `preg_split` first argument |
 | `python` | `snake_case ..._sql`, obvious SQL content, DB calls | regular, triple-quoted, concatenated | SQL: `execute` / `executemany` / `executescript`; GraphQL: content prefix (query/mutation/subscription/fragment) |
 | `ruby` | `snake_case ..._sql`, `..._SQL`, DB calls | regular strings, SQL heredocs | includes `execute`, `exec`, `prepare`, `find_by_sql` |
-| `scala` | `camelCase ...Sql`, `..._SQL`, DB calls | regular and triple-quoted strings | SQL: common `execute` / `exec` / `prepare` / `query` call sites; GraphQL: `*_GQL` / `*Gql` suffix |
+| `scala` | `camelCase ...Sql`, `..._SQL`, DB calls | regular and triple-quoted strings | SQL: common `execute` / `exec` / `prepare` / `query` call sites; GraphQL: `*_GQL` / `*Gql` suffix; Regex: `\"...\".r` / `new Regex(...)` |
 | `rust` | `userSql`, `USER_SQL`, crate call sites | regular and raw strings | SQL: sqlx, diesel, SeaORM, and common wrapper methods; GraphQL: `*_gql` / `*Graphql` suffix, content prefix, `graphql!` / `gql!` macros |
 | `typescript` | `camelCase ...Sql`, `PascalCase ...Sql`, `..._SQL` | template strings, concatenation | SQL: mirrors the JS strategy; GraphQL: same template_tag support as JS |
 | `xml` | MyBatis mapper SQL tags | element text and CDATA | injects SQL in `select`, `insert`, `update`, `delete`, and `sql` mapper tags |

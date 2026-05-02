@@ -35,7 +35,8 @@ Requirements:
 
   - Neovim 0.11+
   - Tree-sitter `sql` parser
-  - Tree-sitter `regex` parser (for Regex injection in Java, C#, and PHP)
+  - Tree-sitter `regex` parser (for Regex injection in Java, C#, PHP, and
+    Scala)
   - Tree-sitter host parsers for enabled languages
 
 `ts-inject.nvim` uses Neovim's built-in `vim.treesitter` APIs. It does not
@@ -373,7 +374,8 @@ Host notes:
   - ruby: `..._sql`, `..._SQL`, regular strings, SQL heredocs,
     `execute` / `exec` / `prepare` / `find_by_sql`
   - scala: `...Sql`, `..._SQL`, regular strings, triple-quoted strings,
-    `execute` / `exec` / `prepare` / `query`; GraphQL: `*_GQL` / `*Gql` suffix
+    `execute` / `exec` / `prepare` / `query`; GraphQL: `*_GQL` / `*Gql` suffix;
+    Regex: `"...".r` / `new Regex(...)`
   - rust: Rust-style `userSql` / `USER_SQL`, regular and raw strings,
     sqlx generics, SeaORM statement builders, and common DB wrapper methods;
     GraphQL via `*_gql` / `*Graphql` suffix, content prefix, and
