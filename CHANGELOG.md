@@ -4,6 +4,33 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-05-03
+
+### Changed
+
+- **Internal refactoring and code quality:**
+  - Extracted shared display helpers (`add`, `add_kv`, `list_or_none`, `append_section`, `open_float`) from `debug.lua` / `health.lua` into `host/_util.lua`. Removed ~90 lines of duplication.
+  - `health.lua`: switched from `vim.fn.filereadable` to `vim.uv.fs_stat` for query file presence checks.
+  - `rules.lua`: removed dead `copy_list()` helper; `clone_rules()` now delegates fully to `vim.deepcopy`.
+  - `xml.lua`: removed private `join_tags()` and reused existing `util.join_fn_list()`.
+  - `query_store.lua`: merged `generated_languages()` into an alias of `supported_languages()` (identical sets); replaced fragile chained `vim.fs.dirname` with `vim.fn.fnamemodify(..., ":p:h:h:h")`.
+  - `runtime.lua`: standardized all path construction on `vim.fs.joinpath`.
+  - `query_builder.lua`: unified list-append style (`table.insert` → `t[#t+1]`).
+  - `config.lua`: added comment explaining `normalized.rules` / `normalized.query_mode` field aliasing for backward compatibility.
+  - `host/lua.lua` and `host/python.lua`: added inline comments clarifying why `#any-lua-match?` is required for concatenated-string nodes with multiple captures.
+  - `host/_util.lua`: added doc comments for `arg_prefix()`.
+
+### Fixed
+
+- **C/C++ name_pattern injection silently missed pointer/array declarations:**
+  - `host/_c_family.lua` previously captured `declarator: (_)` which matched `pointer_declarator` (text `*summary_sql`). The anchored `^...$` Lua pattern therefore failed to match.
+  - Fixed by explicitly matching `(identifier)`, `(pointer_declarator declarator: (identifier))`, and `(array_declarator declarator: (identifier))`.
+- **Removed duplicate unanchored C/cpp `name_pattern` rules** from `builtin.lua` (`[%a_][%w_]*[Ss][Qq][Ll]` without `^...$`), which could incorrectly match mid-string identifiers.
+
+### Refactored
+
+- `host/_c_family.lua`: extracted `value_pair()` helper to deduplicate the four identical `if backslash_value_str then ... end` patterns in `render_name_pattern` and `render_call`, cutting ~13 lines of repetition.
+
 ## [0.3.0] - 2026-05-03
 
 ### Added
