@@ -72,7 +72,7 @@ local function template_tag_supported(host)
 end
 
 local function content_prefix_supported(host)
-  return host == "python" or host == "ruby" or host == "lua"
+  return host == "go" or host == "python" or host == "ruby" or host == "lua" or host == "rust"
 end
 
 local function normalize_pattern_list(patterns)
@@ -179,6 +179,10 @@ function M.normalize_user_rule(host, rule)
   end
 
   if rule.kind == "macro" then
+    if host ~= "rust" then
+      return nil, ("macro rules are not supported for host %s"):format(host)
+    end
+
     local fn = normalize_fn_list(rule.fn)
     if not fn then
       return nil, "macro rules require fn as a string or non-empty list"
