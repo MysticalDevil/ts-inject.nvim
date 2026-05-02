@@ -46,6 +46,7 @@ local required_parsers = vim.tbl_keys(default_enable)
 required_parsers[#required_parsers + 1] = "sql"
 required_parsers[#required_parsers + 1] = "graphql"
 required_parsers[#required_parsers + 1] = "perl"
+required_parsers[#required_parsers + 1] = "json"
 table.sort(required_parsers)
 
 local function require_parser(lang)

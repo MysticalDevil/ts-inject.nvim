@@ -24,7 +24,8 @@ Current main-branch scope:
   - GraphQL injection in Go, JavaScript, TypeScript, Python, Rust, Java, Kotlin,
     C#, PHP, and Scala
   - Regex injection in Java, C#, and PHP
-  - shell heredoc delimiter injections in bash
+  - shell heredoc delimiter injections in bash (`SQL`, `PY`, `LUA`, `JS`, `TS`,
+    `RB`/`RUBY`, `PL`/`PERL`, `GRAPHQL`/`GQL`, `JSON`, `REGEX`/`RE`)
   - explicit opt-in in |ts-inject-setup|
 
 ==============================================================================
@@ -333,7 +334,8 @@ Current main-branch support keeps the static `0.1` path while introducing a
 small generated-query `0.2` path.
 
 Host notes:
-  - bash: heredoc delimiter mapping for `SQL`, `PY`, `LUA`, `JS`, and `TS`
+  - bash: heredoc delimiter mapping for `SQL`, `PY`, `LUA`, `JS`, `TS`,
+    `RB`/`RUBY`, `PL`/`PERL`, `GRAPHQL`/`GQL`, `JSON`, `REGEX`/`RE`
   - c: SQL via adjacent-string `*_sql` declarations and common C DB APIs
     (`sqlite3_exec`, `sqlite3_prepare_v2`, `PQexec`, `PQprepare`, etc.);
     also injects `asm` into `gnu_asm_expression`

@@ -144,3 +144,21 @@
   (heredoc_end) @_lang)
  (#any-of? @_lang "PL" "PERL")
  (#set! injection.language "perl"))
+
+((heredoc_redirect
+  (heredoc_body) @injection.content
+  (heredoc_end) @_lang)
+ (#any-of? @_lang "GRAPHQL" "GQL")
+ (#set! injection.language "graphql"))
+
+((heredoc_redirect
+  (heredoc_body) @injection.content
+  (heredoc_end) @_lang)
+ (#eq? @_lang "JSON")
+ (#set! injection.language "json"))
+
+((heredoc_redirect
+  (heredoc_body) @injection.content
+  (heredoc_end) @_lang)
+ (#any-of? @_lang "REGEX" "RE")
+ (#set! injection.language "regex"))

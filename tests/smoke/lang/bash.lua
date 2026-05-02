@@ -2,7 +2,7 @@ local smoke = require("tests.smoke.init")
 smoke.assert_language_trees(
   "tests/fixtures/basic.sh",
   "bash",
-  { "sql", "python", "lua", "javascript", "typescript", "ruby", "perl" }
+  { "sql", "python", "lua", "javascript", "typescript", "ruby", "perl", "graphql", "json", "regex" }
 )
 smoke.assert_injected_node("tests/fixtures/basic.sh", "bash", "SELECT id, email", "keyword_select")
 smoke.assert_injected_node("tests/fixtures/basic.sh", "bash", "SELECT id, email, status", "keyword_select")

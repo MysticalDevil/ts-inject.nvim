@@ -76,3 +76,24 @@ SQL
 perl <<'PERL'
 print "hello again\n";
 PERL
+
+# === GraphQL heredoc ===
+cat <<'GRAPHQL' | curl -X POST https://api.example.com/graphql
+type Query {
+  users: [User]
+}
+GRAPHQL
+
+# === JSON heredoc ===
+cat <<'JSON' | curl -X POST https://api.example.com/data -H "Content-Type: application/json"
+{
+  "users": [
+    { "id": 1, "email": "a@example.com" }
+  ]
+}
+JSON
+
+# === Regex heredoc ===
+cat <<'REGEX'
+^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+REGEX
