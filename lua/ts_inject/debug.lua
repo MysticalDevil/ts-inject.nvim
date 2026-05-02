@@ -1,35 +1,9 @@
 local M = {}
 
+local util = require("ts_inject.host._util")
+
 local function buf_line_count(bufnr)
   return vim.api.nvim_buf_line_count(bufnr)
-end
-
-local function add(lines, line)
-  lines[#lines + 1] = line
-end
-
-local function add_kv(lines, key, value)
-  add(lines, ("%-18s %s"):format(key .. ":", value))
-end
-
-local function list_or_none(items)
-  if not items or vim.tbl_isempty(items) then
-    return { "  (none)" }
-  end
-
-  local out = {}
-  for _, item in ipairs(items) do
-    out[#out + 1] = "  " .. item
-  end
-  return out
-end
-
-local function append_section(lines, title, items)
-  add(lines, "")
-  add(lines, title .. ":")
-  for _, item in ipairs(list_or_none(items)) do
-    add(lines, item)
-  end
 end
 
 local function collect_langtrees(langtree, indent, acc)
@@ -52,17 +26,17 @@ function M.collect(opts)
   local target_lang = opts.target_lang or "sql"
   local lines = {}
 
-  add(lines, "TSInject Debug")
-  add(lines, ("time: %s"):format(os.date("%Y-%m-%d %H:%M:%S")))
-  add(lines, "")
-  add_kv(lines, "buffer", tostring(bufnr))
-  add_kv(lines, "filetype", filetype)
-  add_kv(lines, "target_lang", target_lang)
-  add_kv(lines, "cursor", ("%d:%d"):format(cursor[1], col))
-  add_kv(lines, "plugin_enabled", require("ts_inject").is_enabled(filetype) and "yes" or "no")
+  util.add(lines, "TSInject Debug")
+  util.add(lines, ("time: %s"):format(os.date("%Y-%m-%d %H:%M:%S")))
+  util.add(lines, "")
+  util.add_kv(lines, "buffer", tostring(bufnr))
+  util.add_kv(lines, "filetype", filetype)
+  util.add_kv(lines, "target_lang", target_lang)
+  util.add_kv(lines, "cursor", ("%d:%d"):format(cursor[1], col))
+  util.add_kv(lines, "plugin_enabled", require("ts_inject").is_enabled(filetype) and "yes" or "no")
 
   if require("ts_inject").is_enabled(filetype) then
-    add_kv(lines, "plugin_query", require("ts_inject.runtime").query_path(filetype))
+    util.add_kv(lines, "plugin_query", require("ts_inject.runtime").query_path(filetype))
   end
 
   local clients = vim.lsp.get_clients({ bufnr = bufnr })
@@ -71,7 +45,7 @@ function M.collect(opts)
     local semantic = client.server_capabilities and client.server_capabilities.semanticTokensProvider and "on" or "off"
     client_lines[#client_lines + 1] = ("%s (id=%d, semantic_tokens=%s)"):format(client.name, client.id, semantic)
   end
-  append_section(lines, "lsp clients", client_lines)
+  util.append_section(lines, "lsp clients", client_lines)
 
   local semantic_active = "unknown"
   if vim.lsp.semantic_tokens then
@@ -80,38 +54,38 @@ function M.collect(opts)
       semantic_active = active and "enabled" or "stopped"
     end
   end
-  add(lines, "")
-  add_kv(lines, "semantic_tokens", semantic_active)
+  util.add(lines, "")
+  util.add_kv(lines, "semantic_tokens", semantic_active)
 
   local parser_ok, parser = pcall(vim.treesitter.get_parser, bufnr, filetype)
-  add_kv(lines, "host_parser", parser_ok and "ok" or "missing")
+  util.add_kv(lines, "host_parser", parser_ok and "ok" or "missing")
 
   local parser_files = vim.api.nvim_get_runtime_file(("parser/%s.*"):format(filetype), true)
-  append_section(lines, "host parser files", parser_files)
+  util.append_section(lines, "host parser files", parser_files)
 
   local target_parser_files = vim.api.nvim_get_runtime_file(("parser/%s.*"):format(target_lang), true)
-  append_section(lines, "target parser files", target_parser_files)
+  util.append_section(lines, "target parser files", target_parser_files)
 
   local query_files = {}
   local query_ok, query_err = pcall(function()
     query_files = vim.treesitter.query.get_files(filetype, "injections")
   end)
-  add(lines, "")
-  add_kv(lines, "injection_query", query_ok and "ok" or ("error: " .. query_err))
-  append_section(lines, "injection query files", query_files)
+  util.add(lines, "")
+  util.add_kv(lines, "injection_query", query_ok and "ok" or ("error: " .. query_err))
+  util.append_section(lines, "injection query files", query_files)
 
   local captures = {}
   local captures_ok, captures_err = pcall(function()
     captures = vim.treesitter.get_captures_at_pos(bufnr, row, col)
   end)
-  add(lines, "")
-  add_kv(lines, "captures", captures_ok and "ok" or ("error: " .. captures_err))
+  util.add(lines, "")
+  util.add_kv(lines, "captures", captures_ok and "ok" or ("error: " .. captures_err))
   if captures_ok then
     local capture_lines = {}
     for _, cap in ipairs(captures) do
       capture_lines[#capture_lines + 1] = ("%s [%s]"):format(cap.capture or "?", cap.lang or "?")
     end
-    append_section(lines, "captures at cursor", capture_lines)
+    util.append_section(lines, "captures at cursor", capture_lines)
   end
 
   local node_ok, node = pcall(vim.treesitter.get_node, {
@@ -119,9 +93,9 @@ function M.collect(opts)
     pos = { row, col },
     ignore_injections = false,
   })
-  add(lines, "")
+  util.add(lines, "")
   if node_ok and node then
-    add_kv(lines, "node:type", node:type())
+    util.add_kv(lines, "node:type", node:type())
 
     local node_lang = "unknown"
     if type(node.lang) == "function" then
@@ -131,68 +105,25 @@ function M.collect(opts)
       end
     end
 
-    add_kv(lines, "node:lang", node_lang)
+    util.add_kv(lines, "node:lang", node_lang)
     local sr, sc, er, ec = node:range()
-    add_kv(lines, "node:range", ("%d:%d - %d:%d"):format(sr + 1, sc, er + 1, ec))
+    util.add_kv(lines, "node:range", ("%d:%d - %d:%d"):format(sr + 1, sc, er + 1, ec))
   else
-    add_kv(lines, "node", node_ok and "nil" or ("error: " .. tostring(node)))
+    util.add_kv(lines, "node", node_ok and "nil" or ("error: " .. tostring(node)))
   end
 
   local langtrees = {}
   if parser_ok and parser then
     collect_langtrees(parser, "", langtrees)
   end
-  append_section(lines, "language trees", langtrees)
+  util.append_section(lines, "language trees", langtrees)
 
   return lines
 end
 
-local function open_float(lines, title)
-  local bufnr = vim.api.nvim_create_buf(false, true)
-  vim.bo[bufnr].bufhidden = "wipe"
-  vim.bo[bufnr].buftype = "nofile"
-  vim.bo[bufnr].swapfile = false
-  vim.bo[bufnr].filetype = "markdown"
-  vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, lines)
-  vim.bo[bufnr].modifiable = false
-
-  local editor_width = vim.o.columns
-  local editor_height = vim.o.lines
-  local width = math.min(80, editor_width - 8)
-  local height = math.min(math.max(10, #lines + 2), editor_height - 6)
-  local row = math.floor((editor_height - height) / 2)
-  local col = math.floor((editor_width - width) / 2)
-
-  local win = vim.api.nvim_open_win(bufnr, true, {
-    relative = "editor",
-    row = row,
-    col = col,
-    width = width,
-    height = height,
-    style = "minimal",
-    border = "rounded",
-    title = " " .. title .. " ",
-    title_pos = "center",
-  })
-
-  vim.wo[win].wrap = false
-  vim.wo[win].cursorline = true
-
-  local close = function()
-    if vim.api.nvim_win_is_valid(win) then
-      vim.api.nvim_win_close(win, true)
-    end
-  end
-
-  vim.keymap.set("n", "q", close, { buffer = bufnr, silent = true, nowait = true })
-  vim.keymap.set("n", "<Esc>", close, { buffer = bufnr, silent = true, nowait = true })
-
-  return bufnr, win
-end
-
 function M.show(opts)
   local lines = M.collect(opts or {})
-  return open_float(lines, "TSInject Debug")
+  return util.open_float(lines, "TSInject Debug")
 end
 
 return M
