@@ -170,15 +170,26 @@ generic DSL.
 
 ### `0.2` Closeout Checklist
 
-1. `stylua --check lua tests/smoke.lua` passes.
-2. `selene lua tests` passes.
-3. Headless smoke test passes in the documented flow.
+1. `stylua --check lua tests/smoke.lua` passes. ✅
+2. `selene lua tests` passes. ✅
+3. Headless smoke test passes in the documented flow. ✅
 4. `:TSInjectHealth` reports:
-   - generated vs static hosts
-   - generated query file status
-   - builtin/user rule counts for generated hosts
-5. `README.md`, `doc/ts-inject.txt`, and `PLAN.md` are aligned.
-6. Branch is clean and pushed to `origin/main`.
+   - generated vs static hosts ✅
+   - generated query file status ✅
+   - builtin/user rule counts for generated hosts ✅
+5. `README.md`, `doc/ts-inject.txt`, and `PLAN.md` are aligned. ✅
+6. Branch is clean and pushed to `origin/main`. ✅
+
+## `0.2` Completed
+
+All `0.2` goals and closeout checklist items are complete as of 2026-05-02.
+The release includes:
+
+- generated query framework for `python`, `javascript`, `typescript`, `lua`, and `ruby`
+- `:TSInjectReload` and `:TSInjectHealth` commands
+- GraphQL injection support for 10 host languages
+- static SQL injection support for 20 host languages
+- bash heredoc delimiter mappings
 
 ## `0.3` Goals
 
