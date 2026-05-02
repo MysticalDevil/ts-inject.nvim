@@ -22,6 +22,17 @@ local builders = {
   bash = require("ts_inject.host.bash"),
 }
 
+local valid_rule_kinds = {
+  name_pattern = true,
+  name_format = true,
+  call = true,
+  call_format = true,
+  content_prefix = true,
+  macro = true,
+  template_tag = true,
+  xml_tag = true,
+}
+
 function M.build(host, rules)
   local builder = builders[host]
   if not builder then
@@ -35,8 +46,10 @@ function M.build(host, rules)
       if rule.max_concat_depth ~= nil then
         opts.max_concat_depth = rule.max_concat_depth
       end
-    else
+    elseif valid_rule_kinds[rule.kind] then
       table.insert(filtered_rules, rule)
+    else
+      return nil, ("unknown rule kind %q for host %s"):format(tostring(rule.kind), host)
     end
   end
 

@@ -134,27 +134,14 @@ function M.new(config)
     return blocks
   end
 
-  function mod.build(rules, _opts)
-    local blocks = {}
-
-    for _, rule in ipairs(rules or {}) do
-      local rendered = {}
-      if rule.kind == "name_pattern" then
-        rendered = mod.render_name_pattern(rule)
-      elseif rule.kind == "call" then
-        rendered = mod.render_call(rule)
-      else
-        return nil, ("unsupported c_family rule kind: %s"):format(rule.kind)
-      end
-      vim.list_extend(blocks, rendered)
-    end
-
-    if static_preamble then
-      return "; extends\n" .. static_preamble .. "\n" .. table.concat(blocks, "\n")
-    else
-      return "; extends\n" .. table.concat(blocks, "\n")
-    end
-  end
+  mod.build = util.build_dispatcher({
+    header = "; extends",
+    renderers = {
+      name_pattern = mod.render_name_pattern,
+      call = mod.render_call,
+    },
+    static_preamble = static_preamble,
+  })
 
   return mod
 end

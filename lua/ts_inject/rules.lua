@@ -33,57 +33,38 @@ local function normalize_fn_list(fn)
   return nil
 end
 
+local name_pattern_formats = {
+  javascript = "^[%%a$][%%w_$]*%s$",
+  typescript = "^[%%a$][%%w_$]*%s$",
+  go = "^[%%a][%%w]*%s$",
+  zig = "^[%%l][%%w]*%s$",
+}
+
+local default_name_pattern_hosts = {
+  python = true,
+  lua = true,
+  ruby = true,
+  rust = true,
+  perl = true,
+  php = true,
+  c_sharp = true,
+  kotlin = true,
+  java = true,
+  c = true,
+  cpp = true,
+  elixir = true,
+  bash = true,
+}
+
 local function name_pattern_for(host, suffix)
   local escaped = escape_lua_pattern(suffix)
-
-  if host == "python" then
+  local format = name_pattern_formats[host]
+  if format then
+    return format:format(escaped)
+  end
+  if default_name_pattern_hosts[host] then
     return ("^[%%a_][%%w_]*%s$"):format(escaped)
   end
-
-  if host == "lua" then
-    return ("^[%%a_][%%w_]*%s$"):format(escaped)
-  end
-
-  if host == "ruby" then
-    return ("^[%%a_][%%w_]*%s$"):format(escaped)
-  end
-
-  if host == "javascript" or host == "typescript" then
-    return ("^[%%a$][%%w_$]*%s$"):format(escaped)
-  end
-
-  if host == "go" then
-    return ("^[%%a][%%w]*%s$"):format(escaped)
-  end
-
-  if host == "rust" then
-    return ("^[%%a_][%%w_]*%s$"):format(escaped)
-  end
-
-  if host == "zig" then
-    return ("^[%%l][%%w]*%s$"):format(escaped)
-  end
-
-  if
-    host == "perl"
-    or host == "php"
-    or host == "c_sharp"
-    or host == "kotlin"
-    or host == "java"
-    or host == "c"
-    or host == "cpp"
-  then
-    return ("^[%%a_][%%w_]*%s$"):format(escaped)
-  end
-
-  if host == "elixir" then
-    return ("^[%%a_][%%w_]*%s$"):format(escaped)
-  end
-
-  if host == "bash" then
-    return ("^[%%a_][%%w_]*%s$"):format(escaped)
-  end
-
   return nil
 end
 
