@@ -391,3 +391,19 @@
     ])
   (#set! injection.language "asm")
 )
+
+; === Regex ===
+
+; regcomp(&regex, "pattern", flags)
+(
+  (call_expression
+    function: (identifier) @_fn
+    arguments: (argument_list
+      .
+      (_)
+      .
+      (string_literal
+        (string_content) @injection.content)))
+  (#eq? @_fn "regcomp")
+  (#set! injection.language "regex")
+)

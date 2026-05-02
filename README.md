@@ -16,7 +16,7 @@ Requirements:
 - Neovim `0.11+`
 - Tree-sitter `sql` parser (for SQL injection)
 - Tree-sitter `graphql` parser (for GraphQL injection in Go, JavaScript, TypeScript, Python, Rust, Java, Kotlin, C#, PHP, and Scala)
-- Tree-sitter `regex` parser (for Regex injection in Java, C#, PHP, and Scala)
+- Tree-sitter `regex` parser (for Regex injection in Java, C#, PHP, Scala, C, and C++)
 - Tree-sitter host parsers for every language you enable
 
 `ts-inject.nvim` uses Neovim's built-in `vim.treesitter` APIs. It does not
@@ -330,8 +330,8 @@ Supported hosts:
 | Host | Primary naming / signal | Stable string forms | Notes |
 | --- | --- | --- | --- |
 | `bash` | heredoc delimiters | heredoc bodies | built-in `SQL`, `PY`, `LUA`, `JS`, `TS`, `RB`/`RUBY`, `PL`/`PERL`, `GRAPHQL`/`GQL`, `JSON`, `REGEX`/`RE` delimiter mapping |
-| `c` | `*_sql`, DB API calls | adjacent string literals | includes SQLite/libpq/MySQL/ODBC APIs; also injects `asm` into `gnu_asm_expression` |
-| `cpp` | `*_sql`, DB API calls, `sql` comments | regular, adjacent, raw, prefixed, suffixed, parenthesized, casted | includes SQLite/libpq/MySQL/ODBC, Qt, SQLiteCpp, SOCI, common wrappers |
+| `c` | `*_sql`, DB API calls | adjacent string literals | includes SQLite/libpq/MySQL/ODBC APIs; also injects `asm` into `gnu_asm_expression`; Regex: `regcomp(...)` second argument |
+| `cpp` | `*_sql`, DB API calls, `sql` comments | regular, adjacent, raw, prefixed, suffixed, parenthesized, casted | includes SQLite/libpq/MySQL/ODBC, Qt, SQLiteCpp, SOCI, common wrappers; Regex: `std::regex(...)` constructor |
 | `c_sharp` | `camelCase ...Sql`, `..._SQL`, DB calls | regular, concatenated, verbatim | SQL: common `Query` / `Execute` / `Prepare` paths; GraphQL: `*_GQL` / `*Gql` suffix; Regex: `Regex.Match` / `Regex.Replace` / `new Regex(...)` |
 | `go` | Go-style `userQuery`, SQL-looking content | raw and interpreted strings | SQL: favors obvious SQL text; GraphQL: content prefix (query/mutation/subscription/fragment) |
 | `java` | `camelCase ...Sql`, `..._SQL`, DB calls, SQL annotations | regular, concatenated, text blocks, annotation strings/arrays | SQL: JDBC, JdbcTemplate, JDBI, JPA/Hibernate query APIs, jOOQ plain SQL, MyBatis annotations; GraphQL: `*_GQL` / `*Gql` suffix; Regex: `Pattern.compile(...)` / `String.matches(...)` |

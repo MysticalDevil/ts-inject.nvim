@@ -35,8 +35,8 @@ Requirements:
 
   - Neovim 0.11+
   - Tree-sitter `sql` parser
-  - Tree-sitter `regex` parser (for Regex injection in Java, C#, PHP, and
-    Scala)
+  - Tree-sitter `regex` parser (for Regex injection in Java, C#, PHP, Scala,
+    C, and C++)
   - Tree-sitter host parsers for enabled languages
 
 `ts-inject.nvim` uses Neovim's built-in `vim.treesitter` APIs. It does not
@@ -339,10 +339,12 @@ Host notes:
     `RB`/`RUBY`, `PL`/`PERL`, `GRAPHQL`/`GQL`, `JSON`, `REGEX`/`RE`
   - c: SQL via adjacent-string `*_sql` declarations and common C DB APIs
     (`sqlite3_exec`, `sqlite3_prepare_v2`, `PQexec`, `PQprepare`, etc.);
-    also injects `asm` into `gnu_asm_expression`
+    also injects `asm` into `gnu_asm_expression`; Regex: `regcomp(...)`
+    second argument
   - cpp: SQL-named variables, explicit `sql` comments, common C/C++ DB APIs,
     Qt, SQLiteCpp, SOCI, regular/adjacent/raw/prefixed/suffixed/casted strings,
-    and inline assembly (`asm` / `__asm__` / `__asm__ volatile`)
+    inline assembly (`asm` / `__asm__` / `__asm__ volatile`), and Regex:
+    `std::regex(...)` constructor
   - c_sharp: `...Sql`, `..._SQL`, regular/concatenated/verbatim strings,
     common DB call sites; GraphQL: `*_GQL` / `*Gql` suffix; Regex:
     `Regex.Match` / `Regex.Replace` / `new Regex(...)`

@@ -23,6 +23,8 @@ All notable changes to this project will be documented in this file.
   - C#: `Regex.Match(...)` / `Regex.Replace(...)` second argument and `new Regex(...)` first argument
   - PHP: `preg_match` / `preg_replace` / `preg_split` first argument
   - Scala: `"...".r` suffix and `new Regex(...)` arguments
+  - C: `regcomp(...)` second argument
+  - C++: `std::regex(...)` constructor arguments
 - `:TSInjectDebug` and `:TSInjectHealth` now open in a centered floating window with `q` / `<Esc>` to close.
 - `scripts/preview-inject.sh` (moved from `tmp/`) with improved UX: `--list`, `--line`, parser availability checks, and colorized output.
 

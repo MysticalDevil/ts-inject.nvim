@@ -523,3 +523,39 @@
   (#set! injection.language "asm")
 )
 
+; === Regex ===
+
+; std::regex rx("pattern") / regex re("pattern")
+(
+  (declaration
+    type: [
+      (qualified_identifier
+        (type_identifier) @_class)
+      (type_identifier) @_class
+    ]
+    declarator: (init_declarator
+      declarator: (identifier)
+      value: (argument_list
+        .
+        (string_literal
+          (string_content) @injection.content))))
+  (#eq? @_class "regex")
+  (#set! injection.language "regex")
+)
+
+; std::regex("pattern") as expression
+(
+  (call_expression
+    function: [
+      (qualified_identifier
+        (identifier) @_class)
+      (identifier) @_class
+    ]
+    arguments: (argument_list
+      .
+      (string_literal
+        (string_content) @injection.content)))
+  (#eq? @_class "regex")
+  (#set! injection.language "regex")
+)
+
