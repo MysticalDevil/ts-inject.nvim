@@ -4,57 +4,62 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-05-03
+
 ### Added
 
-- C inline assembly injection (`asm`, `__asm__`, `__asm__ volatile`) via `gnu_asm_expression`.
-- Elixir SQL injection support (strings, sigils, `<>` concatenation, Ecto calls, `# sql` comment marker).
-- Perl SQL injection support (strings, heredocs, DBI call sites).
-- PHP nowdoc SQL injection fixed by replacing `injection.combined` with `(nowdoc_string)+` fragment matching.
-- XML MyBatis mapper SQL tag injection (static support).
-- Experimental `template_tag` user rules for generated `javascript` and `typescript` hosts.
-- Configurable generated-host rules for `zig` (name_pattern and call rules).
-- Configurable generated-host rules for `go` and `rust` (including `macro` rules for rust sqlx macros).
-- Configurable generated-host rules for `lua` and `ruby` (matching `python`/`javascript`/`typescript` host-object flow).
-- **GraphQL injection support:**
-  - JavaScript / TypeScript: `gql` / `graphql` / `gqlRequest` template tags (including `member_expression` like `client.graphql`)
-  - Rust: `*_gql` / `*Graphql` naming suffix, content prefix (`query` / `mutation` / `subscription` / `fragment`), and `graphql!` / `gql!` macros
-  - Python: built-in `content_prefix` rules for GraphQL
-  - Go: static regex-based content prefix rules for GraphQL
-- **Regex injection support:**
+- All 19 host languages now use **generated runtime queries** (was 5 in `0.2`):
+  - New generated builders: `c`, `cpp`, `bash`, `perl`, `php`, `c_sharp`, `kotlin`, `elixir`, `java`, `scala`, `xml`, `zig`
+  - Shared engine modules: `_util.lua`, `_concat.lua`, `_c_family.lua`
+- **GraphQL injection support** across 9 hosts:
+  - JavaScript / TypeScript: `gql` / `graphql` / `gqlRequest` template tags
+  - Rust: `*_gql` / `*Graphql` naming suffix, content prefix, and `graphql!` / `gql!` macros
+  - Python, Go, Java, Kotlin, C#, PHP, Scala: content-prefix or call-site based
+- **Regex injection support** across 6 hosts:
   - Java: `Pattern.compile(...)` and `String.matches(...)` arguments
-  - C#: `Regex.Match(...)` / `Regex.Replace(...)` second argument and `new Regex(...)` first argument
+  - C#: `Regex.Match(...)` / `Regex.Replace(...)` and `new Regex(...)` arguments
   - PHP: `preg_match` / `preg_replace` / `preg_split` first argument
   - Scala: `"...".r` suffix and `new Regex(...)` arguments
   - C: `regcomp(...)` second argument
   - C++: `std::regex(...)` constructor arguments
+- C inline assembly injection (`asm`, `__asm__`, `__asm__ volatile`) via `gnu_asm_expression`.
+- Elixir SQL injection support (strings, sigils, `<>` concatenation, Ecto calls, `# sql` comment marker).
+- Perl SQL injection support (strings, heredocs, DBI call sites).
+- XML MyBatis mapper SQL tag injection.
+- Bash heredoc delimiter mappings expanded to 10 languages (SQL, Python, Lua, JavaScript, TypeScript, Ruby, Perl, GraphQL, JSON, Regex).
 - `:TSInjectDebug` and `:TSInjectHealth` now open in a centered floating window with `q` / `<Esc>` to close.
-- `scripts/preview-inject.sh` (moved from `tmp/`) with improved UX: `--list`, `--line`, parser availability checks, and colorized output.
+- `tests/comprehensive.lua`: 200-assertion headless validation suite covering all 19 hosts, custom rules, debug, and health commands.
+- `scripts/preview-inject.sh` (moved from `tmp/`) with `--list`, `--line`, parser checks, and colorized output.
 
 ### Changed
 
-- README/help docs were reorganized:
-  - installation moved earlier with `lazy.nvim` and `vim.pack` examples
-  - important notes are now front-loaded (load order, semantic tokens, C/C++ constraints)
-  - verification/tooling sections were removed
-- README/help configuration sections now document:
-  - configurable generated hosts for `rules`
-  - rule kinds and required fields (`var_suffix`, `call`, `template_tag`, `content_prefix`)
-  - per-kind host support boundaries and Lua `:format(...)` expansion behavior
-- Smoke test architecture refactored from monolithic `tests/smoke/assertions.lua` into modular structure:
-  - `tests/smoke/init.lua`: shared utilities returned as a module table
-  - `tests/smoke/lang/*.lua`: per-language / per-injection-type assertions
-  - `tests/smoke/integration/*.lua`: integration tests
-  - Submodules use `require("tests.smoke.init")` instead of `_G` globals.
-- `selene.toml` cleaned up; smoke test globals removed after module-pattern refactor.
+- **Builder architecture refactored:**
+  - All 17 generated builders now use `util.build_dispatcher()` instead of hand-written `M.build()` dispatch loops.
+  - `concat.expand()` replaces `for depth = 2, MAX_CONCAT_DEPTH` loops across 9 builders.
+  - `util.arg_prefix()` unifies arg-index prefix generation for `go`, `rust`, `zig`, and `c`/`cpp`.
+  - `rules.name_pattern_for()` rewritten as lookup tables instead of 13 repetitive `if` branches.
+- `query_builder.lua` now validates rule kinds early and rejects unknown kinds with a clear error.
+- README/help docs reorganized: installation front-loaded, verification sections removed, configuration boundaries documented.
+- Smoke test architecture refactored into modular structure (`tests/smoke/init.lua`, `tests/smoke/lang/*.lua`, `tests/smoke/integration/*.lua`).
+- `selene.toml` cleaned up after module-pattern refactor.
+
+### Fixed
+
+- `build_dispatcher` static_preamble ordering: `; extends` was being placed after preamble instead of before, breaking bash heredoc and all other preamble-bearing hosts.
+- `health.lua` crash when generated query errors contained newlines (`gsub("\n", " ")` sanitization).
+- PHP nowdoc SQL injection: replaced `injection.combined` with `(nowdoc_string)+` fragment matching.
+- Kotlin annotation injection rules corrected.
 
 ### Testing
 
 - Expanded smoke coverage for:
-  - `lua`/`ruby` configurable generated rules (`builtin = false`, user rule counts, heredoc/format paths)
-  - `template_tag` user-rule behavior in `javascript` and `typescript`
-  - warning reporting for unsupported host/rule combinations in `TSInjectHealth`
-  - SQL example coverage across all 19 language fixtures (DDL, CTE, JOIN, subquery, aggregate, window function)
-  - GraphQL assertions for JavaScript, TypeScript, Rust, Python, and Go
+  - all 19 language fixtures with DDL, CTE, JOIN, subquery, aggregate, window function examples
+  - GraphQL assertions for JS/TS, Rust, Python, Go, Java, Kotlin, C#, PHP, Scala
+  - Regex assertions for Java, C#, PHP, Scala, C, C++
+  - `lua`/`ruby` configurable generated rules, `template_tag` user rules
+  - warning reporting in `TSInjectHealth` for unsupported host/rule combinations
+
+## [0.2.0] - 2026-03-15
 
 ## [0.2.0] - 2026-03-15
 

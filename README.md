@@ -5,7 +5,8 @@ Static and generated Tree-sitter injections for Neovim.
 `ts-inject.nvim` now has two layers:
 
 - stable static host support from `0.1` (SQL, GraphQL, and Regex)
-- a small `0.2` framework for generated queries and experimental rules
+- a `0.2` framework for generated queries and experimental rules
+- `0.3` unifies all 19 hosts under generated queries with shared engine modules
 
 The project favors stable, host-native heuristics over a generic rule engine.
 
@@ -292,7 +293,7 @@ Lua-specific note for user rules:
 
 ## Current Main Branch
 
-Current main keeps the `0.1` compatibility path while adding `0.2+` features:
+Current main keeps backward compatibility while adding `0.3` features:
 
 - static runtime-installed queries for most hosts
 - generated runtime queries for `python`, `javascript`, `typescript`, `lua`,

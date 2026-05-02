@@ -5,12 +5,29 @@ local query_builder = require("ts_inject.query_builder")
 
 -- Language list: all 19 hosts + injection targets
 local hosts = {
-  "bash", "c", "cpp", "c_sharp", "elixir", "go", "java", "javascript",
-  "kotlin", "lua", "perl", "php", "python", "ruby", "rust", "scala",
-  "typescript", "xml", "zig",
+  "bash",
+  "c",
+  "cpp",
+  "c_sharp",
+  "elixir",
+  "go",
+  "java",
+  "javascript",
+  "kotlin",
+  "lua",
+  "perl",
+  "php",
+  "python",
+  "ruby",
+  "rust",
+  "scala",
+  "typescript",
+  "xml",
+  "zig",
 }
 
-local inject_targets = { "sql", "graphql", "regex", "json", "python", "lua", "javascript", "typescript", "ruby", "perl" }
+local inject_targets =
+  { "sql", "graphql", "regex", "json", "python", "lua", "javascript", "typescript", "ruby", "perl" }
 
 local all_enable = {}
 for _, host in ipairs(hosts) do
@@ -185,7 +202,9 @@ local function test_fixture(file, filetype, expected_langs, test_cases)
 end
 
 -- bash: SQL + other language heredocs + regex + json + graphql
-test_fixture("tests/fixtures/basic.sh", "bash",
+test_fixture(
+  "tests/fixtures/basic.sh",
+  "bash",
   { "sql", "python", "lua", "javascript", "typescript", "ruby", "perl", "graphql", "json", "regex" },
   {
     { "SELECT id, email", "keyword_select" },
@@ -196,256 +215,188 @@ test_fixture("tests/fixtures/basic.sh", "bash",
 )
 
 -- c: SQL + asm (regex in separate fixture)
-test_fixture("tests/fixtures/basic.c", "c", { "sql", "asm" },
-  {
-    { "UPDATE users", "keyword_update" },
-    { "CREATE TABLE audit_logs", "keyword_create" },
-    { "WITH ranked AS", "keyword_with" },
-  }
-)
-test_fixture("tests/fixtures/basic_regex.c", "c", { "regex" },
-  {
-    { "a-z", "class_character", "regex" },
-  }
-)
+test_fixture("tests/fixtures/basic.c", "c", { "sql", "asm" }, {
+  { "UPDATE users", "keyword_update" },
+  { "CREATE TABLE audit_logs", "keyword_create" },
+  { "WITH ranked AS", "keyword_with" },
+})
+test_fixture("tests/fixtures/basic_regex.c", "c", { "regex" }, {
+  { "a-z", "class_character", "regex" },
+})
 
 -- cpp: SQL (regex in separate fixture)
-test_fixture("tests/fixtures/basic.cpp", "cpp", { "sql" },
-  {
-    { "SELECT id, email", "keyword_select" },
-    { "ALTER TABLE audit_logs", "keyword_alter" },
-    { "LEFT JOIN projects", "keyword_left" },
-  }
-)
-test_fixture("tests/fixtures/basic_regex.cpp", "cpp", { "regex" },
-  {
-    { "a-z", "class_character", "regex" },
-  }
-)
+test_fixture("tests/fixtures/basic.cpp", "cpp", { "sql" }, {
+  { "SELECT id, email", "keyword_select" },
+  { "ALTER TABLE audit_logs", "keyword_alter" },
+  { "LEFT JOIN projects", "keyword_left" },
+})
+test_fixture("tests/fixtures/basic_regex.cpp", "cpp", { "regex" }, {
+  { "a-z", "class_character", "regex" },
+})
 
 -- c_sharp: SQL (graphql + regex in separate fixtures)
-test_fixture("tests/fixtures/basic.cs", "c_sharp", { "sql" },
-  {
-    { "SELECT Id, Email", "keyword_select" },
-    { "UPDATE Users", "keyword_update" },
-    { "LEFT JOIN projects", "keyword_left" },
-  }
-)
-test_fixture("tests/fixtures/basic_graphql.cs", "c_sharp", { "graphql" },
-  {
-    { "query GetUser", "operation_type", "graphql" },
-    { "fragment UserFields", "fragment_definition", "graphql" },
-  }
-)
-test_fixture("tests/fixtures/basic_regex.cs", "c_sharp", { "regex" },
-  {
-    { "a-z", "class_character", "regex" },
-  }
-)
+test_fixture("tests/fixtures/basic.cs", "c_sharp", { "sql" }, {
+  { "SELECT Id, Email", "keyword_select" },
+  { "UPDATE Users", "keyword_update" },
+  { "LEFT JOIN projects", "keyword_left" },
+})
+test_fixture("tests/fixtures/basic_graphql.cs", "c_sharp", { "graphql" }, {
+  { "query GetUser", "operation_type", "graphql" },
+  { "fragment UserFields", "fragment_definition", "graphql" },
+})
+test_fixture("tests/fixtures/basic_regex.cs", "c_sharp", { "regex" }, {
+  { "a-z", "class_character", "regex" },
+})
 
 -- elixir: SQL
-test_fixture("tests/fixtures/basic.ex", "elixir", { "sql" },
-  {
-    { "SELECT id, email", "keyword_select" },
-    { "UPDATE users SET status", "keyword_update" },
-    { "LEFT JOIN projects", "keyword_left" },
-  }
-)
+test_fixture("tests/fixtures/basic.ex", "elixir", { "sql" }, {
+  { "SELECT id, email", "keyword_select" },
+  { "UPDATE users SET status", "keyword_update" },
+  { "LEFT JOIN projects", "keyword_left" },
+})
 
 -- go: SQL (graphql in separate fixture)
-test_fixture("tests/fixtures/basic.go", "go", { "sql" },
-  {
-    { "SELECT id, name", "keyword_select" },
-    { "LEFT JOIN projects", "keyword_left" },
-    { "row_number() OVER", "identifier" },
-  }
-)
-test_fixture("tests/fixtures/basic_graphql.go", "go", { "graphql" },
-  {
-    { "query GetUser", "operation_type", "graphql" },
-    { "fragment UserFields", "fragment_definition", "graphql" },
-  }
-)
+test_fixture("tests/fixtures/basic.go", "go", { "sql" }, {
+  { "SELECT id, name", "keyword_select" },
+  { "LEFT JOIN projects", "keyword_left" },
+  { "row_number() OVER", "identifier" },
+})
+test_fixture("tests/fixtures/basic_graphql.go", "go", { "graphql" }, {
+  { "query GetUser", "operation_type", "graphql" },
+  { "fragment UserFields", "fragment_definition", "graphql" },
+})
 
 -- java: SQL (graphql + regex in separate fixtures)
-test_fixture("tests/fixtures/basic.java", "java", { "sql" },
-  {
-    { "SELECT id, email", "keyword_select" },
-    { "UPDATE users", "keyword_update" },
-    { "LEFT JOIN projects", "keyword_left" },
-  }
-)
-test_fixture("tests/fixtures/basic_graphql.java", "java", { "graphql" },
-  {
-    { "query GetUser", "operation_type", "graphql" },
-    { "fragment UserFields", "fragment_definition", "graphql" },
-  }
-)
-test_fixture("tests/fixtures/basic_regex.java", "java", { "regex" },
-  {
-    { "a-z", "class_character", "regex" },
-  }
-)
+test_fixture("tests/fixtures/basic.java", "java", { "sql" }, {
+  { "SELECT id, email", "keyword_select" },
+  { "UPDATE users", "keyword_update" },
+  { "LEFT JOIN projects", "keyword_left" },
+})
+test_fixture("tests/fixtures/basic_graphql.java", "java", { "graphql" }, {
+  { "query GetUser", "operation_type", "graphql" },
+  { "fragment UserFields", "fragment_definition", "graphql" },
+})
+test_fixture("tests/fixtures/basic_regex.java", "java", { "regex" }, {
+  { "a-z", "class_character", "regex" },
+})
 
 -- javascript: SQL (graphql in separate fixture)
-test_fixture("tests/fixtures/basic.js", "javascript", { "sql" },
-  {
-    { "SELECT id, email", "keyword_select" },
-    { "UPDATE users", "keyword_update" },
-    { "LEFT JOIN projects", "keyword_left" },
-  }
-)
-test_fixture("tests/fixtures/basic_graphql.js", "javascript", { "graphql" },
-  {
-    { "query GetUser", "operation_type", "graphql" },
-    { "fragment UserFields", "fragment_definition", "graphql" },
-  }
-)
+test_fixture("tests/fixtures/basic.js", "javascript", { "sql" }, {
+  { "SELECT id, email", "keyword_select" },
+  { "UPDATE users", "keyword_update" },
+  { "LEFT JOIN projects", "keyword_left" },
+})
+test_fixture("tests/fixtures/basic_graphql.js", "javascript", { "graphql" }, {
+  { "query GetUser", "operation_type", "graphql" },
+  { "fragment UserFields", "fragment_definition", "graphql" },
+})
 
 -- kotlin: SQL (graphql in separate fixture)
-test_fixture("tests/fixtures/basic.kt", "kotlin", { "sql" },
-  {
-    { "SELECT id, email", "keyword_select" },
-    { "UPDATE users", "keyword_update" },
-    { "LEFT JOIN projects", "keyword_left" },
-  }
-)
-test_fixture("tests/fixtures/basic_graphql.kt", "kotlin", { "graphql" },
-  {
-    { "query GetUser", "operation_type", "graphql" },
-    { "fragment UserFields", "fragment_definition", "graphql" },
-  }
-)
+test_fixture("tests/fixtures/basic.kt", "kotlin", { "sql" }, {
+  { "SELECT id, email", "keyword_select" },
+  { "UPDATE users", "keyword_update" },
+  { "LEFT JOIN projects", "keyword_left" },
+})
+test_fixture("tests/fixtures/basic_graphql.kt", "kotlin", { "graphql" }, {
+  { "query GetUser", "operation_type", "graphql" },
+  { "fragment UserFields", "fragment_definition", "graphql" },
+})
 
 -- lua: SQL
-test_fixture("tests/fixtures/basic.lua", "lua", { "sql" },
-  {
-    { "SELECT id, email", "keyword_select" },
-    { "CREATE TABLE users", "keyword_create" },
-    { "LEFT JOIN projects", "keyword_left" },
-  }
-)
+test_fixture("tests/fixtures/basic.lua", "lua", { "sql" }, {
+  { "SELECT id, email", "keyword_select" },
+  { "CREATE TABLE users", "keyword_create" },
+  { "LEFT JOIN projects", "keyword_left" },
+})
 
 -- perl: SQL
-test_fixture("tests/fixtures/basic.pl", "perl", { "sql" },
-  {
-    { "SELECT id, email FROM perl_users", "keyword_select" },
-    { "UPDATE perl_users SET status", "keyword_update" },
-    { "LEFT JOIN projects", "keyword_left" },
-  }
-)
+test_fixture("tests/fixtures/basic.pl", "perl", { "sql" }, {
+  { "SELECT id, email FROM perl_users", "keyword_select" },
+  { "UPDATE perl_users SET status", "keyword_update" },
+  { "LEFT JOIN projects", "keyword_left" },
+})
 
 -- php: SQL (graphql + regex in separate fixtures)
-test_fixture("tests/fixtures/basic.php", "php", { "sql" },
-  {
-    { "SELECT id, email", "keyword_select" },
-    { "UPDATE users", "keyword_update" },
-    { "LEFT JOIN projects", "keyword_left" },
-  }
-)
-test_fixture("tests/fixtures/basic_graphql.php", "php", { "graphql" },
-  {
-    { "query GetUser", "operation_type", "graphql" },
-    { "fragment UserFields", "fragment_definition", "graphql" },
-  }
-)
-test_fixture("tests/fixtures/basic_regex.php", "php", { "regex" },
-  {
-    { "a-z", "class_character", "regex" },
-  }
-)
+test_fixture("tests/fixtures/basic.php", "php", { "sql" }, {
+  { "SELECT id, email", "keyword_select" },
+  { "UPDATE users", "keyword_update" },
+  { "LEFT JOIN projects", "keyword_left" },
+})
+test_fixture("tests/fixtures/basic_graphql.php", "php", { "graphql" }, {
+  { "query GetUser", "operation_type", "graphql" },
+  { "fragment UserFields", "fragment_definition", "graphql" },
+})
+test_fixture("tests/fixtures/basic_regex.php", "php", { "regex" }, {
+  { "a-z", "class_character", "regex" },
+})
 
 -- python: SQL (graphql in separate fixture)
-test_fixture("tests/fixtures/basic.py", "python", { "sql" },
-  {
-    { "CREATE TABLE users", "keyword_create" },
-    { "DELETE FROM users", "keyword_delete" },
-    { "LEFT JOIN projects", "keyword_left" },
-  }
-)
-test_fixture("tests/fixtures/basic_graphql.py", "python", { "graphql" },
-  {
-    { "query GetUser", "operation_type", "graphql" },
-    { "fragment UserFields", "fragment_definition", "graphql" },
-  }
-)
+test_fixture("tests/fixtures/basic.py", "python", { "sql" }, {
+  { "CREATE TABLE users", "keyword_create" },
+  { "DELETE FROM users", "keyword_delete" },
+  { "LEFT JOIN projects", "keyword_left" },
+})
+test_fixture("tests/fixtures/basic_graphql.py", "python", { "graphql" }, {
+  { "query GetUser", "operation_type", "graphql" },
+  { "fragment UserFields", "fragment_definition", "graphql" },
+})
 
 -- ruby: SQL
-test_fixture("tests/fixtures/basic.rb", "ruby", { "sql" },
-  {
-    { "CREATE TABLE users", "keyword_create" },
-    { "UPDATE users", "keyword_update" },
-    { "LEFT JOIN projects", "keyword_left" },
-  }
-)
+test_fixture("tests/fixtures/basic.rb", "ruby", { "sql" }, {
+  { "CREATE TABLE users", "keyword_create" },
+  { "UPDATE users", "keyword_update" },
+  { "LEFT JOIN projects", "keyword_left" },
+})
 
 -- rust: SQL (graphql in separate fixture)
-test_fixture("tests/fixtures/basic.rs", "rust", { "sql" },
-  {
-    { "CREATE TABLE users", "keyword_create" },
-    { "LEFT JOIN projects", "keyword_left" },
-    { "row_number() OVER", "identifier" },
-  }
-)
-test_fixture("tests/fixtures/basic_graphql.rs", "rust", { "graphql" },
-  {
-    { "query GetUser", "operation_type", "graphql" },
-    { "fragment UserFields", "fragment_definition", "graphql" },
-  }
-)
+test_fixture("tests/fixtures/basic.rs", "rust", { "sql" }, {
+  { "CREATE TABLE users", "keyword_create" },
+  { "LEFT JOIN projects", "keyword_left" },
+  { "row_number() OVER", "identifier" },
+})
+test_fixture("tests/fixtures/basic_graphql.rs", "rust", { "graphql" }, {
+  { "query GetUser", "operation_type", "graphql" },
+  { "fragment UserFields", "fragment_definition", "graphql" },
+})
 
 -- scala: SQL (graphql + regex in separate fixtures)
-test_fixture("tests/fixtures/basic.scala", "scala", { "sql" },
-  {
-    { "CREATE TABLE users", "keyword_create" },
-    { "UPDATE users", "keyword_update" },
-    { "LEFT JOIN projects", "keyword_left" },
-  }
-)
-test_fixture("tests/fixtures/basic_graphql.scala", "scala", { "graphql" },
-  {
-    { "query GetUser", "operation_type", "graphql" },
-    { "fragment UserFields", "fragment_definition", "graphql" },
-  }
-)
-test_fixture("tests/fixtures/basic_regex.scala", "scala", { "regex" },
-  {
-    { "a-z", "class_character", "regex" },
-  }
-)
+test_fixture("tests/fixtures/basic.scala", "scala", { "sql" }, {
+  { "CREATE TABLE users", "keyword_create" },
+  { "UPDATE users", "keyword_update" },
+  { "LEFT JOIN projects", "keyword_left" },
+})
+test_fixture("tests/fixtures/basic_graphql.scala", "scala", { "graphql" }, {
+  { "query GetUser", "operation_type", "graphql" },
+  { "fragment UserFields", "fragment_definition", "graphql" },
+})
+test_fixture("tests/fixtures/basic_regex.scala", "scala", { "regex" }, {
+  { "a-z", "class_character", "regex" },
+})
 
 -- typescript: SQL (graphql in separate fixture)
-test_fixture("tests/fixtures/basic.ts", "typescript", { "sql" },
-  {
-    { "UPDATE users", "keyword_update" },
-    { "LEFT JOIN projects", "keyword_left" },
-    { "row_number() OVER", "identifier" },
-  }
-)
-test_fixture("tests/fixtures/basic_graphql.ts", "typescript", { "graphql" },
-  {
-    { "query GetUser", "operation_type", "graphql" },
-    { "fragment UserFields", "fragment_definition", "graphql" },
-  }
-)
+test_fixture("tests/fixtures/basic.ts", "typescript", { "sql" }, {
+  { "UPDATE users", "keyword_update" },
+  { "LEFT JOIN projects", "keyword_left" },
+  { "row_number() OVER", "identifier" },
+})
+test_fixture("tests/fixtures/basic_graphql.ts", "typescript", { "graphql" }, {
+  { "query GetUser", "operation_type", "graphql" },
+  { "fragment UserFields", "fragment_definition", "graphql" },
+})
 
 -- xml: SQL
-test_fixture("tests/fixtures/basic.xml", "xml", { "sql" },
-  {
-    { "FROM xml_users", "keyword_from" },
-    { "UPDATE xml_users", "keyword_update" },
-    { "LEFT JOIN projects", "keyword_left" },
-  }
-)
+test_fixture("tests/fixtures/basic.xml", "xml", { "sql" }, {
+  { "FROM xml_users", "keyword_from" },
+  { "UPDATE xml_users", "keyword_update" },
+  { "LEFT JOIN projects", "keyword_left" },
+})
 
 -- zig: SQL
-test_fixture("tests/fixtures/basic.zig", "zig", { "sql" },
-  {
-    { "SELECT id, email", "keyword_select" },
-    { "CREATE TABLE audit_logs", "keyword_create" },
-    { "LEFT JOIN projects", "keyword_left" },
-  }
-)
+test_fixture("tests/fixtures/basic.zig", "zig", { "sql" }, {
+  { "SELECT id, email", "keyword_select" },
+  { "CREATE TABLE audit_logs", "keyword_create" },
+  { "LEFT JOIN projects", "keyword_left" },
+})
 
 -- Section 4: Custom rules
 section("Custom Rules (Dynamic)")

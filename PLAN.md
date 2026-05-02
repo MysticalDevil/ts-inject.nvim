@@ -2,33 +2,34 @@
 
 ## Status Snapshot
 
-Current repository status as of 2026-03-13:
+Current repository status as of 2026-05-03:
 
-- `0.1` is a static multi-language SQL injection release, not a generic rule engine
+- `0.1` was a static multi-language SQL injection release
+- `0.2` introduced the generated-query framework and experimental rules
+- `0.3` unified all 19 hosts under generated queries with shared engine modules
 - the public entrypoint is `require("ts_inject").setup({ enable = { ... } })`
-- the main branch now includes the first `0.2` framework slice
 - current commands are `:TSInjectDebug`, `:TSInjectReload`, and `:TSInjectHealth`
 - runtime query files are installed under `stdpath("data") .. "/ts-inject/queries/<lang>/injections.scm"`
-- the project already ships injection support for:
-  - `bash` heredoc delimiter mappings
-  - `c`
-  - `cpp`
-  - `c_sharp`
-  - `elixir`
-  - `go`
-  - `java`
-  - `javascript`
-  - `kotlin`
-  - `lua`
-  - `perl`
-  - `php`
-  - `python`
-  - `ruby`
-  - `scala`
-  - `rust`
-  - `typescript`
+- the project ships injection support for:
+  - `bash` heredoc delimiter mappings (10 languages)
+  - `c` (SQL, asm, regex)
+  - `cpp` (SQL, regex)
+  - `c_sharp` (SQL, GraphQL, regex)
+  - `elixir` (SQL)
+  - `go` (SQL, GraphQL)
+  - `java` (SQL, GraphQL, regex)
+  - `javascript` (SQL, GraphQL)
+  - `kotlin` (SQL, GraphQL)
+  - `lua` (SQL)
+  - `perl` (SQL)
+  - `php` (SQL, GraphQL, regex)
+  - `python` (SQL, GraphQL)
+  - `ruby` (SQL)
+  - `scala` (SQL, GraphQL, regex)
+  - `rust` (SQL, GraphQL)
+  - `typescript` (SQL, GraphQL)
   - `xml` (MyBatis mapper tags)
-  - `zig`
+  - `zig` (SQL)
 
 This file is the current implementation plan and release-tracking document.
 
@@ -195,24 +196,25 @@ The release includes:
 - static SQL injection support for 20 host languages
 - bash heredoc delimiter mappings
 
-## `0.3` Goals
+## `0.3` Completed
 
-`0.3` should broaden the plugin from SQL-oriented static workflows into a more
-general embedded-language tool.
+All `0.3` goals are complete as of 2026-05-03.
 
-Planned focus:
+- All 19 hosts unified under generated queries
+- Shared engine modules extracted (`_util.lua`, `_concat.lua`, `_c_family.lua`)
+- GraphQL injection for 9 hosts
+- Regex injection for 6 hosts
+- Bash heredoc expanded to 10 languages
+- Builder architecture unified with `build_dispatcher` and `concat.expand`
+- `tests/comprehensive.lua` (200 assertions) added for end-to-end validation
 
-- richer user-defined rule support built on top of the `0.2` internal model
-- shell normalization features and more non-SQL recipes
-- more built-in non-SQL recipes
-- better override / merge semantics between built-in and user-provided rules
-- stronger debugging and health reporting for generated or merged queries
+## `0.4` Goals
 
-In progress:
-- Regex injection for Java (`Pattern.compile`, `String.matches`), C# (`Regex.Match`, `Regex.Replace`, `new Regex`), PHP (`preg_match`, `preg_replace`, `preg_split`), Scala (`"...".r`, `new Regex`), C (`regcomp`), and C++ (`std::regex`)
-
-The main purpose of `0.3` is to make the plugin broadly configurable without
-losing the debuggability and host-specific correctness established in `0.1`.
+- richer per-rule precedence and partial builtin disable model
+- more built-in non-SQL recipes (e.g., JSON, YAML, TOML embeddings)
+- shell normalization features beyond heredoc (command substitution, process substitution)
+- query diff / preview in `:TSInjectDebug`
+- performance: lazy builder loading, query caching beyond nvim-treesitter's cache
 
 ## Recommended `0.1` Closeout Order
 
