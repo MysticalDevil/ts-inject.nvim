@@ -39,7 +39,9 @@ function M.generated_languages()
     python = true,
     ruby = true,
     rust = true,
+    scala = true,
     typescript = true,
+    xml = true,
     zig = true,
   }
 end

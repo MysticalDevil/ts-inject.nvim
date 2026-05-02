@@ -204,6 +204,20 @@ function M.normalize_user_rule(host, rule)
     }
   end
 
+  if rule.kind == "xml_tag" then
+    local tags = normalize_fn_list(rule.tags)
+    if not tags then
+      return nil, "xml_tag rules require tags as a string or non-empty list"
+    end
+
+    return {
+      kind = "xml_tag",
+      lang = lang,
+      tags = tags,
+      source = "user",
+    }
+  end
+
   return nil, ("unsupported experimental rule kind: %s"):format(tostring(rule.kind))
 end
 

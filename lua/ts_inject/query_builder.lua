@@ -8,6 +8,8 @@ local builders = {
   typescript = require("ts_inject.host.ecmascript"),
   go = require("ts_inject.host.go"),
   rust = require("ts_inject.host.rust"),
+  scala = require("ts_inject.host.scala"),
+  xml = require("ts_inject.host.xml"),
   zig = require("ts_inject.host.zig"),
 }
 

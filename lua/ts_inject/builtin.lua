@@ -189,6 +189,38 @@ local builtin = {
       source = "builtin",
     },
   },
+  scala = {
+    {
+      kind = "name_pattern",
+      lang = "sql",
+      pattern = "^[%l][%w]*Sql$",
+      source = "builtin",
+    },
+    {
+      kind = "name_pattern",
+      lang = "sql",
+      pattern = "^[%u][%u%d_]*_SQL$",
+      source = "builtin",
+    },
+    {
+      kind = "call",
+      lang = "sql",
+      fn = { "execute", "exec", "prepare", "query", "queryRaw" },
+      source = "builtin",
+    },
+    {
+      kind = "name_pattern",
+      lang = "graphql",
+      pattern = "^[%l][%w]*Gql$",
+      source = "builtin",
+    },
+    {
+      kind = "name_pattern",
+      lang = "graphql",
+      pattern = "^[%u][%u%d_]*_GQL$",
+      source = "builtin",
+    },
+  },
   rust = {
     {
       kind = "name_pattern",
@@ -250,6 +282,28 @@ local builtin = {
       kind = "macro",
       lang = "graphql",
       fn = { "graphql", "gql" },
+      source = "builtin",
+    },
+  },
+  xml = {
+    {
+      kind = "xml_tag",
+      lang = "sql",
+      tags = {
+        "select",
+        "insert",
+        "update",
+        "delete",
+        "sql",
+        "where",
+        "set",
+        "trim",
+        "foreach",
+        "if",
+        "choose",
+        "when",
+        "otherwise",
+      },
       source = "builtin",
     },
   },
