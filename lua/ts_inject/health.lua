@@ -36,6 +36,7 @@ function M.collect()
   local legacy_static = {}
   local host_status = {}
   local generated_paths = {}
+  local error_hosts = {}
 
   for host, status in pairs(state.hosts or {}) do
     enabled[#enabled + 1] = host
@@ -60,7 +61,12 @@ function M.collect()
       legacy_static[#legacy_static + 1] = host
     end
 
-    status_parts[#status_parts + 1] = status.error and ("error: " .. status.error) or "ok"
+    if status.error then
+      status_parts[#status_parts + 1] = ("error: " .. status.error)
+      error_hosts[#error_hosts + 1] = ("%s: %s"):format(host, status.error)
+    else
+      status_parts[#status_parts + 1] = "ok"
+    end
     host_status[#host_status + 1] = ("%s (%s)"):format(host, table.concat(status_parts, ", "))
     if status.mode == "generated" then
       generated[#generated + 1] = host
@@ -75,6 +81,16 @@ function M.collect()
   table.sort(static)
   table.sort(legacy_static)
   table.sort(host_status)
+  table.sort(error_hosts)
+
+  local total = #enabled
+  add(lines, ("%-18s %d enabled, %d generated, %d static"):format("summary:", total, #generated, #static))
+  if #legacy_static > 0 then
+    add(lines, ("%-18s %d host(s) forced to static mode"):format("", #legacy_static))
+  end
+  if #error_hosts > 0 then
+    add(lines, ("%-18s %d host(s) with errors"):format("", #error_hosts))
+  end
 
   append_section(lines, "enabled hosts", enabled)
   append_section(lines, "generated hosts", generated)
@@ -82,6 +98,7 @@ function M.collect()
   append_section(lines, "legacy static hosts", legacy_static)
   append_section(lines, "host status", host_status)
   append_section(lines, "generated query status", generated_paths)
+  append_section(lines, "errors", error_hosts)
 
   local parser_lines = {}
   for _, host in ipairs(enabled) do
@@ -90,6 +107,8 @@ function M.collect()
   end
   local sql_files = vim.api.nvim_get_runtime_file("parser/sql.*", true)
   parser_lines[#parser_lines + 1] = ("sql: %s"):format((#sql_files > 0) and "ok" or "missing")
+  local gql_files = vim.api.nvim_get_runtime_file("parser/graphql.*", true)
+  parser_lines[#parser_lines + 1] = ("graphql: %s"):format((#gql_files > 0) and "ok" or "missing")
   append_section(lines, "parser availability", parser_lines)
 
   append_section(lines, "warnings", state.warnings)
