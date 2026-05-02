@@ -21,7 +21,8 @@ Current main-branch scope:
   - generated queries for selected hosts
   - multiple host languages
   - SQL string injection
-  - GraphQL injection in JavaScript, TypeScript, and Rust
+  - GraphQL injection in Go, JavaScript, TypeScript, Python, Rust, Java, Kotlin,
+    C#, PHP, and Scala
   - shell heredoc delimiter injections in bash
   - explicit opt-in in |ts-inject-setup|
 
@@ -338,31 +339,34 @@ Host notes:
     Qt, SQLiteCpp, SOCI, regular/adjacent/raw/prefixed/suffixed/casted strings,
     and inline assembly (`asm` / `__asm__` / `__asm__ volatile`)
   - c_sharp: `...Sql`, `..._SQL`, regular/concatenated/verbatim strings,
-    common DB call sites
+    common DB call sites; GraphQL: `*_GQL` / `*Gql` suffix
   - elixir: `snake_case ..._sql`, `camelCase ...Sql`, `UPPER_SNAKE_CASE_SQL`,
     strings, sigils, `<>` concatenation, `Ecto.Adapters.SQL.query!`, comment
     marker `# sql`
-  - go: Go-style names and obvious SQL-looking string content
+  - go: Go-style names and obvious SQL-looking string content; GraphQL:
+    content prefix (query/mutation/subscription/fragment)
   - java: `...Sql`, `..._SQL`, text blocks, regular strings, concatenation,
-    JDBC, JdbcTemplate, JDBI, JPA/Hibernate query APIs, jOOQ plain SQL, and
-    MyBatis/Spring/Hibernate annotation SQL
+    JDBC, JdbcTemplate, JDBI, JPA/Hibernate query APIs, jOOQ plain SQL,
+    MyBatis/Spring/Hibernate annotation SQL; GraphQL: `*_GQL` / `*Gql` suffix
   - javascript: `...Sql`, `..._SQL`, template strings, concatenation,
     common query/execute call sites; GraphQL `gql`/`graphql`/`gqlRequest`
     template tags
   - kotlin: `...Sql`, `..._SQL`, raw strings, `trimIndent()` /
-    `trimMargin()`, concatenation, common DB call sites
+    `trimMargin()`, concatenation, common DB call sites; GraphQL:
+    `*_GQL` / `*Gql` suffix
   - lua: `..._sql`, `..._SQL`, long strings, concatenation, `:format(...)`,
     DB-style call sites
   - perl: `..._sql`, `..._SQL`, regular strings, heredocs,
     DBI `prepare` / `execute` / `selectall_arrayref` / `do`
   - php: `$camelCaseSql`, `..._SQL`, regular strings, concatenation,
-    heredoc/nowdoc, common DB call sites
+    heredoc/nowdoc, common DB call sites; GraphQL: `*_GQL` / `*Gql` suffix
   - python: `..._sql`, obvious SQL content, triple-quoted strings,
-    concatenation, `execute` / `executemany` / `executescript`
+    concatenation, `execute` / `executemany` / `executescript`; GraphQL:
+    content prefix (query/mutation/subscription/fragment)
   - ruby: `..._sql`, `..._SQL`, regular strings, SQL heredocs,
     `execute` / `exec` / `prepare` / `find_by_sql`
   - scala: `...Sql`, `..._SQL`, regular strings, triple-quoted strings,
-    `execute` / `exec` / `prepare` / `query`
+    `execute` / `exec` / `prepare` / `query`; GraphQL: `*_GQL` / `*Gql` suffix
   - rust: Rust-style `userSql` / `USER_SQL`, regular and raw strings,
     sqlx generics, SeaORM statement builders, and common DB wrapper methods;
     GraphQL via `*_gql` / `*Graphql` suffix, content prefix, and

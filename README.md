@@ -15,7 +15,7 @@ Requirements:
 
 - Neovim `0.11+`
 - Tree-sitter `sql` parser (for SQL injection)
-- Tree-sitter `graphql` parser (for GraphQL injection in JS/TS and Rust)
+- Tree-sitter `graphql` parser (for GraphQL injection in Go, JavaScript, TypeScript, Python, Rust, Java, Kotlin, C#, PHP, and Scala)
 - Tree-sitter host parsers for every language you enable
 
 `ts-inject.nvim` uses Neovim's built-in `vim.treesitter` APIs. It does not
@@ -331,16 +331,16 @@ Supported hosts:
 | `bash` | heredoc delimiters | heredoc bodies | built-in `SQL`, `PY`, `LUA`, `JS`, `TS`, `RB`/`RUBY`, `PL`/`PERL` delimiter mapping |
 | `c` | `*_sql`, DB API calls | adjacent string literals | includes SQLite/libpq/MySQL/ODBC APIs; also injects `asm` into `gnu_asm_expression` |
 | `cpp` | `*_sql`, DB API calls, `sql` comments | regular, adjacent, raw, prefixed, suffixed, parenthesized, casted | includes SQLite/libpq/MySQL/ODBC, Qt, SQLiteCpp, SOCI, common wrappers |
-| `c_sharp` | `camelCase ...Sql`, `..._SQL`, DB calls | regular, concatenated, verbatim | common `Query` / `Execute` / `Prepare` paths |
-| `go` | Go-style `userQuery`, SQL-looking content | raw and interpreted strings | favors obvious SQL text |
-| `java` | `camelCase ...Sql`, `..._SQL`, DB calls, SQL annotations | regular, concatenated, text blocks, annotation strings/arrays | includes JDBC, JdbcTemplate, JDBI, JPA/Hibernate query APIs, jOOQ plain SQL, MyBatis annotations |
+| `c_sharp` | `camelCase ...Sql`, `..._SQL`, DB calls | regular, concatenated, verbatim | SQL: common `Query` / `Execute` / `Prepare` paths; GraphQL: `*_GQL` / `*Gql` suffix |
+| `go` | Go-style `userQuery`, SQL-looking content | raw and interpreted strings | SQL: favors obvious SQL text; GraphQL: content prefix (query/mutation/subscription/fragment) |
+| `java` | `camelCase ...Sql`, `..._SQL`, DB calls, SQL annotations | regular, concatenated, text blocks, annotation strings/arrays | SQL: JDBC, JdbcTemplate, JDBI, JPA/Hibernate query APIs, jOOQ plain SQL, MyBatis annotations; GraphQL: `*_GQL` / `*Gql` suffix |
 | `javascript` | `camelCase ...Sql`, `PascalCase ...Sql`, `..._SQL` | template strings, concatenation | SQL: common query / execute call sites; GraphQL: `gql`/`graphql`/`gqlRequest` template tags |
-| `kotlin` | `camelCase ...Sql`, `..._SQL`, DB calls | raw strings, `trimIndent`, `trimMargin`, concatenation | focuses on common Kotlin SQL shapes |
+| `kotlin` | `camelCase ...Sql`, `..._SQL`, DB calls | raw strings, `trimIndent`, `trimMargin`, concatenation | SQL: common Kotlin SQL shapes; GraphQL: `*_GQL` / `*Gql` suffix |
 | `lua` | `snake_case ..._sql`, `..._SQL`, DB calls | long strings, concatenation, `:format(...)` | Lua-specific helper syntax is supported |
-| `php` | `$camelCaseSql`, `..._SQL`, DB calls | regular strings, concatenation, heredoc/nowdoc | common PDO-style usage |
-| `python` | `snake_case ..._sql`, obvious SQL content, DB calls | regular, triple-quoted, concatenated | includes `execute` / `executemany` / `executescript` |
+| `php` | `$camelCaseSql`, `..._SQL`, DB calls | regular strings, concatenation, heredoc/nowdoc | SQL: common PDO-style usage; GraphQL: `*_GQL` / `*Gql` suffix |
+| `python` | `snake_case ..._sql`, obvious SQL content, DB calls | regular, triple-quoted, concatenated | SQL: `execute` / `executemany` / `executescript`; GraphQL: content prefix (query/mutation/subscription/fragment) |
 | `ruby` | `snake_case ..._sql`, `..._SQL`, DB calls | regular strings, SQL heredocs | includes `execute`, `exec`, `prepare`, `find_by_sql` |
-| `scala` | `camelCase ...Sql`, `..._SQL`, DB calls | regular and triple-quoted strings | includes common `execute` / `exec` / `prepare` / `query` call sites |
+| `scala` | `camelCase ...Sql`, `..._SQL`, DB calls | regular and triple-quoted strings | SQL: common `execute` / `exec` / `prepare` / `query` call sites; GraphQL: `*_GQL` / `*Gql` suffix |
 | `rust` | `userSql`, `USER_SQL`, crate call sites | regular and raw strings | SQL: sqlx, diesel, SeaORM, and common wrapper methods; GraphQL: `*_gql` / `*Graphql` suffix, content prefix, `graphql!` / `gql!` macros |
 | `typescript` | `camelCase ...Sql`, `PascalCase ...Sql`, `..._SQL` | template strings, concatenation | SQL: mirrors the JS strategy; GraphQL: same template_tag support as JS |
 | `xml` | MyBatis mapper SQL tags | element text and CDATA | injects SQL in `select`, `insert`, `update`, `delete`, and `sql` mapper tags |
