@@ -584,3 +584,32 @@
   (#lua-match? @_name "^[%l][%w]*Gql$")
   (#set! injection.language "graphql")
 )
+
+; === Regex ===
+
+; Pattern.compile("...")
+(
+  (method_invocation
+    (identifier) @_class
+    (identifier) @_method
+    (argument_list
+      .
+      (string_literal
+        (string_fragment) @injection.content)))
+  (#eq? @_class "Pattern")
+  (#eq? @_method "compile")
+  (#set! injection.language "regex")
+)
+
+; "input".matches("...")
+(
+  (method_invocation
+    (string_literal)
+    (identifier) @_method
+    (argument_list
+      .
+      (string_literal
+        (string_fragment) @injection.content)))
+  (#eq? @_method "matches")
+  (#set! injection.language "regex")
+)

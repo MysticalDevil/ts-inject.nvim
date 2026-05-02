@@ -18,6 +18,10 @@ All notable changes to this project will be documented in this file.
   - Rust: `*_gql` / `*Graphql` naming suffix, content prefix (`query` / `mutation` / `subscription` / `fragment`), and `graphql!` / `gql!` macros
   - Python: built-in `content_prefix` rules for GraphQL
   - Go: static regex-based content prefix rules for GraphQL
+- **Regex injection support:**
+  - Java: `Pattern.compile(...)` and `String.matches(...)` arguments
+  - C#: `Regex.Match(...)` / `Regex.Replace(...)` second argument and `new Regex(...)` first argument
+  - PHP: `preg_match` / `preg_replace` / `preg_split` first argument
 - `:TSInjectDebug` and `:TSInjectHealth` now open in a centered floating window with `q` / `<Esc>` to close.
 - `scripts/preview-inject.sh` (moved from `tmp/`) with improved UX: `--list`, `--line`, parser availability checks, and colorized output.
 

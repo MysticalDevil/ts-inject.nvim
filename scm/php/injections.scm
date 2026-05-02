@@ -246,3 +246,22 @@
   (#lua-match? @_name "^[%l][%w]*Gql$")
   (#set! injection.language "graphql")
 )
+
+; === Regex ===
+
+; preg_* functions first argument
+(
+  (function_call_expression
+    (name) @_fn
+    (arguments
+      .
+      (argument
+        [
+          (string
+            (string_content) @injection.content)
+          (encapsed_string
+            (string_content) @injection.content)
+        ])))
+  (#any-of? @_fn "preg_match" "preg_match_all" "preg_replace" "preg_replace_callback" "preg_split")
+  (#set! injection.language "regex")
+)

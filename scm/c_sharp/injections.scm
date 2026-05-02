@@ -307,3 +307,38 @@
   (#lua-match? @_name "^[%l][%w]*Gql$")
   (#set! injection.language "graphql")
 )
+
+; === Regex ===
+
+; Regex.Match("input", "pattern") — second argument
+(
+  (invocation_expression
+    (member_access_expression
+      (identifier) @_class
+      .
+      (identifier) @_method)
+    (argument_list
+      "("
+      (argument)
+      ","
+      (argument
+        (string_literal
+          (string_literal_content) @injection.content))))
+  (#eq? @_class "Regex")
+  (#any-of? @_method "Match" "Replace" "IsMatch" "Split" "Matches")
+  (#set! injection.language "regex")
+)
+
+; new Regex("pattern")
+(
+  (object_creation_expression
+    (identifier) @_class
+    (argument_list
+      "("
+      .
+      (argument
+        (string_literal
+          (string_literal_content) @injection.content))))
+  (#eq? @_class "Regex")
+  (#set! injection.language "regex")
+)

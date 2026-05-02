@@ -204,6 +204,9 @@ Planned focus:
 - better override / merge semantics between built-in and user-provided rules
 - stronger debugging and health reporting for generated or merged queries
 
+In progress:
+- Regex injection for Java (`Pattern.compile`, `String.matches`), C# (`Regex.Match`, `Regex.Replace`, `new Regex`), and PHP (`preg_match`, `preg_replace`, `preg_split`)
+
 The main purpose of `0.3` is to make the plugin broadly configurable without
 losing the debuggability and host-specific correctness established in `0.1`.
 

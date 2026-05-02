@@ -23,6 +23,7 @@ Current main-branch scope:
   - SQL string injection
   - GraphQL injection in Go, JavaScript, TypeScript, Python, Rust, Java, Kotlin,
     C#, PHP, and Scala
+  - Regex injection in Java, C#, and PHP
   - shell heredoc delimiter injections in bash
   - explicit opt-in in |ts-inject-setup|
 
@@ -33,6 +34,7 @@ Requirements:
 
   - Neovim 0.11+
   - Tree-sitter `sql` parser
+  - Tree-sitter `regex` parser (for Regex injection in Java, C#, and PHP)
   - Tree-sitter host parsers for enabled languages
 
 `ts-inject.nvim` uses Neovim's built-in `vim.treesitter` APIs. It does not
@@ -339,7 +341,8 @@ Host notes:
     Qt, SQLiteCpp, SOCI, regular/adjacent/raw/prefixed/suffixed/casted strings,
     and inline assembly (`asm` / `__asm__` / `__asm__ volatile`)
   - c_sharp: `...Sql`, `..._SQL`, regular/concatenated/verbatim strings,
-    common DB call sites; GraphQL: `*_GQL` / `*Gql` suffix
+    common DB call sites; GraphQL: `*_GQL` / `*Gql` suffix; Regex:
+    `Regex.Match` / `Regex.Replace` / `new Regex(...)`
   - elixir: `snake_case ..._sql`, `camelCase ...Sql`, `UPPER_SNAKE_CASE_SQL`,
     strings, sigils, `<>` concatenation, `Ecto.Adapters.SQL.query!`, comment
     marker `# sql`
@@ -347,7 +350,8 @@ Host notes:
     content prefix (query/mutation/subscription/fragment)
   - java: `...Sql`, `..._SQL`, text blocks, regular strings, concatenation,
     JDBC, JdbcTemplate, JDBI, JPA/Hibernate query APIs, jOOQ plain SQL,
-    MyBatis/Spring/Hibernate annotation SQL; GraphQL: `*_GQL` / `*Gql` suffix
+    MyBatis/Spring/Hibernate annotation SQL; GraphQL: `*_GQL` / `*Gql` suffix;
+    Regex: `Pattern.compile(...)` / `String.matches(...)`
   - javascript: `...Sql`, `..._SQL`, template strings, concatenation,
     common query/execute call sites; GraphQL `gql`/`graphql`/`gqlRequest`
     template tags
@@ -359,7 +363,8 @@ Host notes:
   - perl: `..._sql`, `..._SQL`, regular strings, heredocs,
     DBI `prepare` / `execute` / `selectall_arrayref` / `do`
   - php: `$camelCaseSql`, `..._SQL`, regular strings, concatenation,
-    heredoc/nowdoc, common DB call sites; GraphQL: `*_GQL` / `*Gql` suffix
+    heredoc/nowdoc, common DB call sites; GraphQL: `*_GQL` / `*Gql` suffix;
+    Regex: `preg_match` / `preg_replace` / `preg_split` first argument
   - python: `..._sql`, obvious SQL content, triple-quoted strings,
     concatenation, `execute` / `executemany` / `executescript`; GraphQL:
     content prefix (query/mutation/subscription/fragment)
