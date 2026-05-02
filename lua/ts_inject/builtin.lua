@@ -63,6 +63,11 @@ local builtin = {
   },
   javascript = {
     {
+      kind = "config",
+      max_concat_depth = 5,
+      source = "builtin",
+    },
+    {
       kind = "name_pattern",
       lang = "sql",
       pattern = "^[%a$][%w_$]*_?[Ss][Qq][Ll]$",
@@ -114,6 +119,11 @@ local builtin = {
     },
   },
   typescript = {
+    {
+      kind = "config",
+      max_concat_depth = 5,
+      source = "builtin",
+    },
     {
       kind = "name_pattern",
       lang = "sql",

@@ -192,6 +192,14 @@ function M.normalize_user_rule(host, rule)
     }
   end
 
+  if rule.kind == "config" then
+    return {
+      kind = "config",
+      source = "user",
+      max_concat_depth = rule.max_concat_depth,
+    }
+  end
+
   return nil, ("unsupported experimental rule kind: %s"):format(tostring(rule.kind))
 end
 

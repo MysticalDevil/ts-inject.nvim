@@ -17,7 +17,19 @@ function M.build(host, rules)
     return nil, ("no query builder for host %s"):format(host)
   end
 
-  return builder.build(rules or {})
+  local opts = {}
+  local filtered_rules = {}
+  for _, rule in ipairs(rules or {}) do
+    if rule.kind == "config" then
+      if rule.max_concat_depth ~= nil then
+        opts.max_concat_depth = rule.max_concat_depth
+      end
+    else
+      table.insert(filtered_rules, rule)
+    end
+  end
+
+  return builder.build(filtered_rules, opts)
 end
 
 return M

@@ -39,7 +39,8 @@ local function add(blocks, text)
   blocks[#blocks + 1] = text
 end
 
-local function render_name_pattern(rule)
+local function render_name_pattern(rule, max_concat_depth)
+  max_concat_depth = max_concat_depth or MAX_CONCAT_DEPTH
   local blocks = {
     ([[
 (
@@ -64,7 +65,7 @@ local function render_name_pattern(rule)
 ]]):format(q(rule.pattern), q(rule.lang)),
   }
 
-  for depth = 2, MAX_CONCAT_DEPTH do
+  for depth = 2, max_concat_depth do
     add(
       blocks,
       ([[
@@ -93,7 +94,8 @@ local function call_function_pattern()
 ]]
 end
 
-local function render_call(rule)
+local function render_call(rule, max_concat_depth)
+  max_concat_depth = max_concat_depth or MAX_CONCAT_DEPTH
   local blocks = {
     ([[
 (
@@ -122,7 +124,7 @@ local function render_call(rule)
 ]]):format(call_function_pattern(), join_fn_list(rule.fn), q(rule.lang)),
   }
 
-  for depth = 2, MAX_CONCAT_DEPTH do
+  for depth = 2, max_concat_depth do
     add(
       blocks,
       ([[
@@ -163,16 +165,17 @@ local function render_template_tag(rule)
   }
 end
 
-function M.build(rules)
+function M.build(rules, opts)
+  local max_concat_depth = opts and opts.max_concat_depth or MAX_CONCAT_DEPTH
   local blocks = { "; extends" }
 
   for _, rule in ipairs(rules or {}) do
     local rendered = {}
 
     if rule.kind == "name_pattern" then
-      rendered = render_name_pattern(rule)
+      rendered = render_name_pattern(rule, max_concat_depth)
     elseif rule.kind == "call" then
-      rendered = render_call(rule)
+      rendered = render_call(rule, max_concat_depth)
     elseif rule.kind == "template_tag" then
       rendered = render_template_tag(rule)
     else
