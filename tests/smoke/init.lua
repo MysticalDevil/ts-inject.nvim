@@ -320,5 +320,6 @@ M.assert_injected_in_lines = assert_injected_in_lines
 M.assert_health_command = assert_health_command
 M.assert_legacy_static_mode = assert_legacy_static_mode
 M.require_parser = require_parser
+M.default_enable = default_enable
 
 return M

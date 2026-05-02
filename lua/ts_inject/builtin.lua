@@ -139,6 +139,110 @@ local builtin = {
       source = "builtin",
     },
   },
+  go = {
+    {
+      kind = "name_pattern",
+      lang = "sql",
+      pattern = "^[%a][%w]*[Ss][Qq][Ll]$",
+      source = "builtin",
+    },
+    {
+      kind = "call",
+      lang = "sql",
+      fn = { "Query", "QueryRow", "QueryContext", "Exec", "ExecContext", "Prepare", "PrepareContext" },
+      source = "builtin",
+    },
+    {
+      kind = "content_prefix",
+      lang = "sql",
+      patterns = {
+        "^%s*[Ss][Ee][Ll][Ee][Cc][Tt]%s+",
+        "^%s*[Ii][Nn][Ss][Ee][Rr][Tt]%s+[Ii][Nn][Tt][Oo]%s+",
+        "^%s*[Uu][Pp][Dd][Aa][Tt][Ee]%s+",
+        "^%s*[Dd][Ee][Ll][Ee][Tt][Ee]%s+[Ff][Rr][Oo][Mm]%s+",
+        "^%s*[Cc][Rr][Ee][Aa][Tt][Ee]%s+",
+        "^%s*[Aa][Ll][Tt][Ee][Rr]%s+",
+        "^%s*[Ww][Ii][Tt][Hh]%s+",
+        "^%s*[Bb][Ee][Gg][Ii][Nn]%s*;",
+      },
+      source = "builtin",
+    },
+    {
+      kind = "content_prefix",
+      lang = "graphql",
+      patterns = {
+        "^%s*[Qq][Uu][Ee][Rr][Yy]%s+",
+        "^%s*[Mm][Uu][Tt][Aa][Tt][Ii][Oo][Nn]%s+",
+        "^%s*[Ss][Uu][Bb][Ss][Cc][Rr][Ii][Pp][Tt][Ii][Oo][Nn]%s+",
+        "^%s*[Ff][Rr][Aa][Gg][Mm][Ee][Nn][Tt]%s+",
+      },
+      source = "builtin",
+    },
+  },
+  rust = {
+    {
+      kind = "name_pattern",
+      lang = "sql",
+      pattern = "^[%a_][%w_]*_sql$",
+      source = "builtin",
+    },
+    {
+      kind = "name_pattern",
+      lang = "sql",
+      pattern = "^[%u][%u%d_]*_SQL$",
+      source = "builtin",
+    },
+    {
+      kind = "call",
+      lang = "sql",
+      fn = { "execute", "exec", "prepare", "query", "query_one", "query_all", "sql_query" },
+      source = "builtin",
+    },
+    {
+      kind = "call",
+      lang = "sql",
+      fn = { "from_string", "from_sql_and_values" },
+      arg_index = 2,
+      source = "builtin",
+    },
+    {
+      kind = "content_prefix",
+      lang = "sql",
+      patterns = {
+        "^%s*[Ss][Ee][Ll][Ee][Cc][Tt]%s+",
+        "^%s*[Ii][Nn][Ss][Ee][Rr][Tt]%s+[Ii][Nn][Tt][Oo]%s+",
+        "^%s*[Uu][Pp][Dd][Aa][Tt][Ee]%s+",
+        "^%s*[Dd][Ee][Ll][Ee][Tt][Ee]%s+[Ff][Rr][Oo][Mm]%s+",
+        "^%s*[Cc][Rr][Ee][Aa][Tt][Ee]%s+",
+        "^%s*[Aa][Ll][Tt][Ee][Rr]%s+",
+        "^%s*[Ww][Ii][Tt][Hh]%s+",
+      },
+      source = "builtin",
+    },
+    {
+      kind = "content_prefix",
+      lang = "graphql",
+      patterns = {
+        "^%s*[Qq][Uu][Ee][Rr][Yy]%s+",
+        "^%s*[Mm][Uu][Tt][Aa][Tt][Ii][Oo][Nn]%s+",
+        "^%s*[Ss][Uu][Bb][Ss][Cc][Rr][Ii][Pp][Tt][Ii][Oo][Nn]%s+",
+        "^%s*[Ff][Rr][Aa][Gg][Mm][Ee][Nn][Tt]%s+",
+      },
+      source = "builtin",
+    },
+    {
+      kind = "macro",
+      lang = "sql",
+      fn = { "query", "query_as", "query_scalar", "sql_query" },
+      source = "builtin",
+    },
+    {
+      kind = "macro",
+      lang = "graphql",
+      fn = { "graphql", "gql" },
+      source = "builtin",
+    },
+  },
 }
 
 function M.rules_for(host)

@@ -52,6 +52,14 @@ local function name_pattern_for(host, suffix)
     return ("^[%%a$][%%w_$]*%s$"):format(escaped)
   end
 
+  if host == "go" then
+    return ("^[%%a][%%w]*%s$"):format(escaped)
+  end
+
+  if host == "rust" then
+    return ("^[%%a_][%%w_]*%s$"):format(escaped)
+  end
+
   return nil
 end
 
@@ -116,10 +124,16 @@ function M.normalize_user_rule(host, rule)
       return nil, "call rules require fn as a string or non-empty list"
     end
 
+    local arg_index = rule.arg_index or 1
+    if type(arg_index) ~= "number" or arg_index < 1 then
+      return nil, "call rules require arg_index as a positive integer"
+    end
+
     return {
       kind = "call",
       lang = lang,
       fn = fn,
+      arg_index = arg_index,
       source = "user",
     }
   end
@@ -156,6 +170,20 @@ function M.normalize_user_rule(host, rule)
       kind = "content_prefix",
       lang = lang,
       patterns = patterns,
+      source = "user",
+    }
+  end
+
+  if rule.kind == "macro" then
+    local fn = normalize_fn_list(rule.fn)
+    if not fn then
+      return nil, "macro rules require fn as a string or non-empty list"
+    end
+
+    return {
+      kind = "macro",
+      lang = lang,
+      fn = fn,
       source = "user",
     }
   end

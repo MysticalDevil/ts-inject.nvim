@@ -6,6 +6,8 @@ local builders = {
   javascript = require("ts_inject.host.ecmascript"),
   lua = require("ts_inject.host.lua"),
   typescript = require("ts_inject.host.ecmascript"),
+  go = require("ts_inject.host.go"),
+  rust = require("ts_inject.host.rust"),
 }
 
 function M.build(host, rules)
