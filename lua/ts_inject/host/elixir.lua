@@ -4,10 +4,6 @@ local util = require("ts_inject.host._util")
 
 local MAX_CONCAT_DEPTH = 3
 
-local function add(blocks, text)
-  blocks[#blocks + 1] = text
-end
-
 local static_preamble = [[
 (
   (comment) @_comment
@@ -88,10 +84,10 @@ local function render_name_pattern(rule)
   (#set! injection.language %s))
 ]]):format(leaf_sigil(), util.q(rule.pattern), util.q(rule.lang))
 
-  for depth = 2, MAX_CONCAT_DEPTH do
-    add(
-      blocks,
-      ([[
+  vim.list_extend(
+    blocks,
+    concat.expand(concat_expr_left, MAX_CONCAT_DEPTH, function(expr)
+      return ([[
 (
   (binary_operator
     left: [(identifier) (alias)] @_name
@@ -100,11 +96,13 @@ local function render_name_pattern(rule)
   (#lua-match? @_name %s)
   (#set! injection.combined)
   (#set! injection.language %s))
-]]):format(concat_expr_left(depth), util.q(rule.pattern), util.q(rule.lang))
-    )
-    add(
-      blocks,
-      ([[
+]]):format(expr, util.q(rule.pattern), util.q(rule.lang))
+    end)
+  )
+  vim.list_extend(
+    blocks,
+    concat.expand(concat_expr_right, MAX_CONCAT_DEPTH, function(expr)
+      return ([[
 (
   (binary_operator
     left: [(identifier) (alias)] @_name
@@ -113,9 +111,9 @@ local function render_name_pattern(rule)
   (#lua-match? @_name %s)
   (#set! injection.combined)
   (#set! injection.language %s))
-]]):format(concat_expr_right(depth), util.q(rule.pattern), util.q(rule.lang))
-    )
-  end
+]]):format(expr, util.q(rule.pattern), util.q(rule.lang))
+    end)
+  )
 
   return blocks
 end
@@ -178,10 +176,10 @@ local function render_call(rule)
   (#set! injection.language %s))
 ]]):format(leaf_sigil(), fn, util.q(rule.lang))
 
-  for depth = 2, MAX_CONCAT_DEPTH do
-    add(
-      blocks,
-      ([[
+  vim.list_extend(
+    blocks,
+    concat.expand(concat_expr_left, MAX_CONCAT_DEPTH, function(expr)
+      return ([[
 (
   (call
     (dot
@@ -193,11 +191,13 @@ local function render_call(rule)
   (#any-of? @_fn %s)
   (#set! injection.combined)
   (#set! injection.language %s))
-]]):format(concat_expr_left(depth), fn, util.q(rule.lang))
-    )
-    add(
-      blocks,
-      ([[
+]]):format(expr, fn, util.q(rule.lang))
+    end)
+  )
+  vim.list_extend(
+    blocks,
+    concat.expand(concat_expr_right, MAX_CONCAT_DEPTH, function(expr)
+      return ([[
 (
   (call
     (dot
@@ -209,31 +209,21 @@ local function render_call(rule)
   (#any-of? @_fn %s)
   (#set! injection.combined)
   (#set! injection.language %s))
-]]):format(concat_expr_right(depth), fn, util.q(rule.lang))
-    )
-  end
+]]):format(expr, fn, util.q(rule.lang))
+    end)
+  )
 
   return blocks
 end
 
-function M.build(rules, _opts)
-  local blocks = {}
-
-  for _, rule in ipairs(rules or {}) do
-    local rendered = {}
-
-    if rule.kind == "name_pattern" then
-      rendered = render_name_pattern(rule)
-    elseif rule.kind == "call" then
-      rendered = render_call(rule)
-    else
-      return nil, ("unsupported elixir rule kind: %s"):format(rule.kind)
-    end
-
-    vim.list_extend(blocks, rendered)
-  end
-
-  return "; extends\n" .. static_preamble .. "\n" .. table.concat(blocks, "\n")
-end
+M.build = util.build_dispatcher({
+  header = "; extends",
+  renderers = {
+    name_pattern = render_name_pattern,
+    call = render_call,
+  },
+  static_preamble = static_preamble,
+  preamble_first = true,
+})
 
 return M

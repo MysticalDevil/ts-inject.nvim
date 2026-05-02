@@ -201,26 +201,13 @@ local function render_content_prefix(rule)
   return blocks
 end
 
-function M.build(rules, _opts)
-  local blocks = { "; extends" }
-
-  for _, rule in ipairs(rules or {}) do
-    local rendered = {}
-
-    if rule.kind == "name_pattern" then
-      rendered = render_name_pattern(rule)
-    elseif rule.kind == "content_prefix" then
-      rendered = render_content_prefix(rule)
-    elseif rule.kind == "call" then
-      rendered = render_call(rule)
-    else
-      return nil, ("unsupported ruby rule kind: %s"):format(rule.kind)
-    end
-
-    vim.list_extend(blocks, rendered)
-  end
-
-  return table.concat(blocks, "\n")
-end
+M.build = util.build_dispatcher({
+  header = "; extends",
+  renderers = {
+    name_pattern = render_name_pattern,
+    content_prefix = render_content_prefix,
+    call = render_call,
+  },
+})
 
 return M

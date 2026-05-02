@@ -52,4 +52,17 @@ function M.native(opts)
   end
 end
 
+---Expand a concat expression over a range of depths, calling template_fn for each.
+---@param concat_expr function(depth) -> string
+---@param max_depth   number
+---@param template_fn function(concat_str) -> string
+---@return table      list of rendered strings
+function M.expand(concat_expr, max_depth, template_fn)
+  local blocks = {}
+  for depth = 2, max_depth do
+    blocks[#blocks + 1] = template_fn(concat_expr(depth))
+  end
+  return blocks
+end
+
 return M

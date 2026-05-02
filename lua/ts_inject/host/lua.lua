@@ -4,10 +4,6 @@ local util = require("ts_inject.host._util")
 
 local MAX_CONCAT_DEPTH = 6
 
-local function add(blocks, text)
-  blocks[#blocks + 1] = text
-end
-
 local concat = require("ts_inject.host._concat")
 
 local function leaf_string()
@@ -40,10 +36,10 @@ local function render_name_pattern(rule)
 ]]):format(util.q(rule.pattern), util.q(rule.lang)),
   }
 
-  for depth = 2, MAX_CONCAT_DEPTH do
-    add(
-      blocks,
-      ([[
+  vim.list_extend(
+    blocks,
+    concat.expand(concat_expr, MAX_CONCAT_DEPTH, function(expr)
+      return ([[
 (
   (assignment_statement
     (variable_list
@@ -53,9 +49,9 @@ local function render_name_pattern(rule)
   (#lua-match? @_name %s)
   (#set! injection.language %s)
 )
-]]):format(concat_expr(depth), util.q(rule.pattern), util.q(rule.lang))
-    )
-  end
+]]):format(expr, util.q(rule.pattern), util.q(rule.lang))
+    end)
+  )
 
   return blocks
 end
@@ -116,10 +112,10 @@ local function render_call(rule)
 ]]):format(call_name_pattern(), util.join_fn_list(rule.fn), util.q(rule.lang)),
   }
 
-  for depth = 2, MAX_CONCAT_DEPTH do
-    add(
-      blocks,
-      ([[
+  vim.list_extend(
+    blocks,
+    concat.expand(concat_expr, MAX_CONCAT_DEPTH, function(expr)
+      return ([[
 (
   (function_call
     name: %s
@@ -134,9 +130,9 @@ local function render_call(rule)
   (#any-of? @_fn %s)
   (#set! injection.language %s)
 )
-]]):format(call_name_pattern(), concat_expr(depth), util.join_fn_list(rule.fn), util.q(rule.lang))
-    )
-  end
+]]):format(call_name_pattern(), expr, util.join_fn_list(rule.fn), util.q(rule.lang))
+    end)
+  )
 
   return blocks
 end
@@ -247,30 +243,15 @@ local function render_content_prefix(rule)
   return blocks
 end
 
-function M.build(rules, _opts)
-  local blocks = { "; extends" }
-
-  for _, rule in ipairs(rules or {}) do
-    local rendered = {}
-
-    if rule.kind == "name_pattern" then
-      rendered = render_name_pattern(rule)
-    elseif rule.kind == "name_format" then
-      rendered = render_name_format(rule)
-    elseif rule.kind == "call" then
-      rendered = render_call(rule)
-    elseif rule.kind == "call_format" then
-      rendered = render_call_format(rule)
-    elseif rule.kind == "content_prefix" then
-      rendered = render_content_prefix(rule)
-    else
-      return nil, ("unsupported lua rule kind: %s"):format(rule.kind)
-    end
-
-    vim.list_extend(blocks, rendered)
-  end
-
-  return table.concat(blocks, "\n")
-end
+M.build = util.build_dispatcher({
+  header = "; extends",
+  renderers = {
+    name_pattern = render_name_pattern,
+    name_format = render_name_format,
+    call = render_call,
+    call_format = render_call_format,
+    content_prefix = render_content_prefix,
+  },
+})
 
 return M

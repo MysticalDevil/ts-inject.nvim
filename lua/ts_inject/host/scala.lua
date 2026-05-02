@@ -88,24 +88,13 @@ local function render_call(rule)
   }
 end
 
-function M.build(rules, _opts)
-  local blocks = {}
-
-  for _, rule in ipairs(rules or {}) do
-    local rendered = {}
-
-    if rule.kind == "name_pattern" then
-      rendered = render_name_pattern(rule)
-    elseif rule.kind == "call" then
-      rendered = render_call(rule)
-    else
-      return nil, ("unsupported scala rule kind: %s"):format(rule.kind)
-    end
-
-    vim.list_extend(blocks, rendered)
-  end
-
-  return static_preamble .. "\n" .. table.concat(blocks, "\n")
-end
+M.build = util.build_dispatcher({
+  renderers = {
+    name_pattern = render_name_pattern,
+    call = render_call,
+  },
+  static_preamble = static_preamble,
+  preamble_first = true,
+})
 
 return M

@@ -143,14 +143,7 @@ end
 
 local function render_call(rule)
   local fn = util.join_fn_list(rule.fn)
-  local arg_index = rule.arg_index or 1
-
-  local args_prefix = {}
-  for _ = 1, arg_index - 1 do
-    table.insert(args_prefix, "      .")
-    table.insert(args_prefix, "      (_)")
-  end
-  table.insert(args_prefix, "      .")
+  local args_prefix = util.arg_prefix(rule.arg_index or 1)
 
   return {
     ([[
@@ -168,7 +161,7 @@ local function render_call(rule)
       . (_)*))
   (#any-of? @_fn %s)
   (#set! injection.language %s))
-]]):format(call_function_pattern(), table.concat(args_prefix, "\n"), fn, util.q(rule.lang)),
+]]):format(call_function_pattern(), args_prefix, fn, util.q(rule.lang)),
   }
 end
 
@@ -227,28 +220,15 @@ local function render_macro(rule)
   }
 end
 
-function M.build(rules, _opts)
-  local blocks = {}
-
-  for _, rule in ipairs(rules or {}) do
-    local rendered = {}
-
-    if rule.kind == "name_pattern" then
-      rendered = render_name_pattern(rule)
-    elseif rule.kind == "call" then
-      rendered = render_call(rule)
-    elseif rule.kind == "content_prefix" then
-      rendered = render_content_prefix(rule)
-    elseif rule.kind == "macro" then
-      rendered = render_macro(rule)
-    else
-      return nil, ("unsupported rust rule kind: %s"):format(rule.kind)
-    end
-
-    vim.list_extend(blocks, rendered)
-  end
-
-  return static_preamble .. "\n" .. table.concat(blocks, "\n")
-end
+M.build = util.build_dispatcher({
+  renderers = {
+    name_pattern = render_name_pattern,
+    call = render_call,
+    content_prefix = render_content_prefix,
+    macro = render_macro,
+  },
+  static_preamble = static_preamble,
+  preamble_first = true,
+})
 
 return M

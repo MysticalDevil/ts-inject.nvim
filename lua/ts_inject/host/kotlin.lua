@@ -4,10 +4,6 @@ local util = require("ts_inject.host._util")
 
 local MAX_CONCAT_DEPTH = 5
 
-local function add(blocks, text)
-  blocks[#blocks + 1] = text
-end
-
 local static_preamble = [[
 (
   (annotation
@@ -126,10 +122,10 @@ local function render_name_pattern(rule)
 )
 ]]):format(leaf_string(), util.q(rule.pattern), util.q(rule.lang))
 
-  for depth = 2, MAX_CONCAT_DEPTH do
-    add(
-      blocks,
-      ([[
+  vim.list_extend(
+    blocks,
+    concat.expand(concat_expr, MAX_CONCAT_DEPTH, function(expr)
+      return ([[
 (
   (property_declaration
     (variable_declaration
@@ -139,9 +135,9 @@ local function render_name_pattern(rule)
   (#set! injection.combined)
   (#set! injection.language %s)
 )
-]]):format(concat_expr(depth), util.q(rule.pattern), util.q(rule.lang))
-    )
-  end
+]]):format(expr, util.q(rule.pattern), util.q(rule.lang))
+    end)
+  )
 
   return blocks
 end
@@ -189,10 +185,10 @@ local function render_call(rule)
 )
 ]]):format(leaf_string(), fn, util.q(rule.lang))
 
-  for depth = 2, MAX_CONCAT_DEPTH do
-    add(
-      blocks,
-      ([[
+  vim.list_extend(
+    blocks,
+    concat.expand(concat_expr, MAX_CONCAT_DEPTH, function(expr)
+      return ([[
 (
   (call_expression
     (navigation_expression
@@ -207,31 +203,21 @@ local function render_call(rule)
   (#set! injection.combined)
   (#set! injection.language %s)
 )
-]]):format(concat_expr(depth), fn, util.q(rule.lang))
-    )
-  end
+]]):format(expr, fn, util.q(rule.lang))
+    end)
+  )
 
   return blocks
 end
 
-function M.build(rules, _opts)
-  local blocks = {}
-
-  for _, rule in ipairs(rules or {}) do
-    local rendered = {}
-
-    if rule.kind == "name_pattern" then
-      rendered = render_name_pattern(rule)
-    elseif rule.kind == "call" then
-      rendered = render_call(rule)
-    else
-      return nil, ("unsupported kotlin rule kind: %s"):format(rule.kind)
-    end
-
-    vim.list_extend(blocks, rendered)
-  end
-
-  return "; extends\n" .. static_preamble .. "\n" .. table.concat(blocks, "\n")
-end
+M.build = util.build_dispatcher({
+  header = "; extends",
+  renderers = {
+    name_pattern = render_name_pattern,
+    call = render_call,
+  },
+  static_preamble = static_preamble,
+  preamble_first = true,
+})
 
 return M

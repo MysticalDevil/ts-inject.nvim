@@ -2,10 +2,6 @@ local M = {}
 
 local util = require("ts_inject.host._util")
 
-local function add_block(blocks, text)
-  blocks[#blocks + 1] = text
-end
-
 local function render_name_pattern(rule)
   return {
     ([[
@@ -38,9 +34,7 @@ local function render_content_prefix(rule)
   local blocks = {}
 
   for _, pattern in ipairs(rule.patterns or {}) do
-    add_block(
-      blocks,
-      ([[
+    blocks[#blocks + 1] = ([[
 (
   (expression_statement
     (assignment
@@ -50,11 +44,8 @@ local function render_content_prefix(rule)
   (#lua-match? @injection.content %s)
   (#set! injection.language %s))
 ]]):format(util.q(pattern), util.q(rule.lang))
-    )
 
-    add_block(
-      blocks,
-      ([[
+    blocks[#blocks + 1] = ([[
 (
   (expression_statement
     (assignment
@@ -67,7 +58,6 @@ local function render_content_prefix(rule)
   (#set! injection.combined)
   (#set! injection.language %s))
 ]]):format(util.q(pattern), util.q(rule.lang))
-    )
   end
 
   return blocks
@@ -124,26 +114,13 @@ local function render_call(rule)
   }
 end
 
-function M.build(rules, _opts)
-  local blocks = { "; extends" }
-
-  for _, rule in ipairs(rules or {}) do
-    local rendered = {}
-
-    if rule.kind == "name_pattern" then
-      rendered = render_name_pattern(rule)
-    elseif rule.kind == "content_prefix" then
-      rendered = render_content_prefix(rule)
-    elseif rule.kind == "call" then
-      rendered = render_call(rule)
-    else
-      return nil, ("unsupported python rule kind: %s"):format(rule.kind)
-    end
-
-    vim.list_extend(blocks, rendered)
-  end
-
-  return table.concat(blocks, "\n\n")
-end
+M.build = util.build_dispatcher({
+  header = "; extends",
+  renderers = {
+    name_pattern = render_name_pattern,
+    content_prefix = render_content_prefix,
+    call = render_call,
+  },
+})
 
 return M

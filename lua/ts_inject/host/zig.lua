@@ -34,14 +34,7 @@ end
 
 local function render_call(rule)
   local fn = util.join_fn_list(rule.fn)
-  local arg_index = rule.arg_index or 1
-
-  local args_prefix = {}
-  for _ = 1, arg_index - 1 do
-    table.insert(args_prefix, "      .")
-    table.insert(args_prefix, "      (_)")
-  end
-  table.insert(args_prefix, "      .")
+  local args_prefix = util.arg_prefix(rule.arg_index or 1)
 
   return {
     ([[
@@ -54,7 +47,7 @@ local function render_call(rule)
       . (_)*))
   (#any-of? @_fn %s)
   (#set! injection.language %s))
-]]):format(call_function_pattern(), table.concat(args_prefix, "\n"), fn, util.q(rule.lang)),
+]]):format(call_function_pattern(), args_prefix, fn, util.q(rule.lang)),
     ([[
 (
   (call_expression
@@ -66,28 +59,16 @@ local function render_call(rule)
       . (_)*))
   (#any-of? @_fn %s)
   (#set! injection.language %s))
-]]):format(call_function_pattern(), table.concat(args_prefix, "\n"), fn, util.q(rule.lang)),
+]]):format(call_function_pattern(), args_prefix, fn, util.q(rule.lang)),
   }
 end
 
-function M.build(rules, _opts)
-  local blocks = { "; extends" }
-
-  for _, rule in ipairs(rules or {}) do
-    local rendered = {}
-
-    if rule.kind == "name_pattern" then
-      rendered = render_name_pattern(rule)
-    elseif rule.kind == "call" then
-      rendered = render_call(rule)
-    else
-      return nil, ("unsupported zig rule kind: %s"):format(rule.kind)
-    end
-
-    vim.list_extend(blocks, rendered)
-  end
-
-  return table.concat(blocks, "\n")
-end
+M.build = util.build_dispatcher({
+  header = "; extends",
+  renderers = {
+    name_pattern = render_name_pattern,
+    call = render_call,
+  },
+})
 
 return M

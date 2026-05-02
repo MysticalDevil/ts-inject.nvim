@@ -43,22 +43,11 @@ local function render_xml_tag(rule)
   }
 end
 
-function M.build(rules, _opts)
-  local blocks = { "; extends" }
-
-  for _, rule in ipairs(rules or {}) do
-    local rendered = {}
-
-    if rule.kind == "xml_tag" then
-      rendered = render_xml_tag(rule)
-    else
-      return nil, ("unsupported xml rule kind: %s"):format(rule.kind)
-    end
-
-    vim.list_extend(blocks, rendered)
-  end
-
-  return table.concat(blocks, "\n")
-end
+M.build = util.build_dispatcher({
+  header = "; extends",
+  renderers = {
+    xml_tag = render_xml_tag,
+  },
+})
 
 return M

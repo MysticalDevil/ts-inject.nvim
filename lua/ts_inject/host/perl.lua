@@ -4,10 +4,6 @@ local util = require("ts_inject.host._util")
 
 local MAX_CONCAT_DEPTH = 3
 
-local function add(blocks, text)
-  blocks[#blocks + 1] = text
-end
-
 local function leaf_string()
   return [=[([
     (string_literal
@@ -44,10 +40,10 @@ local function render_name_pattern(rule)
   (#set! injection.language %s))
 ]]):format(leaf_string(), util.q(rule.pattern), util.q(rule.lang))
 
-  for depth = 2, MAX_CONCAT_DEPTH do
-    add(
-      blocks,
-      ([[
+  vim.list_extend(
+    blocks,
+    concat.expand(concat_expr, MAX_CONCAT_DEPTH, function(expr)
+      return ([[
 (
   (expression_statement
     (assignment_expression
@@ -58,9 +54,9 @@ local function render_name_pattern(rule)
   (#lua-match? @_name %s)
   (#set! injection.combined)
   (#set! injection.language %s))
-]]):format(concat_expr(depth), util.q(rule.pattern), util.q(rule.lang))
-    )
-  end
+]]):format(expr, util.q(rule.pattern), util.q(rule.lang))
+    end)
+  )
 
   return blocks
 end
@@ -98,10 +94,10 @@ local function render_call(rule)
   (#set! injection.language %s))
 ]]):format(leaf_string(), fn, util.q(rule.lang))
 
-  for depth = 2, MAX_CONCAT_DEPTH do
-    add(
-      blocks,
-      ([[
+  vim.list_extend(
+    blocks,
+    concat.expand(concat_expr, MAX_CONCAT_DEPTH, function(expr)
+      return ([[
 (
   (method_call_expression
     method: (method) @_fn
@@ -109,49 +105,48 @@ local function render_call(rule)
   (#any-of? @_fn %s)
   (#set! injection.combined)
   (#set! injection.language %s))
-]]):format(concat_expr(depth), fn, util.q(rule.lang))
-    )
-  end
+]]):format(expr, fn, util.q(rule.lang))
+    end)
+  )
 
   return blocks
 end
 
 function M.build(rules, _opts)
-  local blocks = { "; extends" }
   local has_sql = false
-
   for _, rule in ipairs(rules or {}) do
-    local rendered = {}
-
-    if rule.kind == "name_pattern" then
-      rendered = render_name_pattern(rule)
-    elseif rule.kind == "call" then
-      rendered = render_call(rule)
-    else
-      return nil, ("unsupported perl rule kind: %s"):format(rule.kind)
-    end
-
     if rule.lang == "sql" then
       has_sql = true
+      break
     end
+  end
 
-    vim.list_extend(blocks, rendered)
+  local build = util.build_dispatcher({
+    header = "; extends",
+    renderers = {
+      name_pattern = render_name_pattern,
+      call = render_call,
+    },
+  })
+
+  local result, err = build(rules, _opts)
+  if not result then
+    return nil, err
   end
 
   if has_sql then
-    add(
-      blocks,
-      [[
+    result = result
+      .. "\n"
+      .. [[
 (
   (heredoc_content
     (heredoc_end) @_end)
   (#lua-match? @_end "^[Ss][Qq][Ll]$")
   (#set! injection.language "sql"))
 ]]
-    )
   end
 
-  return table.concat(blocks, "\n")
+  return result
 end
 
 return M

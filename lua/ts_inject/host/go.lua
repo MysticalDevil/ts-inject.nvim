@@ -50,14 +50,7 @@ end
 
 local function render_call(rule)
   local fn = util.join_fn_list(rule.fn)
-  local arg_index = rule.arg_index or 1
-
-  local args_prefix = {}
-  for _ = 1, arg_index - 1 do
-    table.insert(args_prefix, "      .")
-    table.insert(args_prefix, "      (_)")
-  end
-  table.insert(args_prefix, "      .")
+  local args_prefix = util.arg_prefix(rule.arg_index or 1)
 
   return {
     ([[
@@ -70,7 +63,7 @@ local function render_call(rule)
       . (_)*))
   (#any-of? @_fn %s)
   (#set! injection.language %s))
-]]):format(call_function_pattern(), table.concat(args_prefix, "\n"), string_literal_query(), fn, util.q(rule.lang)),
+]]):format(call_function_pattern(), args_prefix, string_literal_query(), fn, util.q(rule.lang)),
   }
 end
 
@@ -116,26 +109,13 @@ local function render_content_prefix(rule)
   return blocks
 end
 
-function M.build(rules, _opts)
-  local blocks = { "; extends" }
-
-  for _, rule in ipairs(rules or {}) do
-    local rendered = {}
-
-    if rule.kind == "name_pattern" then
-      rendered = render_name_pattern(rule)
-    elseif rule.kind == "call" then
-      rendered = render_call(rule)
-    elseif rule.kind == "content_prefix" then
-      rendered = render_content_prefix(rule)
-    else
-      return nil, ("unsupported go rule kind: %s"):format(rule.kind)
-    end
-
-    vim.list_extend(blocks, rendered)
-  end
-
-  return table.concat(blocks, "\n")
-end
+M.build = util.build_dispatcher({
+  header = "; extends",
+  renderers = {
+    name_pattern = render_name_pattern,
+    call = render_call,
+    content_prefix = render_content_prefix,
+  },
+})
 
 return M
