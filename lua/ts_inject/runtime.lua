@@ -10,12 +10,16 @@ function M.root_dir()
   return root_dir
 end
 
+function M.query_dir(lang)
+  return root_dir .. "/queries/" .. lang
+end
+
 function M.query_path(lang)
-  return root_dir .. "/queries/" .. lang .. "/injections.scm"
+  return M.query_dir(lang) .. "/injections.scm"
 end
 
 function M.install(lang, query)
-  local dir = root_dir .. "/queries/" .. lang
+  local dir = M.query_dir(lang)
   ensure_dir(dir)
   vim.fn.writefile(vim.split(query, "\n", { plain = true }), M.query_path(lang))
 end
@@ -26,7 +30,7 @@ function M.remove(lang)
     vim.fn.delete(path)
   end
 
-  local dir = root_dir .. "/queries/" .. lang
+  local dir = M.query_dir(lang)
   if vim.fn.isdirectory(dir) == 1 then
     vim.fn.delete(dir, "d")
   end
