@@ -242,6 +242,7 @@ Configurable generated hosts for `rules`:
   - lua
   - ruby
   - rust
+  - zig
 
 Rule kinds:
   - `var_suffix`
@@ -252,7 +253,7 @@ Rule kinds:
     - required: `fn` (string or list of strings)
     - optional: `arg_index` (1-based argument position, default: 1)
     - optional: `lang` (default: `sql`)
-    - hosts: `go`, `python`, `javascript`, `typescript`, `lua`, `ruby`, `rust`
+    - hosts: `go`, `python`, `javascript`, `typescript`, `lua`, `ruby`, `rust`, `zig`
   - `template_tag`
     - required: `fn` (string or list of strings)
     - optional: `lang` (default: `sql`)

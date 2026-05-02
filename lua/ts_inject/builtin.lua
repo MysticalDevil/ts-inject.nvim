@@ -243,6 +243,20 @@ local builtin = {
       source = "builtin",
     },
   },
+  zig = {
+    {
+      kind = "name_pattern",
+      lang = "sql",
+      pattern = "^[%l][%w]*Sql$",
+      source = "builtin",
+    },
+    {
+      kind = "call",
+      lang = "sql",
+      fn = { "query", "execute", "prepare" },
+      source = "builtin",
+    },
+  },
 }
 
 function M.rules_for(host)

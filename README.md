@@ -172,7 +172,7 @@ Default Settings:
   -- - all other hosts => "static"
   query_mode = {},
   -- Optional experimental user rules for configurable generated hosts.
-  -- Hosts: go, python, javascript, typescript, lua, ruby, rust
+  -- Hosts: go, python, javascript, typescript, lua, ruby, rust, zig
   -- rule kinds:
   -- - var_suffix: { kind = "var_suffix", suffix = "..." [, lang = "sql"] }
   -- - call: { kind = "call", fn = "..." | { "...", ... } [, lang = "sql"] }

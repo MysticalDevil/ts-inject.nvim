@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 - PHP nowdoc SQL injection fixed by replacing `injection.combined` with `(nowdoc_string)+` fragment matching.
 - XML MyBatis mapper SQL tag injection (static support).
 - Experimental `template_tag` user rules for generated `javascript` and `typescript` hosts.
+- Configurable generated-host rules for `zig` (name_pattern and call rules).
 - Configurable generated-host rules for `go` and `rust` (including `macro` rules for rust sqlx macros).
 - Configurable generated-host rules for `lua` and `ruby` (matching `python`/`javascript`/`typescript` host-object flow).
 - **GraphQL injection support:**

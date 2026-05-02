@@ -60,6 +60,10 @@ local function name_pattern_for(host, suffix)
     return ("^[%%a_][%%w_]*%s$"):format(escaped)
   end
 
+  if host == "zig" then
+    return ("^[%%l][%%w]*%s$"):format(escaped)
+  end
+
   return nil
 end
 

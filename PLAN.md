@@ -164,6 +164,7 @@ generic DSL.
   - `lua`
   - `ruby`
   - `rust`
+  - `zig`
 - configurable generated hosts can set `builtin = false`
 - generated-capable hosts can be forced to `static` via `query_mode.<host> = "static"` (legacy, not recommended)
 - there is still no per-rule precedence or partial builtin disable model

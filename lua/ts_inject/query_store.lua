@@ -40,6 +40,7 @@ function M.generated_languages()
     ruby = true,
     rust = true,
     typescript = true,
+    zig = true,
   }
 end
 
@@ -52,6 +53,7 @@ function M.configurable_generated_languages()
     ruby = true,
     rust = true,
     typescript = true,
+    zig = true,
   }
 end
 

@@ -8,6 +8,7 @@ local builders = {
   typescript = require("ts_inject.host.ecmascript"),
   go = require("ts_inject.host.go"),
   rust = require("ts_inject.host.rust"),
+  zig = require("ts_inject.host.zig"),
 }
 
 function M.build(host, rules)
