@@ -112,6 +112,14 @@ local function render_call(rule)
   return blocks
 end
 
+local base_build = util.build_dispatcher({
+  header = "; extends",
+  renderers = {
+    name_pattern = render_name_pattern,
+    call = render_call,
+  },
+})
+
 function M.build(rules, _opts)
   local has_sql = false
   for _, rule in ipairs(rules or {}) do
@@ -121,15 +129,7 @@ function M.build(rules, _opts)
     end
   end
 
-  local build = util.build_dispatcher({
-    header = "; extends",
-    renderers = {
-      name_pattern = render_name_pattern,
-      call = render_call,
-    },
-  })
-
-  local result, err = build(rules, _opts)
+  local result, err = base_build(rules, _opts)
   if not result then
     return nil, err
   end

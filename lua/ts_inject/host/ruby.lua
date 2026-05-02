@@ -2,6 +2,11 @@ local M = {}
 
 local util = require("ts_inject.host._util")
 
+local HEREDOC_BODY = [[
+    .
+    (heredoc_body
+      (heredoc_content) @injection.content)]]
+
 local function render_name_pattern(rule)
   return {
     ([[
@@ -30,26 +35,22 @@ local function render_name_pattern(rule)
     (assignment
       left: (identifier) @_name
       right: (heredoc_beginning))
-    .
-    (heredoc_body
-      (heredoc_content) @injection.content))
+%s)
   (#lua-match? @_name %s)
   (#set! injection.language %s)
 )
-]]):format(util.q(rule.pattern), util.q(rule.lang)),
+]]):format(HEREDOC_BODY, util.q(rule.pattern), util.q(rule.lang)),
     ([[
 (
   (_
     (assignment
       left: (constant) @_name
       right: (heredoc_beginning))
-    .
-    (heredoc_body
-      (heredoc_content) @injection.content))
+%s)
   (#lua-match? @_name %s)
   (#set! injection.language %s)
 )
-]]):format(util.q(rule.pattern), util.q(rule.lang)),
+]]):format(HEREDOC_BODY, util.q(rule.pattern), util.q(rule.lang)),
   }
 end
 
@@ -87,13 +88,11 @@ local function render_call(rule)
       method: (identifier) @_method
       arguments: (argument_list
         (heredoc_beginning)))
-    .
-    (heredoc_body
-      (heredoc_content) @injection.content))
+%s)
   (#any-of? @_method %s)
   (#set! injection.language %s)
 )
-]]):format(fn, util.q(rule.lang)),
+]]):format(HEREDOC_BODY, fn, util.q(rule.lang)),
     ([[
 (
   (_
@@ -102,13 +101,11 @@ local function render_call(rule)
       method: (identifier) @_method
       arguments: (argument_list
         (heredoc_beginning)))
-    .
-    (heredoc_body
-      (heredoc_content) @injection.content))
+%s)
   (#any-of? @_method %s)
   (#set! injection.language %s)
 )
-]]):format(fn, util.q(rule.lang)),
+]]):format(HEREDOC_BODY, fn, util.q(rule.lang)),
   }
 end
 
@@ -133,13 +130,11 @@ local function render_content_prefix(rule)
     (assignment
       left: (_)
       right: (heredoc_beginning))
-    .
-    (heredoc_body
-      (heredoc_content) @injection.content))
+%s)
   (#lua-match? @injection.content %s)
   (#set! injection.language %s)
 )
-]]):format(util.q(pattern), util.q(rule.lang))
+]]):format(HEREDOC_BODY, util.q(pattern), util.q(rule.lang))
 
     blocks[#blocks + 1] = ([[
 (
@@ -172,14 +167,12 @@ local function render_content_prefix(rule)
     (call
       method: (identifier)
       arguments: (argument_list
-        (heredoc_beginning)))
-    .
-    (heredoc_body
-      (heredoc_content) @injection.content))
+        (heredoc_beginning))
+%s)
   (#lua-match? @injection.content %s)
   (#set! injection.language %s)
 )
-]]):format(util.q(pattern), util.q(rule.lang))
+]]):format(HEREDOC_BODY, util.q(pattern), util.q(rule.lang))
 
     blocks[#blocks + 1] = ([[
 (
@@ -188,14 +181,12 @@ local function render_content_prefix(rule)
       receiver: (_)
       method: (identifier)
       arguments: (argument_list
-        (heredoc_beginning)))
-    .
-    (heredoc_body
-      (heredoc_content) @injection.content))
+        (heredoc_beginning))
+%s)
   (#lua-match? @injection.content %s)
   (#set! injection.language %s)
 )
-]]):format(util.q(pattern), util.q(rule.lang))
+]]):format(HEREDOC_BODY, util.q(pattern), util.q(rule.lang))
   end
 
   return blocks
