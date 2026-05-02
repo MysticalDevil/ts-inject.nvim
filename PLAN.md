@@ -154,13 +154,16 @@ generic DSL.
   - `var_suffix`
   - `call`
   - `template_tag` (for `javascript` and `typescript`, supports `sql` and `graphql`)
-  - `content_prefix` (for `python`, `ruby`, and `lua`)
+  - `content_prefix` (for `go`, `python`, `ruby`, `lua`, and `rust`)
+  - `macro` (for `rust` only)
 - experimental `rules` only apply to:
+  - `go`
   - `python`
   - `javascript`
   - `typescript`
   - `lua`
   - `ruby`
+  - `rust`
 - configurable generated hosts can set `builtin = false`
 - generated-capable hosts can be forced to `static` via `query_mode.<host> = "static"` (legacy, not recommended)
 - there is still no per-rule precedence or partial builtin disable model

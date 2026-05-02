@@ -235,11 +235,13 @@ Options:
 <
 
 Configurable generated hosts for `rules`:
+  - go
   - python
   - javascript
   - typescript
   - lua
   - ruby
+  - rust
 
 Rule kinds:
   - `var_suffix`
@@ -248,8 +250,9 @@ Rule kinds:
     - hosts: `python`, `javascript`, `typescript`, `lua`, `ruby`
   - `call`
     - required: `fn` (string or list of strings)
+    - optional: `arg_index` (1-based argument position, default: 1)
     - optional: `lang` (default: `sql`)
-    - hosts: `python`, `javascript`, `typescript`, `lua`, `ruby`
+    - hosts: `go`, `python`, `javascript`, `typescript`, `lua`, `ruby`, `rust`
   - `template_tag`
     - required: `fn` (string or list of strings)
     - optional: `lang` (default: `sql`)
@@ -257,7 +260,10 @@ Rule kinds:
   - `content_prefix`
     - required: `patterns` (non-empty list of Lua-pattern strings)
     - optional: `lang` (default: `sql`)
-    - hosts: `python`, `ruby`, `lua`
+    - hosts: `go`, `python`, `ruby`, `lua`, `rust`
+  - `macro` (rust only)
+    - required: `fn` (string or list of strings)
+    - optional: `lang` (default: `sql`)
 
 Lua-specific note for user rules:
   - `var_suffix` also covers `:format(...)` assignment forms.
