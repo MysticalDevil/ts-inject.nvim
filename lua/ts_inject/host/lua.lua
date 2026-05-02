@@ -258,7 +258,7 @@ local function render_content_prefix(rule)
   return blocks
 end
 
-function M.build(rules)
+function M.build(rules, _opts)
   local blocks = { "; extends" }
 
   for _, rule in ipairs(rules or {}) do

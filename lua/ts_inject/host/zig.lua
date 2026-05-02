@@ -80,7 +80,7 @@ local function render_call(rule)
   }
 end
 
-function M.build(rules)
+function M.build(rules, _opts)
   local blocks = { "; extends" }
 
   for _, rule in ipairs(rules or {}) do

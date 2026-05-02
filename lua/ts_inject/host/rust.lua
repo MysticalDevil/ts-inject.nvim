@@ -237,7 +237,7 @@ local function render_macro(rule)
   }
 end
 
-function M.build(rules)
+function M.build(rules, _opts)
   local blocks = {}
 
   for _, rule in ipairs(rules or {}) do
