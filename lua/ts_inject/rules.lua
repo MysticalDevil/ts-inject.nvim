@@ -68,12 +68,25 @@ local function name_pattern_for(host, suffix)
   return nil
 end
 
+local template_tag_hosts = {
+  javascript = true,
+  typescript = true,
+}
+
 local function template_tag_supported(host)
-  return host == "javascript" or host == "typescript"
+  return template_tag_hosts[host] == true
 end
 
+local content_prefix_hosts = {
+  go = true,
+  python = true,
+  ruby = true,
+  lua = true,
+  rust = true,
+}
+
 local function content_prefix_supported(host)
-  return host == "go" or host == "python" or host == "ruby" or host == "lua" or host == "rust"
+  return content_prefix_hosts[host] == true
 end
 
 local function normalize_pattern_list(patterns)
@@ -95,6 +108,111 @@ local function normalize_pattern_list(patterns)
   return out
 end
 
+local rule_normalizers = {
+  var_suffix = function(host, rule, lang)
+    if type(rule.suffix) ~= "string" or rule.suffix == "" then
+      return nil, "var_suffix rules require a non-empty suffix"
+    end
+    local pattern = name_pattern_for(host, rule.suffix)
+    if not pattern then
+      return nil, ("var_suffix rules are not supported for host %s"):format(host)
+    end
+    return {
+      kind = "name_pattern",
+      lang = lang,
+      pattern = pattern,
+      source = "user",
+    }
+  end,
+
+  call = function(_host, rule, lang)
+    local fn = normalize_fn_list(rule.fn)
+    if not fn then
+      return nil, "call rules require fn as a string or non-empty list"
+    end
+    local arg_index = rule.arg_index or 1
+    if type(arg_index) ~= "number" or arg_index < 1 then
+      return nil, "call rules require arg_index as a positive integer"
+    end
+    return {
+      kind = "call",
+      lang = lang,
+      fn = fn,
+      arg_index = arg_index,
+      source = "user",
+    }
+  end,
+
+  template_tag = function(host, rule, lang)
+    if not template_tag_supported(host) then
+      return nil, ("template_tag rules are not supported for host %s"):format(host)
+    end
+    local fn = normalize_fn_list(rule.fn)
+    if not fn then
+      return nil, "template_tag rules require fn as a string or non-empty list"
+    end
+    return {
+      kind = "template_tag",
+      lang = lang,
+      fn = fn,
+      source = "user",
+    }
+  end,
+
+  content_prefix = function(host, rule, lang)
+    if not content_prefix_supported(host) then
+      return nil, ("content_prefix rules are not supported for host %s"):format(host)
+    end
+    local patterns = normalize_pattern_list(rule.patterns)
+    if not patterns then
+      return nil, "content_prefix rules require patterns as a non-empty list"
+    end
+    return {
+      kind = "content_prefix",
+      lang = lang,
+      patterns = patterns,
+      source = "user",
+    }
+  end,
+
+  macro = function(host, rule, lang)
+    if host ~= "rust" then
+      return nil, ("macro rules are not supported for host %s"):format(host)
+    end
+    local fn = normalize_fn_list(rule.fn)
+    if not fn then
+      return nil, "macro rules require fn as a string or non-empty list"
+    end
+    return {
+      kind = "macro",
+      lang = lang,
+      fn = fn,
+      source = "user",
+    }
+  end,
+
+  config = function(_host, rule, _lang)
+    return {
+      kind = "config",
+      source = "user",
+      max_concat_depth = rule.max_concat_depth,
+    }
+  end,
+
+  xml_tag = function(_host, rule, lang)
+    local tags = normalize_fn_list(rule.tags)
+    if not tags then
+      return nil, "xml_tag rules require tags as a string or non-empty list"
+    end
+    return {
+      kind = "xml_tag",
+      lang = lang,
+      tags = tags,
+      source = "user",
+    }
+  end,
+}
+
 function M.normalize_user_rule(host, rule)
   if type(rule) ~= "table" then
     return nil, "rule must be a table"
@@ -105,121 +223,12 @@ function M.normalize_user_rule(host, rule)
     return nil, "rule.lang must be a non-empty string"
   end
 
-  if rule.kind == "var_suffix" then
-    if type(rule.suffix) ~= "string" or rule.suffix == "" then
-      return nil, "var_suffix rules require a non-empty suffix"
-    end
-
-    local pattern = name_pattern_for(host, rule.suffix)
-    if not pattern then
-      return nil, ("var_suffix rules are not supported for host %s"):format(host)
-    end
-
-    return {
-      kind = "name_pattern",
-      lang = lang,
-      pattern = pattern,
-      source = "user",
-    }
+  local normalizer = rule_normalizers[rule.kind]
+  if not normalizer then
+    return nil, ("unsupported experimental rule kind: %s"):format(tostring(rule.kind))
   end
 
-  if rule.kind == "call" then
-    local fn = normalize_fn_list(rule.fn)
-    if not fn then
-      return nil, "call rules require fn as a string or non-empty list"
-    end
-
-    local arg_index = rule.arg_index or 1
-    if type(arg_index) ~= "number" or arg_index < 1 then
-      return nil, "call rules require arg_index as a positive integer"
-    end
-
-    return {
-      kind = "call",
-      lang = lang,
-      fn = fn,
-      arg_index = arg_index,
-      source = "user",
-    }
-  end
-
-  if rule.kind == "template_tag" then
-    if not template_tag_supported(host) then
-      return nil, ("template_tag rules are not supported for host %s"):format(host)
-    end
-
-    local fn = normalize_fn_list(rule.fn)
-    if not fn then
-      return nil, "template_tag rules require fn as a string or non-empty list"
-    end
-
-    return {
-      kind = "template_tag",
-      lang = lang,
-      fn = fn,
-      source = "user",
-    }
-  end
-
-  if rule.kind == "content_prefix" then
-    if not content_prefix_supported(host) then
-      return nil, ("content_prefix rules are not supported for host %s"):format(host)
-    end
-
-    local patterns = normalize_pattern_list(rule.patterns)
-    if not patterns then
-      return nil, "content_prefix rules require patterns as a non-empty list"
-    end
-
-    return {
-      kind = "content_prefix",
-      lang = lang,
-      patterns = patterns,
-      source = "user",
-    }
-  end
-
-  if rule.kind == "macro" then
-    if host ~= "rust" then
-      return nil, ("macro rules are not supported for host %s"):format(host)
-    end
-
-    local fn = normalize_fn_list(rule.fn)
-    if not fn then
-      return nil, "macro rules require fn as a string or non-empty list"
-    end
-
-    return {
-      kind = "macro",
-      lang = lang,
-      fn = fn,
-      source = "user",
-    }
-  end
-
-  if rule.kind == "config" then
-    return {
-      kind = "config",
-      source = "user",
-      max_concat_depth = rule.max_concat_depth,
-    }
-  end
-
-  if rule.kind == "xml_tag" then
-    local tags = normalize_fn_list(rule.tags)
-    if not tags then
-      return nil, "xml_tag rules require tags as a string or non-empty list"
-    end
-
-    return {
-      kind = "xml_tag",
-      lang = lang,
-      tags = tags,
-      source = "user",
-    }
-  end
-
-  return nil, ("unsupported experimental rule kind: %s"):format(tostring(rule.kind))
+  return normalizer(host, rule, lang)
 end
 
 function M.normalize_user_rules(host, raw_rules)
