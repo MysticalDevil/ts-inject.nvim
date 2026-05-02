@@ -61,62 +61,6 @@ fn main() {
   SELECT id, email FROM ranked WHERE rn <= 5
 "#;
 
-  let get_user_gql = r#"
-  query GetUser($id: ID!) {
-    user(id: $id) {
-      id
-      name
-      email
-    }
-  }
-"#;
-
-  let create_user_graphql = r#"
-  mutation CreateUser($input: CreateUserInput!) {
-    createUser(input: $input) {
-      id
-      name
-      email
-    }
-  }
-"#;
-
-  let user_updated_gql = r#"
-  subscription OnUserUpdated($userId: ID!) {
-    userUpdated(userId: $userId) {
-      id
-      name
-      status
-    }
-  }
-"#;
-
-  let user_fields_fragment = r#"
-  fragment UserFields on User {
-    id
-    name
-    email
-  }
-"#;
-
-  let some_query = r#"
-  query GetUsers {
-    users {
-      id
-    }
-  }
-"#;
-
-  let _delete_macro = graphql!(r#"
-  mutation DeleteUser($id: ID!) {
-    deleteUser(id: $id) {
-      success
-    }
-  }
-"#);
-
-  let _simple_macro = gql!(r#"query SimpleQuery { simple { id } }"#);
-
   let _ = (
     schema_sql,
     query,
@@ -131,13 +75,6 @@ fn main() {
     _manager_delete,
     join_sql,
     window_sql,
-    get_user_gql,
-    create_user_graphql,
-    user_updated_gql,
-    user_fields_fragment,
-    some_query,
-    _delete_macro,
-    _simple_macro,
   );
 }
 

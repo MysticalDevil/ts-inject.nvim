@@ -2,46 +2,70 @@ local smoke = require("tests.smoke.init")
 -- GraphQL template_tag injections (gql, graphql, client.graphql)
 
 -- query + variables
-smoke.assert_injected_node("tests/fixtures/basic.js", "javascript", "query GetUser", "operation_type", "graphql")
-smoke.assert_injected_node("tests/fixtures/basic.js", "javascript", "user(id: $id)", "name", "graphql")
+smoke.assert_injected_node(
+  "tests/fixtures/basic_graphql.js",
+  "javascript",
+  "query GetUser",
+  "operation_type",
+  "graphql"
+)
+smoke.assert_injected_node("tests/fixtures/basic_graphql.js", "javascript", "user(id: $id)", "name", "graphql")
 
 -- mutation + input
-smoke.assert_injected_node("tests/fixtures/basic.js", "javascript", "mutation CreateUser", "operation_type", "graphql")
-smoke.assert_injected_node("tests/fixtures/basic.js", "javascript", "createUser(input: $input)", "name", "graphql")
+smoke.assert_injected_node(
+  "tests/fixtures/basic_graphql.js",
+  "javascript",
+  "mutation CreateUser",
+  "operation_type",
+  "graphql"
+)
+smoke.assert_injected_node(
+  "tests/fixtures/basic_graphql.js",
+  "javascript",
+  "createUser(input: $input)",
+  "name",
+  "graphql"
+)
 
 -- subscription
 smoke.assert_injected_node(
-  "tests/fixtures/basic.js",
+  "tests/fixtures/basic_graphql.js",
   "javascript",
   "subscription OnUserUpdated",
   "operation_type",
   "graphql"
 )
-smoke.assert_injected_node("tests/fixtures/basic.js", "javascript", "userUpdated(userId: $userId)", "name", "graphql")
+smoke.assert_injected_node(
+  "tests/fixtures/basic_graphql.js",
+  "javascript",
+  "userUpdated(userId: $userId)",
+  "name",
+  "graphql"
+)
 
 -- fragment definition + nested selection
 smoke.assert_injected_node(
-  "tests/fixtures/basic.js",
+  "tests/fixtures/basic_graphql.js",
   "javascript",
   "fragment UserFields",
   "fragment_definition",
   "graphql"
 )
-smoke.assert_injected_node("tests/fixtures/basic.js", "javascript", "avatar {", "name", "graphql")
-smoke.assert_injected_node("tests/fixtures/basic.js", "javascript", "url", "name", "graphql")
-smoke.assert_injected_node("tests/fixtures/basic.js", "javascript", "thumbnail", "name", "graphql")
+smoke.assert_injected_node("tests/fixtures/basic_graphql.js", "javascript", "avatar {", "name", "graphql")
+smoke.assert_injected_node("tests/fixtures/basic_graphql.js", "javascript", "url", "name", "graphql")
+smoke.assert_injected_node("tests/fixtures/basic_graphql.js", "javascript", "thumbnail", "name", "graphql")
 
 -- aliases + directives + fragment spread
-smoke.assert_injected_node("tests/fixtures/basic.js", "javascript", "activeUsers: users", "name", "graphql")
+smoke.assert_injected_node("tests/fixtures/basic_graphql.js", "javascript", "activeUsers: users", "name", "graphql")
 smoke.assert_injected_node(
-  "tests/fixtures/basic.js",
+  "tests/fixtures/basic_graphql.js",
   "javascript",
   "inactiveUsers: users(query: $query, status: INACTIVE)",
   "name",
   "graphql"
 )
 smoke.assert_injected_node(
-  "tests/fixtures/basic.js",
+  "tests/fixtures/basic_graphql.js",
   "javascript",
   "@include(if: $includeInactive)",
   "directive",
@@ -49,9 +73,21 @@ smoke.assert_injected_node(
 )
 
 -- meta field + inline fragments
-smoke.assert_injected_node("tests/fixtures/basic.js", "javascript", "__typename", "name", "graphql")
-smoke.assert_injected_node("tests/fixtures/basic.js", "javascript", "... on User", "inline_fragment", "graphql")
-smoke.assert_injected_node("tests/fixtures/basic.js", "javascript", "... on Organization", "inline_fragment", "graphql")
+smoke.assert_injected_node("tests/fixtures/basic_graphql.js", "javascript", "__typename", "name", "graphql")
+smoke.assert_injected_node("tests/fixtures/basic_graphql.js", "javascript", "... on User", "inline_fragment", "graphql")
+smoke.assert_injected_node(
+  "tests/fixtures/basic_graphql.js",
+  "javascript",
+  "... on Organization",
+  "inline_fragment",
+  "graphql"
+)
 
 -- member_expression template tag (client.graphql)
-smoke.assert_injected_node("tests/fixtures/basic.js", "javascript", "mutation DeleteUser", "operation_type", "graphql")
+smoke.assert_injected_node(
+  "tests/fixtures/basic_graphql.js",
+  "javascript",
+  "mutation DeleteUser",
+  "operation_type",
+  "graphql"
+)

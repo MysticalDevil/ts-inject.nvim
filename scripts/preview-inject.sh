@@ -41,23 +41,46 @@ declare -A FIXTURES=(
 	[zig]="basic.zig"
 )
 
+# GraphQL fixtures are split out as basic_graphql.<ext>
+resolve_fixture() {
+	local base="$1"
+	local inject="$2"
+	if [[ "$inject" == "graphql" ]]; then
+		local ext="${base##*.}"
+		echo "basic_graphql.${ext}"
+	else
+		echo "$base"
+	fi
+}
+
 # ---------------------------------------------------------------------------
 # Preset jump positions for interesting injection regions
 # ---------------------------------------------------------------------------
 declare -A JUMP_LINES=(
 	["c:asm"]="113"
 	["c:sql"]="119"
-	["go:graphql"]="27"
-	["go:sql"]="15"
+	["cs:graphql"]="4"
+	["cs:sql"]="11"
+	["csharp:graphql"]="4"
+	["csharp:sql"]="11"
+	["go:graphql"]="4"
+	["go:sql"]="13"
+	["java:graphql"]="3"
 	["java:sql"]="75"
-	["javascript:graphql"]="71"
-	["javascript:sql"]="60"
-	["python:graphql"]="51"
-	["python:sql"]="36"
-	["rust:graphql"]="65"
-	["rust:sql"]="3"
-	["typescript:graphql"]="71"
-	["typescript:sql"]="60"
+	["javascript:graphql"]="1"
+	["javascript:sql"]="24"
+	["kotlin:graphql"]="2"
+	["kotlin:sql"]="39"
+	["php:graphql"]="3"
+	["php:sql"]="3"
+	["python:graphql"]="2"
+	["python:sql"]="20"
+	["rust:graphql"]="2"
+	["rust:sql"]="2"
+	["scala:graphql"]="2"
+	["scala:sql"]="2"
+	["typescript:graphql"]="1"
+	["typescript:sql"]="33"
 )
 
 # ---------------------------------------------------------------------------
@@ -177,7 +200,8 @@ if [[ -z "$CANONICAL" ]]; then
 	exit 1
 fi
 
-FILE="$PROJECT_ROOT/tests/fixtures/${FIXTURES[$CANONICAL]}"
+BASENAME=$(resolve_fixture "${FIXTURES[$CANONICAL]}" "$INJECT")
+FILE="$PROJECT_ROOT/tests/fixtures/$BASENAME"
 
 if [[ ! -f "$FILE" ]]; then
 	echo -e "${RED}Fixture not found: $FILE${NC}"
