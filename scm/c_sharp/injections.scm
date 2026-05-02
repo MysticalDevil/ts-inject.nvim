@@ -254,3 +254,56 @@
   (#any-of? @_fn "Query" "Execute" "Prepare")
   (#set! injection.language "sql")
 )
+
+; === GraphQL ===
+
+; GQL suffix with verbatim strings
+(
+  (local_declaration_statement
+    (modifier)
+    (variable_declaration
+      (_)
+      (variable_declarator
+        (identifier) @_name
+        (verbatim_string_literal) @injection.content)))
+  (#lua-match? @_name "^[%u][%u%d_]*_GQL$")
+  (#offset! @injection.content 0 2 0 -1)
+  (#set! injection.language "graphql")
+)
+
+(
+  (local_declaration_statement
+    (variable_declaration
+      (_)
+      (variable_declarator
+        (identifier) @_name
+        (verbatim_string_literal) @injection.content)))
+  (#lua-match? @_name "^[%l][%w]*Gql$")
+  (#offset! @injection.content 0 2 0 -1)
+  (#set! injection.language "graphql")
+)
+
+; GQL suffix with regular strings
+(
+  (local_declaration_statement
+    (variable_declaration
+      (_)
+      (variable_declarator
+        (identifier) @_name
+        (string_literal
+          (string_literal_content) @injection.content))))
+  (#lua-match? @_name "^[%u][%u%d_]*_GQL$")
+  (#set! injection.language "graphql")
+)
+
+(
+  (local_declaration_statement
+    (variable_declaration
+      (_)
+      (variable_declarator
+        (identifier) @_name
+        (string_literal
+          (string_literal_content) @injection.content))))
+  (#lua-match? @_name "^[%l][%w]*Gql$")
+  (#set! injection.language "graphql")
+)

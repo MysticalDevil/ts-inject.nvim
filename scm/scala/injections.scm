@@ -53,3 +53,36 @@
   (#offset! @injection.content 0 3 0 -3)
   (#set! injection.language "sql")
 )
+
+; === GraphQL ===
+
+; GQL suffix
+(
+  (val_definition
+    pattern: (identifier) @_name
+    value: (string) @injection.content)
+  (#lua-match? @_name "^[%l][%w]*Gql$")
+  (#not-lua-match? @injection.content "^\"\"\"")
+  (#offset! @injection.content 0 1 0 -1)
+  (#set! injection.language "graphql")
+)
+
+(
+  (val_definition
+    pattern: (identifier) @_name
+    value: (string) @injection.content)
+  (#lua-match? @_name "^[%l][%w]*Gql$")
+  (#lua-match? @injection.content "^\"\"\"")
+  (#offset! @injection.content 0 3 0 -3)
+  (#set! injection.language "graphql")
+)
+
+(
+  (val_definition
+    pattern: (identifier) @_name
+    value: (string) @injection.content)
+  (#lua-match? @_name "^[%u][%u%d_]*_GQL$")
+  (#lua-match? @injection.content "^\"\"\"")
+  (#offset! @injection.content 0 3 0 -3)
+  (#set! injection.language "graphql")
+)

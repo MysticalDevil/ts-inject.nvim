@@ -208,3 +208,41 @@
   (#any-of? @_fn "query" "execute" "prepare")
   (#set! injection.language "sql")
 )
+
+; === GraphQL ===
+
+; GQL suffix with nowdoc
+(
+  (const_declaration
+    (const_element
+      (name) @_name
+      (nowdoc
+        (nowdoc_body
+          (nowdoc_string)+ @injection.content))))
+  (#lua-match? @_name "^[%u][%u%d_]*_GQL$")
+  (#set! injection.language "graphql")
+)
+
+(
+  (expression_statement
+    (assignment_expression
+      left: (variable_name
+        (name) @_name)
+      right: (nowdoc
+        (nowdoc_body
+          (nowdoc_string)+ @injection.content))))
+  (#lua-match? @_name "^[%l][%w]*Gql$")
+  (#set! injection.language "graphql")
+)
+
+; GQL suffix with encapsed strings
+(
+  (expression_statement
+    (assignment_expression
+      left: (variable_name
+        (name) @_name)
+      right: (encapsed_string
+        (string_content) @injection.content)))
+  (#lua-match? @_name "^[%l][%w]*Gql$")
+  (#set! injection.language "graphql")
+)

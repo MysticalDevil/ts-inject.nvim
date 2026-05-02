@@ -536,3 +536,51 @@
   (#any-of? @_fn "execute" "query" "prepareStatement")
   (#set! injection.language "sql")
 )
+
+; === GraphQL ===
+
+; GQL suffix with text blocks
+(
+  (local_variable_declaration
+    type: (type_identifier)
+    declarator: (variable_declarator
+      name: (identifier) @_name
+      value: (string_literal
+        (multiline_string_fragment) @injection.content)))
+  (#lua-match? @_name "^[%u][%u%d_]*_GQL$")
+  (#set! injection.language "graphql")
+)
+
+(
+  (local_variable_declaration
+    type: (type_identifier)
+    declarator: (variable_declarator
+      name: (identifier) @_name
+      value: (string_literal
+        (multiline_string_fragment) @injection.content)))
+  (#lua-match? @_name "^[%l][%w]*Gql$")
+  (#set! injection.language "graphql")
+)
+
+; GQL suffix with single-line strings
+(
+  (local_variable_declaration
+    type: (type_identifier)
+    declarator: (variable_declarator
+      name: (identifier) @_name
+      value: (string_literal
+        (string_fragment) @injection.content)))
+  (#lua-match? @_name "^[%u][%u%d_]*_GQL$")
+  (#set! injection.language "graphql")
+)
+
+(
+  (local_variable_declaration
+    type: (type_identifier)
+    declarator: (variable_declarator
+      name: (identifier) @_name
+      value: (string_literal
+        (string_fragment) @injection.content)))
+  (#lua-match? @_name "^[%l][%w]*Gql$")
+  (#set! injection.language "graphql")
+)

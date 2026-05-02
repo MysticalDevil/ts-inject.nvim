@@ -353,3 +353,61 @@
   (#any-of? @_fn "execute" "query" "prepareStatement")
   (#set! injection.language "sql")
 )
+
+; === GraphQL ===
+
+; GQL suffix
+(
+  (property_declaration
+    (variable_declaration
+      (simple_identifier) @_name)
+    (string_literal
+      (string_content) @injection.content))
+  (#lua-match? @_name "^[%u][%u%d_]*_GQL$")
+  (#set! injection.language "graphql")
+)
+
+(
+  (property_declaration
+    (variable_declaration
+      (simple_identifier) @_name)
+    (string_literal
+      (string_content) @injection.content))
+  (#lua-match? @_name "^[%l][%w]*Gql$")
+  (#set! injection.language "graphql")
+)
+
+; GQL suffix with trimIndent / trimMargin
+(
+  (property_declaration
+    (variable_declaration
+      (simple_identifier) @_name)
+    (call_expression
+      (navigation_expression
+        (string_literal
+          (string_content) @injection.content)
+        (navigation_suffix
+          (simple_identifier) @_trim))
+      (call_suffix
+        (value_arguments))))
+  (#any-of? @_trim "trimIndent" "trimMargin")
+  (#lua-match? @_name "^[%u][%u%d_]*_GQL$")
+  (#set! injection.language "graphql")
+)
+
+(
+  (property_declaration
+    (variable_declaration
+      (simple_identifier) @_name)
+    (call_expression
+      (navigation_expression
+        (string_literal
+          (string_content) @injection.content)
+        (navigation_suffix
+          (simple_identifier) @_trim))
+      (call_suffix
+        (value_arguments))))
+  (#any-of? @_trim "trimIndent" "trimMargin")
+  (#lua-match? @_name "^[%l][%w]*Gql$")
+  (#set! injection.language "graphql")
+)
