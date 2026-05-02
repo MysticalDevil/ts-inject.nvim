@@ -44,19 +44,6 @@ function M.generated_languages()
   }
 end
 
-function M.configurable_generated_languages()
-  return {
-    go = true,
-    javascript = true,
-    lua = true,
-    python = true,
-    ruby = true,
-    rust = true,
-    typescript = true,
-    zig = true,
-  }
-end
-
 function M.path(lang)
   return vim.fs.joinpath(root_dir(), "scm", lang, "injections.scm")
 end

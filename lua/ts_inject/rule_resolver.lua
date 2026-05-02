@@ -24,7 +24,7 @@ end
 
 function M.resolve_rules(raw_host_rules, host_modes, warnings)
   local generated = query_store.generated_languages()
-  local configurable = query_store.configurable_generated_languages()
+  local configurable = query_store.generated_languages()
   local host_rules = {}
   local rule_configs = {}
 
