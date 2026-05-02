@@ -223,7 +223,6 @@ M.build = util.build_dispatcher({
     call = render_call,
   },
   static_preamble = static_preamble,
-  preamble_first = true,
 })
 
 return M

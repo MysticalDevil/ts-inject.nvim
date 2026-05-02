@@ -34,12 +34,8 @@ function M.build_dispatcher(opts)
   local header = opts.header or ""
   local renderers = opts.renderers or {}
   local static_preamble = opts.static_preamble
-  local preamble_first = opts.preamble_first or false
   return function(rules, _opts)
     local blocks = {}
-    if header ~= "" then
-      blocks[#blocks + 1] = header
-    end
     for _, rule in ipairs(rules or {}) do
       local rendered = {}
       local renderer = renderers[rule.kind]
@@ -51,13 +47,17 @@ function M.build_dispatcher(opts)
       vim.list_extend(blocks, rendered)
     end
     local body = table.concat(blocks, "\n")
-    if static_preamble then
-      if preamble_first then
-        return static_preamble .. "\n" .. body
-      end
-      return body .. "\n" .. static_preamble
+    local parts = {}
+    if header ~= "" then
+      parts[#parts + 1] = header
     end
-    return body
+    if static_preamble then
+      parts[#parts + 1] = static_preamble
+    end
+    if body ~= "" then
+      parts[#parts + 1] = body
+    end
+    return table.concat(parts, "\n")
   end
 end
 

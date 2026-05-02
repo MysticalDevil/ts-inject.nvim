@@ -228,7 +228,6 @@ M.build = util.build_dispatcher({
     macro = render_macro,
   },
   static_preamble = static_preamble,
-  preamble_first = true,
 })
 
 return M
