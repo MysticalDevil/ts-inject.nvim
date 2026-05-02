@@ -557,12 +557,6 @@ local builtin = {
     {
       kind = "name_pattern",
       lang = "sql",
-      pattern = "[%a_][%w_]*[Ss][Qq][Ll]",
-      source = "builtin",
-    },
-    {
-      kind = "name_pattern",
-      lang = "sql",
       pattern = "^[%a_][%w_]*[Ss][Qq][Ll]$",
       source = "builtin",
     },
@@ -598,12 +592,6 @@ local builtin = {
     },
   },
   cpp = {
-    {
-      kind = "name_pattern",
-      lang = "sql",
-      pattern = "[%a_][%w_]*[Ss][Qq][Ll]",
-      source = "builtin",
-    },
     {
       kind = "name_pattern",
       lang = "sql",

@@ -2,16 +2,8 @@ local M = {}
 
 local util = require("ts_inject.host._util")
 
-local function join_tags(items)
-  local out = {}
-  for _, item in ipairs(items or {}) do
-    out[#out + 1] = util.q(item)
-  end
-  return table.concat(out, " ")
-end
-
 local function render_xml_tag(rule)
-  local tags = join_tags(rule.tags)
+  local tags = util.join_fn_list(rule.tags)
   return {
     ([[
 (

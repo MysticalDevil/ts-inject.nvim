@@ -41,7 +41,13 @@ function M.new(config)
 (
   (declaration
     declarator: (init_declarator
-      declarator: (_) @_decl
+      declarator: [
+        (identifier) @_decl
+        (pointer_declarator
+          declarator: (identifier) @_decl)
+        (array_declarator
+          declarator: (identifier) @_decl)
+      ]
       value: %s))
   (#lua-match? @_decl %s)
   (#set! injection.language %s))
@@ -52,7 +58,11 @@ function M.new(config)
 (
   (declaration
     declarator: (init_declarator
-      declarator: (_) @_decl
+      declarator: [
+        (identifier) @_decl
+        (pointer_declarator
+          declarator: (identifier) @_decl)
+      ]
       value: %s))
   (#lua-match? @_decl %s)
   (#set! injection.combined)

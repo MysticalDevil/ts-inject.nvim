@@ -1,13 +1,5 @@
 local M = {}
 
-local function copy_list(items)
-  local out = {}
-  for _, item in ipairs(items or {}) do
-    out[#out + 1] = item
-  end
-  return out
-end
-
 local function escape_lua_pattern(text)
   return (text:gsub("([^%w])", "%%%1"))
 end
@@ -288,18 +280,9 @@ end
 
 function M.clone_rules(rules)
   local out = {}
-
   for _, rule in ipairs(rules or {}) do
-    local cloned = vim.deepcopy(rule)
-    if cloned.fn then
-      cloned.fn = copy_list(cloned.fn)
-    end
-    if cloned.patterns then
-      cloned.patterns = copy_list(cloned.patterns)
-    end
-    out[#out + 1] = cloned
+    out[#out + 1] = vim.deepcopy(rule)
   end
-
   return out
 end
 

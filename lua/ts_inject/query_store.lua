@@ -3,10 +3,13 @@ local M = {}
 local cache = {}
 
 local function root_dir()
+  -- Resolve plugin root from this file's location (lua/ts_inject/query_store.lua).
+  -- :p:h:h:h goes from .../lua/ts_inject/ → .../lua/ → .../ → plugin root.
   local source = debug.getinfo(1, "S").source:sub(2)
-  return vim.fs.dirname(vim.fs.dirname(vim.fs.dirname(source)))
+  return vim.fn.fnamemodify(source, ":p:h:h:h")
 end
 
+---All languages with built-in injection support (static scm or generated).
 function M.supported_languages()
   return {
     bash = true,
@@ -31,28 +34,9 @@ function M.supported_languages()
   }
 end
 
+---Alias for supported_languages (all supported hosts are generated-capable).
 function M.generated_languages()
-  return {
-    go = true,
-    javascript = true,
-    lua = true,
-    perl = true,
-    php = true,
-    python = true,
-    ruby = true,
-    rust = true,
-    scala = true,
-    c_sharp = true,
-    kotlin = true,
-    elixir = true,
-    java = true,
-    typescript = true,
-    xml = true,
-    zig = true,
-    c = true,
-    cpp = true,
-    bash = true,
-  }
+  return M.supported_languages()
 end
 
 function M.path(lang)
