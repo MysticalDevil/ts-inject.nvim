@@ -1,16 +1,6 @@
 local M = {}
 
-local function q(text)
-  return string.format("%q", text)
-end
-
-local function join_fn_list(items)
-  local out = {}
-  for _, item in ipairs(items or {}) do
-    out[#out + 1] = q(item)
-  end
-  return table.concat(out, " ")
-end
+local util = require("ts_inject.host._util")
 
 local function string_literal_query()
   return [[
@@ -34,7 +24,7 @@ local function render_name_pattern(rule)
       %s))
   (#lua-match? @_name %s)
   (#set! injection.language %s))
-]]):format(string_literal_query(), q(rule.pattern), q(rule.lang)),
+]]):format(string_literal_query(), util.q(rule.pattern), util.q(rule.lang)),
     ([[
 (
   (assignment_statement
@@ -44,7 +34,7 @@ local function render_name_pattern(rule)
       %s))
   (#lua-match? @_name %s)
   (#set! injection.language %s))
-]]):format(string_literal_query(), q(rule.pattern), q(rule.lang)),
+]]):format(string_literal_query(), util.q(rule.pattern), util.q(rule.lang)),
   }
 end
 
@@ -59,7 +49,7 @@ local function call_function_pattern()
 end
 
 local function render_call(rule)
-  local fn = join_fn_list(rule.fn)
+  local fn = util.join_fn_list(rule.fn)
   local arg_index = rule.arg_index or 1
 
   local args_prefix = {}
@@ -80,7 +70,7 @@ local function render_call(rule)
       . (_)*))
   (#any-of? @_fn %s)
   (#set! injection.language %s))
-]]):format(call_function_pattern(), table.concat(args_prefix, "\n"), string_literal_query(), fn, q(rule.lang)),
+]]):format(call_function_pattern(), table.concat(args_prefix, "\n"), string_literal_query(), fn, util.q(rule.lang)),
   }
 end
 
@@ -97,7 +87,7 @@ local function render_content_prefix(rule)
       %s))
   (#lua-match? @injection.content %s)
   (#set! injection.language %s))
-]]):format(string_literal_query(), q(pattern), q(rule.lang))
+]]):format(string_literal_query(), util.q(pattern), util.q(rule.lang))
 
     blocks[#blocks + 1] = ([[
 (
@@ -108,7 +98,7 @@ local function render_content_prefix(rule)
       %s))
   (#lua-match? @injection.content %s)
   (#set! injection.language %s))
-]]):format(string_literal_query(), q(pattern), q(rule.lang))
+]]):format(string_literal_query(), util.q(pattern), util.q(rule.lang))
 
     blocks[#blocks + 1] = ([[
 (
@@ -120,7 +110,7 @@ local function render_content_prefix(rule)
       . (_)*))
   (#lua-match? @injection.content %s)
   (#set! injection.language %s))
-]]):format(call_function_pattern(), string_literal_query(), q(pattern), q(rule.lang))
+]]):format(call_function_pattern(), string_literal_query(), util.q(pattern), util.q(rule.lang))
   end
 
   return blocks

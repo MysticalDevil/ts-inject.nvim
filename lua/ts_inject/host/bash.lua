@@ -1,16 +1,6 @@
 local M = {}
 
-local function q(text)
-  return string.format("%q", text)
-end
-
-local function join_fn_list(items)
-  local out = {}
-  for _, item in ipairs(items or {}) do
-    out[#out + 1] = q(item)
-  end
-  return table.concat(out, " ")
-end
+local util = require("ts_inject.host._util")
 
 local static_preamble = [[
 ((heredoc_redirect
@@ -90,7 +80,7 @@ local function render_name_pattern(rule)
       (string_content) @injection.content))
   (#lua-match? @_name %s)
   (#set! injection.language %s))
-]]):format(q(rule.pattern), q(rule.lang)),
+]]):format(util.q(rule.pattern), util.q(rule.lang)),
     ([[
 (
   (variable_assignment
@@ -100,12 +90,12 @@ local function render_name_pattern(rule)
         (string_content) @injection.content)+))
   (#lua-match? @_name %s)
   (#set! injection.language %s))
-]]):format(q(rule.pattern), q(rule.lang)),
+]]):format(util.q(rule.pattern), util.q(rule.lang)),
   }
 end
 
 local function render_call(rule)
-  local fn = join_fn_list(rule.fn)
+  local fn = util.join_fn_list(rule.fn)
   return {
     ([[
 (
@@ -115,7 +105,7 @@ local function render_call(rule)
       (string_content) @injection.content))
   (#any-of? @_cmd %s)
   (#set! injection.language %s))
-]]):format(fn, q(rule.lang)),
+]]):format(fn, util.q(rule.lang)),
     ([[
 (
   (command
@@ -126,7 +116,7 @@ local function render_call(rule)
   (#any-of? @_cmd %s)
   (#any-of? @_flag "-c" "-e" "--command" "--execute")
   (#set! injection.language %s))
-]]):format(fn, q(rule.lang)),
+]]):format(fn, util.q(rule.lang)),
   }
 end
 

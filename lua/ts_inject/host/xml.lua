@@ -1,13 +1,11 @@
 local M = {}
 
-local function q(text)
-  return string.format("%q", text)
-end
+local util = require("ts_inject.host._util")
 
 local function join_tags(items)
   local out = {}
   for _, item in ipairs(items or {}) do
-    out[#out + 1] = q(item)
+    out[#out + 1] = util.q(item)
   end
   return table.concat(out, " ")
 end
@@ -27,7 +25,7 @@ local function render_xml_tag(rule)
   (#any-of? @_tag %s)
   (#any-of? @_end_tag %s)
   (#set! injection.language %s))
-]]):format(tags, tags, q(rule.lang)),
+]]):format(tags, tags, util.q(rule.lang)),
     ([[
 (
   (element
@@ -41,7 +39,7 @@ local function render_xml_tag(rule)
   (#any-of? @_tag %s)
   (#any-of? @_end_tag %s)
   (#set! injection.language %s))
-]]):format(tags, tags, q(rule.lang)),
+]]):format(tags, tags, util.q(rule.lang)),
   }
 end
 

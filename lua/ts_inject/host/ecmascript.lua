@@ -1,35 +1,24 @@
 local M = {}
 
+local util = require("ts_inject.host._util")
+
 local MAX_CONCAT_DEPTH = 5
-
-local function q(text)
-  return string.format("%q", text)
-end
-
-local function join_fn_list(items)
-  local out = {}
-  for _, item in ipairs(items or {}) do
-    out[#out + 1] = q(item)
-  end
-  return table.concat(out, " ")
-end
 
 local function leaf_string()
   return [[(string
   (string_fragment) @injection.content)]]
 end
 
-local function concat_expr(depth)
-  if depth <= 1 then
-    return leaf_string()
-  end
+local concat = require("ts_inject.host._concat")
 
-  return ([[
-(binary_expression
-  left: %s
-  right: %s)
-]]):format(concat_expr(depth - 1), leaf_string())
-end
+local concat_expr = concat.binary({
+  node_name = "binary_expression",
+  left_field = "left: ",
+  right_field = "right: ",
+  direction = "left",
+  leaf_fn = leaf_string,
+  max_depth = MAX_CONCAT_DEPTH,
+})
 
 local function render_concat(depth)
   return concat_expr(depth)
@@ -52,7 +41,7 @@ local function render_name_pattern(rule, max_concat_depth)
   (#set! injection.include-children)
   (#set! injection.language %s)
 )
-]]):format(q(rule.pattern), q(rule.lang)),
+]]):format(util.q(rule.pattern), util.q(rule.lang)),
     ([[
 (
   (variable_declarator
@@ -62,7 +51,7 @@ local function render_name_pattern(rule, max_concat_depth)
   (#lua-match? @_name %s)
   (#set! injection.language %s)
 )
-]]):format(q(rule.pattern), q(rule.lang)),
+]]):format(util.q(rule.pattern), util.q(rule.lang)),
   }
 
   for depth = 2, max_concat_depth do
@@ -77,7 +66,7 @@ local function render_name_pattern(rule, max_concat_depth)
   (#set! injection.combined)
   (#set! injection.language %s)
 )
-]]):format(render_concat(depth), q(rule.pattern), q(rule.lang))
+]]):format(render_concat(depth), util.q(rule.pattern), util.q(rule.lang))
     )
   end
 
@@ -109,7 +98,7 @@ local function render_call(rule, max_concat_depth)
   (#set! injection.include-children)
   (#set! injection.language %s)
 )
-]]):format(call_function_pattern(), join_fn_list(rule.fn), q(rule.lang)),
+]]):format(call_function_pattern(), util.join_fn_list(rule.fn), util.q(rule.lang)),
     ([[
 (
   (call_expression
@@ -121,7 +110,7 @@ local function render_call(rule, max_concat_depth)
   (#any-of? @_fn %s)
   (#set! injection.language %s)
 )
-]]):format(call_function_pattern(), join_fn_list(rule.fn), q(rule.lang)),
+]]):format(call_function_pattern(), util.join_fn_list(rule.fn), util.q(rule.lang)),
   }
 
   for depth = 2, max_concat_depth do
@@ -138,7 +127,7 @@ local function render_call(rule, max_concat_depth)
   (#set! injection.combined)
   (#set! injection.language %s)
 )
-]]):format(call_function_pattern(), render_concat(depth), join_fn_list(rule.fn), q(rule.lang))
+]]):format(call_function_pattern(), render_concat(depth), util.join_fn_list(rule.fn), util.q(rule.lang))
     )
   end
 
@@ -161,7 +150,7 @@ local function render_template_tag(rule)
   (#set! injection.include-children)
   (#set! injection.language %s)
 )
-]]):format(join_fn_list(rule.fn), q(rule.lang)),
+]]):format(util.join_fn_list(rule.fn), util.q(rule.lang)),
   }
 end
 

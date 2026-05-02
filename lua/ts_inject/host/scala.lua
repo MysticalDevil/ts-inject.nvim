@@ -1,16 +1,6 @@
 local M = {}
 
-local function q(text)
-  return string.format("%q", text)
-end
-
-local function join_fn_list(items)
-  local out = {}
-  for _, item in ipairs(items or {}) do
-    out[#out + 1] = q(item)
-  end
-  return table.concat(out, " ")
-end
+local util = require("ts_inject.host._util")
 
 local static_preamble = [[
 ; Regex: "...".r suffix
@@ -49,7 +39,7 @@ local function render_name_pattern(rule)
   (#offset! @injection.content %s)
   (#not-lua-match? @injection.content "^\"\"\"")
   (#set! injection.language %s))
-]]):format(q(rule.pattern), plain, q(rule.lang))
+]]):format(util.q(rule.pattern), plain, util.q(rule.lang))
 
   blocks[#blocks + 1] = ([[
 (
@@ -60,13 +50,13 @@ local function render_name_pattern(rule)
   (#offset! @injection.content %s)
   (#lua-match? @injection.content "^\"\"\"")
   (#set! injection.language %s))
-]]):format(q(rule.pattern), triple, q(rule.lang))
+]]):format(util.q(rule.pattern), triple, util.q(rule.lang))
 
   return blocks
 end
 
 local function render_call(rule)
-  local fn = join_fn_list(rule.fn)
+  local fn = util.join_fn_list(rule.fn)
   local plain = "0 1 0 -1"
   local triple = "0 3 0 -3"
 
@@ -82,7 +72,7 @@ local function render_call(rule)
   (#offset! @injection.content %s)
   (#not-lua-match? @injection.content "^\"\"\"")
   (#set! injection.language %s))
-]]):format(fn, plain, q(rule.lang)),
+]]):format(fn, plain, util.q(rule.lang)),
     ([[
 (
   (call_expression
@@ -94,7 +84,7 @@ local function render_call(rule)
   (#offset! @injection.content %s)
   (#lua-match? @injection.content "^\"\"\"")
   (#set! injection.language %s))
-]]):format(fn, triple, q(rule.lang)),
+]]):format(fn, triple, util.q(rule.lang)),
   }
 end
 

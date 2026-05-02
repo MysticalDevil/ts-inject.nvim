@@ -1,39 +1,28 @@
 local M = {}
 
-local MAX_CONCAT_DEPTH = 6
+local util = require("ts_inject.host._util")
 
-local function q(text)
-  return string.format("%q", text)
-end
+local MAX_CONCAT_DEPTH = 6
 
 local function add(blocks, text)
   blocks[#blocks + 1] = text
 end
 
-local function join_fn_list(items)
-  local out = {}
-  for _, item in ipairs(items or {}) do
-    out[#out + 1] = q(item)
-  end
-  return table.concat(out, " ")
-end
+local concat = require("ts_inject.host._concat")
 
 local function leaf_string()
   return [[(string
         (string_content) @injection.content)]]
 end
 
-local function concat_expr(depth)
-  if depth <= 1 then
-    return leaf_string()
-  end
-
-  return ([[
-(binary_expression
-  left: %s
-  right: %s)
-]]):format(leaf_string(), concat_expr(depth - 1))
-end
+local concat_expr = concat.binary({
+  node_name = "binary_expression",
+  left_field = "left: ",
+  right_field = "right: ",
+  direction = "right",
+  leaf_fn = leaf_string,
+  max_depth = MAX_CONCAT_DEPTH,
+})
 
 local function render_name_pattern(rule)
   local blocks = {
@@ -48,7 +37,7 @@ local function render_name_pattern(rule)
   (#lua-match? @_name %s)
   (#set! injection.language %s)
 )
-]]):format(q(rule.pattern), q(rule.lang)),
+]]):format(util.q(rule.pattern), util.q(rule.lang)),
   }
 
   for depth = 2, MAX_CONCAT_DEPTH do
@@ -64,7 +53,7 @@ local function render_name_pattern(rule)
   (#lua-match? @_name %s)
   (#set! injection.language %s)
 )
-]]):format(concat_expr(depth), q(rule.pattern), q(rule.lang))
+]]):format(concat_expr(depth), util.q(rule.pattern), util.q(rule.lang))
     )
   end
 
@@ -90,7 +79,7 @@ local function render_name_format(rule)
   (#eq? @_format "format")
   (#set! injection.language %s)
 )
-]]):format(q(rule.pattern), q(rule.lang)),
+]]):format(util.q(rule.pattern), util.q(rule.lang)),
   }
 end
 
@@ -124,7 +113,7 @@ local function render_call(rule)
   (#any-of? @_fn %s)
   (#set! injection.language %s)
 )
-]]):format(call_name_pattern(), join_fn_list(rule.fn), q(rule.lang)),
+]]):format(call_name_pattern(), util.join_fn_list(rule.fn), util.q(rule.lang)),
   }
 
   for depth = 2, MAX_CONCAT_DEPTH do
@@ -145,7 +134,7 @@ local function render_call(rule)
   (#any-of? @_fn %s)
   (#set! injection.language %s)
 )
-]]):format(call_name_pattern(), concat_expr(depth), join_fn_list(rule.fn), q(rule.lang))
+]]):format(call_name_pattern(), concat_expr(depth), util.join_fn_list(rule.fn), util.q(rule.lang))
     )
   end
 
@@ -176,7 +165,7 @@ local function render_call_format(rule)
   (#eq? @_format "format")
   (#set! injection.language %s)
 )
-]]):format(call_name_pattern(), join_fn_list(rule.fn), q(rule.lang)),
+]]):format(call_name_pattern(), util.join_fn_list(rule.fn), util.q(rule.lang)),
   }
 end
 
@@ -195,7 +184,7 @@ local function render_content_prefix(rule)
   (#lua-match? @injection.content %s)
   (#set! injection.language %s)
 )
-]]):format(q(pattern), q(rule.lang))
+]]):format(util.q(pattern), util.q(rule.lang))
 
     blocks[#blocks + 1] = ([[
 (
@@ -212,7 +201,7 @@ local function render_content_prefix(rule)
   (#set! injection.combined)
   (#set! injection.language %s)
 )
-]]):format(q(pattern), q(rule.lang))
+]]):format(util.q(pattern), util.q(rule.lang))
 
     blocks[#blocks + 1] = ([[
 (
@@ -230,7 +219,7 @@ local function render_content_prefix(rule)
   (#lua-match? @injection.content %s)
   (#set! injection.language %s)
 )
-]]):format(call_name_pattern(), q(pattern), q(rule.lang))
+]]):format(call_name_pattern(), util.q(pattern), util.q(rule.lang))
 
     blocks[#blocks + 1] = ([[
 (
@@ -252,7 +241,7 @@ local function render_content_prefix(rule)
   (#set! injection.combined)
   (#set! injection.language %s)
 )
-]]):format(call_name_pattern(), q(pattern), q(rule.lang))
+]]):format(call_name_pattern(), util.q(pattern), util.q(rule.lang))
   end
 
   return blocks

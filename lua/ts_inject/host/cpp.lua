@@ -1,53 +1,24 @@
-local M = {}
+local c_family = require("ts_inject.host._c_family")
 
-local function q(text)
-  return string.format("%q", text)
-end
-
-local function join_fn_list(items)
-  local out = {}
-  for _, item in ipairs(items or {}) do
-    out[#out + 1] = q(item)
-  end
-  return table.concat(out, " ")
-end
-
-local function string_value()
-  return [=[([
-  (string_literal
-    (string_content) @injection.content)+
-  (concatenated_string
-    (string_literal
-      (string_content) @injection.content)+)
-  (raw_string_literal
-    (raw_string_content) @injection.content)
-  (user_defined_literal
-    (string_literal
-      (string_content) @injection.content))
-  (parenthesized_expression
-    (string_literal
-      (string_content) @injection.content)+)
-  (parenthesized_expression
-    (concatenated_string
-      (string_literal
-        (string_content) @injection.content)+))
-  (parenthesized_expression
-    (raw_string_literal
-      (raw_string_content) @injection.content))
-  (cast_expression
-    value: (string_literal
-      (string_content) @injection.content)+)
-  (cast_expression
-    value: (concatenated_string
-      (string_literal
-        (string_content) @injection.content)+))
-  (cast_expression
-    value: (raw_string_literal
-      (raw_string_content) @injection.content))
-])]=]
-end
-
-local static_preamble = [[
+local M = c_family.new({
+  leaf_strings = {
+    "(string_literal\n    (string_content) @injection.content)+",
+    "(concatenated_string\n    (string_literal\n      (string_content) @injection.content)+)",
+  },
+  raw_string = "(raw_string_literal\n    (raw_string_content) @injection.content)",
+  user_defined = "(user_defined_literal\n    (string_literal\n      (string_content) @injection.content))",
+  parenthesized = {
+    "(parenthesized_expression\n    (string_literal\n      (string_content) @injection.content)+)",
+    "(parenthesized_expression\n    (concatenated_string\n      (string_literal\n        (string_content) @injection.content)+))",
+    "(parenthesized_expression\n    (raw_string_literal\n      (raw_string_content) @injection.content))",
+  },
+  cast = {
+    "(cast_expression\n    value: (string_literal\n      (string_content) @injection.content)+)",
+    "(cast_expression\n    value: (concatenated_string\n      (string_literal\n        (string_content) @injection.content)+))",
+    "(cast_expression\n    value: (raw_string_literal\n      (raw_string_content) @injection.content))",
+  },
+  field_calls = true,
+  static_preamble = [[
 (
   (_
     (comment) @_marker
@@ -298,90 +269,7 @@ local static_preamble = [[
         (string_content) @injection.content)))
   (#eq? @_class "regex")
   (#set! injection.language "regex"))
-]]
-
-local function render_name_pattern(rule)
-  return {
-    ([[
-(
-  (declaration
-    declarator: (init_declarator
-      declarator: (_) @_decl
-      value: %s))
-  (#lua-match? @_decl %s)
-  (#set! injection.language %s))
-]]):format(string_value(), q(rule.pattern), q(rule.lang)),
-    ([[
-(
-  (assignment_expression
-    left: (identifier) @_name
-    right: %s)
-  (#lua-match? @_name %s)
-  (#set! injection.language %s)
-)
-]]):format(string_value(), q(rule.pattern), q(rule.lang)),
-  }
-end
-
-local function render_call(rule)
-  local fn = join_fn_list(rule.fn)
-  local arg_index = rule.arg_index or 1
-  local blocks = {}
-
-  local args_prefix = {}
-  if arg_index == 1 then
-    table.insert(args_prefix, "      .")
-  else
-    for _ = 1, arg_index - 1 do
-      table.insert(args_prefix, "      (_)")
-      table.insert(args_prefix, "      .")
-    end
-  end
-
-  blocks[#blocks + 1] = ([[
-(
-  (call_expression
-    function: (identifier) @_fn
-    arguments: (argument_list
-%s
-      %s))
-  (#any-of? @_fn %s)
-  (#set! injection.language %s))
-]]):format(table.concat(args_prefix, "\n"), string_value(), fn, q(rule.lang))
-
-  blocks[#blocks + 1] = ([[
-(
-  (call_expression
-    function: (field_expression
-      field: (field_identifier) @_method)
-    arguments: (argument_list
-%s
-      %s))
-  (#any-of? @_method %s)
-  (#set! injection.language %s))
-]]):format(table.concat(args_prefix, "\n"), string_value(), fn, q(rule.lang))
-
-  return blocks
-end
-
-function M.build(rules, _opts)
-  local blocks = {}
-
-  for _, rule in ipairs(rules or {}) do
-    local rendered = {}
-
-    if rule.kind == "name_pattern" then
-      rendered = render_name_pattern(rule)
-    elseif rule.kind == "call" then
-      rendered = render_call(rule)
-    else
-      return nil, ("unsupported cpp rule kind: %s"):format(rule.kind)
-    end
-
-    vim.list_extend(blocks, rendered)
-  end
-
-  return "; extends\n" .. static_preamble .. "\n" .. table.concat(blocks, "\n")
-end
+]],
+})
 
 return M

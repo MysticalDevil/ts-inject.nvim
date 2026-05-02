@@ -1,21 +1,11 @@
 local M = {}
 
-local MAX_CONCAT_DEPTH = 5
+local util = require("ts_inject.host._util")
 
-local function q(text)
-  return string.format("%q", text)
-end
+local MAX_CONCAT_DEPTH = 5
 
 local function add(blocks, text)
   blocks[#blocks + 1] = text
-end
-
-local function join_fn_list(items)
-  local out = {}
-  for _, item in ipairs(items or {}) do
-    out[#out + 1] = q(item)
-  end
-  return table.concat(out, " ")
 end
 
 local static_preamble = [[
@@ -192,21 +182,21 @@ local function leaf_multiline()
     (multiline_string_fragment) @injection.content)]]
 end
 
+local concat = require("ts_inject.host._concat")
+
 local function leaf_string()
   return [[(string_literal
     (string_fragment) @injection.content)]]
 end
 
-local function concat_expr(depth)
-  if depth <= 1 then
-    return leaf_string()
-  end
-  return ([[
-(binary_expression
-  left: %s
-  right: %s)
-]]):format(concat_expr(depth - 1), leaf_string())
-end
+local concat_expr = concat.binary({
+  node_name = "binary_expression",
+  left_field = "left: ",
+  right_field = "right: ",
+  direction = "left",
+  leaf_fn = leaf_string,
+  max_depth = MAX_CONCAT_DEPTH,
+})
 
 local function render_name_pattern(rule)
   local blocks = {}
@@ -220,7 +210,7 @@ local function render_name_pattern(rule)
       value: %s))
   (#lua-match? @_name %s)
   (#set! injection.language %s))
-]]):format(leaf_multiline(), q(rule.pattern), q(rule.lang))
+]]):format(leaf_multiline(), util.q(rule.pattern), util.q(rule.lang))
 
   blocks[#blocks + 1] = ([[
 (
@@ -231,7 +221,7 @@ local function render_name_pattern(rule)
       value: %s))
   (#lua-match? @_name %s)
   (#set! injection.language %s))
-]]):format(leaf_string(), q(rule.pattern), q(rule.lang))
+]]):format(leaf_string(), util.q(rule.pattern), util.q(rule.lang))
 
   for depth = 2, MAX_CONCAT_DEPTH do
     add(
@@ -246,7 +236,7 @@ local function render_name_pattern(rule)
   (#lua-match? @_name %s)
   (#set! injection.combined)
   (#set! injection.language %s))
-]]):format(concat_expr(depth), q(rule.pattern), q(rule.lang))
+]]):format(concat_expr(depth), util.q(rule.pattern), util.q(rule.lang))
     )
   end
 
@@ -254,7 +244,7 @@ local function render_name_pattern(rule)
 end
 
 local function render_call(rule)
-  local fn = join_fn_list(rule.fn)
+  local fn = util.join_fn_list(rule.fn)
   local blocks = {}
 
   blocks[#blocks + 1] = ([[
@@ -266,7 +256,7 @@ local function render_call(rule)
       %s))
   (#any-of? @_fn %s)
   (#set! injection.language %s))
-]]):format(leaf_multiline(), fn, q(rule.lang))
+]]):format(leaf_multiline(), fn, util.q(rule.lang))
 
   blocks[#blocks + 1] = ([[
 (
@@ -277,7 +267,7 @@ local function render_call(rule)
       %s))
   (#any-of? @_fn %s)
   (#set! injection.language %s))
-]]):format(leaf_multiline(), fn, q(rule.lang))
+]]):format(leaf_multiline(), fn, util.q(rule.lang))
 
   blocks[#blocks + 1] = ([[
 (
@@ -288,7 +278,7 @@ local function render_call(rule)
       %s))
   (#any-of? @_fn %s)
   (#set! injection.language %s))
-]]):format(leaf_string(), fn, q(rule.lang))
+]]):format(leaf_string(), fn, util.q(rule.lang))
 
   blocks[#blocks + 1] = ([[
 (
@@ -299,7 +289,7 @@ local function render_call(rule)
       %s))
   (#any-of? @_fn %s)
   (#set! injection.language %s))
-]]):format(leaf_string(), fn, q(rule.lang))
+]]):format(leaf_string(), fn, util.q(rule.lang))
 
   for depth = 2, MAX_CONCAT_DEPTH do
     add(
@@ -314,7 +304,7 @@ local function render_call(rule)
   (#any-of? @_fn %s)
   (#set! injection.combined)
   (#set! injection.language %s))
-]]):format(concat_expr(depth), fn, q(rule.lang))
+]]):format(concat_expr(depth), fn, util.q(rule.lang))
     )
     add(
       blocks,
@@ -328,7 +318,7 @@ local function render_call(rule)
   (#any-of? @_fn %s)
   (#set! injection.combined)
   (#set! injection.language %s))
-]]):format(concat_expr(depth), fn, q(rule.lang))
+]]):format(concat_expr(depth), fn, util.q(rule.lang))
     )
   end
 
