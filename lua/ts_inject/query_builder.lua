@@ -11,6 +11,15 @@ local builders = {
   scala = require("ts_inject.host.scala"),
   xml = require("ts_inject.host.xml"),
   zig = require("ts_inject.host.zig"),
+  perl = require("ts_inject.host.perl"),
+  php = require("ts_inject.host.php"),
+  c_sharp = require("ts_inject.host.c_sharp"),
+  kotlin = require("ts_inject.host.kotlin"),
+  elixir = require("ts_inject.host.elixir"),
+  java = require("ts_inject.host.java"),
+  c = require("ts_inject.host.c"),
+  cpp = require("ts_inject.host.cpp"),
+  bash = require("ts_inject.host.bash"),
 }
 
 function M.build(host, rules)

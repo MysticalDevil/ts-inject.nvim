@@ -36,13 +36,22 @@ function M.generated_languages()
     go = true,
     javascript = true,
     lua = true,
+    perl = true,
+    php = true,
     python = true,
     ruby = true,
     rust = true,
     scala = true,
+    c_sharp = true,
+    kotlin = true,
+    elixir = true,
+    java = true,
     typescript = true,
     xml = true,
     zig = true,
+    c = true,
+    cpp = true,
+    bash = true,
   }
 end
 

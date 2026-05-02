@@ -64,6 +64,26 @@ local function name_pattern_for(host, suffix)
     return ("^[%%l][%%w]*%s$"):format(escaped)
   end
 
+  if
+    host == "perl"
+    or host == "php"
+    or host == "c_sharp"
+    or host == "kotlin"
+    or host == "java"
+    or host == "c"
+    or host == "cpp"
+  then
+    return ("^[%%a_][%%w_]*%s$"):format(escaped)
+  end
+
+  if host == "elixir" then
+    return ("^[%%a_][%%w_]*%s$"):format(escaped)
+  end
+
+  if host == "bash" then
+    return ("^[%%a_][%%w_]*%s$"):format(escaped)
+  end
+
   return nil
 end
 
