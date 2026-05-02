@@ -32,12 +32,30 @@ function M.new(config)
     return backslash_value_str
   end
 
+  -- Emit a normal block (string_value) and, when backslash_value is configured,
+  -- a variant that uses backslash_value with injection.combined.
+  -- block_fn(value, combined_line) is called once for each variant and should
+  -- return a formatted query string.
+  local function value_pair(block_fn)
+    local blocks = {}
+    blocks[#blocks + 1] = block_fn(string_value(), "")
+    if backslash_value_str then
+      blocks[#blocks + 1] = block_fn(backslash_value(), "\n  (#set! injection.combined)")
+    end
+    return blocks
+  end
+
   local mod = {}
 
   function mod.render_name_pattern(rule)
+    local pattern_q = util.q(rule.pattern)
+    local lang_q = util.q(rule.lang)
     local blocks = {}
 
-    blocks[#blocks + 1] = ([[
+    vim.list_extend(
+      blocks,
+      value_pair(function(value, combined)
+        return ([[
 (
   (declaration
     declarator: (init_declarator
@@ -49,49 +67,26 @@ function M.new(config)
           declarator: (identifier) @_decl)
       ]
       value: %s))
-  (#lua-match? @_decl %s)
+  (#lua-match? @_decl %s)%s
   (#set! injection.language %s))
-]]):format(string_value(), util.q(rule.pattern), util.q(rule.lang))
+]]):format(value, pattern_q, combined, lang_q)
+      end)
+    )
 
-    if backslash_value_str then
-      blocks[#blocks + 1] = ([[
-(
-  (declaration
-    declarator: (init_declarator
-      declarator: [
-        (identifier) @_decl
-        (pointer_declarator
-          declarator: (identifier) @_decl)
-      ]
-      value: %s))
-  (#lua-match? @_decl %s)
-  (#set! injection.combined)
-  (#set! injection.language %s))
-]]):format(backslash_value(), util.q(rule.pattern), util.q(rule.lang))
-    end
-
-    blocks[#blocks + 1] = ([[
+    vim.list_extend(
+      blocks,
+      value_pair(function(value, combined)
+        return ([[
 (
   (assignment_expression
     left: (identifier) @_name
     right: %s)
-  (#lua-match? @_name %s)
+  (#lua-match? @_name %s)%s
   (#set! injection.language %s)
 )
-]]):format(string_value(), util.q(rule.pattern), util.q(rule.lang))
-
-    if backslash_value_str then
-      blocks[#blocks + 1] = ([[
-(
-  (assignment_expression
-    left: (identifier) @_name
-    right: %s)
-  (#lua-match? @_name %s)
-  (#set! injection.combined)
-  (#set! injection.language %s)
-)
-]]):format(backslash_value(), util.q(rule.pattern), util.q(rule.lang))
-    end
+]]):format(value, pattern_q, combined, lang_q)
+      end)
+    )
 
     return blocks
   end
@@ -100,32 +95,24 @@ function M.new(config)
     local fn = util.join_fn_list(rule.fn)
     local arg_index = rule.arg_index or 2
     local args_prefix = util.arg_prefix(arg_index)
+    local lang_q = util.q(rule.lang)
     local blocks = {}
 
-    blocks[#blocks + 1] = ([[
+    vim.list_extend(
+      blocks,
+      value_pair(function(value, combined)
+        return ([[
 (
   (call_expression
     function: (identifier) @_fn
     arguments: (argument_list
 %s
-      %s))
+      %s))%s
   (#any-of? @_fn %s)
   (#set! injection.language %s))
-]]):format(args_prefix, string_value(), fn, util.q(rule.lang))
-
-    if backslash_value_str then
-      blocks[#blocks + 1] = ([[
-(
-  (call_expression
-    function: (identifier) @_fn
-    arguments: (argument_list
-%s
-      %s))
-  (#any-of? @_fn %s)
-  (#set! injection.combined)
-  (#set! injection.language %s))
-]]):format(args_prefix, backslash_value(), fn, util.q(rule.lang))
-    end
+]]):format(args_prefix, value, combined, fn, lang_q)
+      end)
+    )
 
     if field_calls then
       blocks[#blocks + 1] = ([[
@@ -138,7 +125,7 @@ function M.new(config)
       %s))
   (#any-of? @_method %s)
   (#set! injection.language %s))
-]]):format(args_prefix, string_value(), fn, util.q(rule.lang))
+]]):format(args_prefix, string_value(), fn, lang_q)
     end
 
     return blocks
