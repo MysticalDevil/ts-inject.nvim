@@ -121,7 +121,11 @@ local function open_float(lines, title)
   vim.bo[bufnr].buftype = "nofile"
   vim.bo[bufnr].swapfile = false
   vim.bo[bufnr].filetype = "markdown"
-  vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, lines)
+  local sanitized = {}
+  for _, line in ipairs(lines) do
+    sanitized[#sanitized + 1] = (line:gsub("\n", " "))
+  end
+  vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, sanitized)
   vim.bo[bufnr].modifiable = false
 
   local editor_width = vim.o.columns
