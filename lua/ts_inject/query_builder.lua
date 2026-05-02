@@ -47,7 +47,7 @@ function M.build(host, rules)
         opts.max_concat_depth = rule.max_concat_depth
       end
     elseif valid_rule_kinds[rule.kind] then
-      table.insert(filtered_rules, rule)
+      filtered_rules[#filtered_rules + 1] = rule
     else
       return nil, ("unknown rule kind %q for host %s"):format(tostring(rule.kind), host)
     end

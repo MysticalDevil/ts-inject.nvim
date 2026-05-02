@@ -1,6 +1,6 @@
 local M = {}
 
-local root_dir = vim.fn.stdpath("data") .. "/ts-inject"
+local root_dir = vim.fs.joinpath(vim.fn.stdpath("data"), "ts-inject")
 
 local function ensure_dir(path)
   vim.fn.mkdir(path, "p")
@@ -11,11 +11,11 @@ function M.root_dir()
 end
 
 function M.query_dir(lang)
-  return root_dir .. "/queries/" .. lang
+  return vim.fs.joinpath(root_dir, "queries", lang)
 end
 
 function M.query_path(lang)
-  return M.query_dir(lang) .. "/injections.scm"
+  return vim.fs.joinpath(M.query_dir(lang), "injections.scm")
 end
 
 function M.install(lang, query)

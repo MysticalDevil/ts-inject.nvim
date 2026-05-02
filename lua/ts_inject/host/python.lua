@@ -54,6 +54,7 @@ local function render_content_prefix(rule)
         (concatenated_string
           (string
             (string_content) @injection.content)+))))
+  ; #any-lua-match? is required because the `+` quantifier produces multiple captures.
   (#any-lua-match? @injection.content %s)
   (#set! injection.combined)
   (#set! injection.language %s))

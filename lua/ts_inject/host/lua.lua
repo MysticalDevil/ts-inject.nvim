@@ -193,6 +193,7 @@ local function render_content_prefix(rule)
           (string_content) @injection.content)
         right: (string
           (string_content) @injection.content))))
+  ; #any-lua-match? is required because binary_expression has two string captures.
   (#any-lua-match? @injection.content %s)
   (#set! injection.combined)
   (#set! injection.language %s)
@@ -233,6 +234,7 @@ local function render_content_prefix(rule)
         ","
         ")"
       ]))
+  ; #any-lua-match? is required because binary_expression has two string captures.
   (#any-lua-match? @injection.content %s)
   (#set! injection.combined)
   (#set! injection.language %s)

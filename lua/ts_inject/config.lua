@@ -23,6 +23,7 @@ function M.normalize(opts)
   normalized.host_rules, normalized.rule_configs =
     rule_resolver.resolve_rules(normalized.rules, normalized.host_modes, warnings)
 
+  -- Alias deprecated top-level keys to internal resolved keys for backward compatibility.
   normalized.rules = normalized.rule_configs
   normalized.query_mode = normalized.host_modes
   normalized.warnings = warnings
