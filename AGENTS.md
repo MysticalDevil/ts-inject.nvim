@@ -75,6 +75,19 @@ These instructions apply to the entire repository.
 - Lua code must pass `selene lua tests/`.
 - Run both before committing.
 
+## Troubleshooting injection highlights
+
+- When investigating "injection query matches but colors do not appear in the
+  editor", **first rule out LSP semantic tokens**.
+  - LSP semantic highlighting (default priority 125) overrides tree-sitter
+    (default 100). A `string` semantic token from the LSP will mask injected
+    SQL keyword highlights.
+  - Quick confirmation: run `:lua vim.lsp.semantic_tokens.stop(0)` in the
+    buffer. If SQL colors immediately appear, semantic tokens are the cause.
+  - Common servers that emit `string` tokens: `zls` (Zig), `gopls` (Go).
+  - Only after confirming LSP is not the cause should you investigate query
+    correctness, node ranges, or parser state.
+
 ## Validation
 
 - When adjusting injection behavior, prefer verifying with both:
