@@ -5,7 +5,6 @@ require("tests.smoke.integration.debug")
 require("tests.smoke.integration.health")
 require("tests.smoke.integration.reload")
 require("tests.smoke.integration.custom_rules")
-require("tests.smoke.integration.legacy")
 
 -- Language-specific fixture tests
 local lang_dir = script_dir .. "/smoke/lang"

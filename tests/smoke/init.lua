@@ -1,11 +1,5 @@
 local M = {}
 
-local function append_if_dir(path)
-  if vim.fn.isdirectory(path) == 1 then
-    vim.opt.runtimepath:append(path)
-  end
-end
-
 local function append_env_rtp(env_name)
   local value = vim.env[env_name]
   if not value or value == "" then
@@ -13,7 +7,9 @@ local function append_env_rtp(env_name)
   end
 
   for _, path in ipairs(vim.split(value, ":", { plain = true, trimempty = true })) do
-    append_if_dir(vim.fn.expand(path))
+    if vim.fn.isdirectory(path) == 1 then
+      vim.opt.runtimepath:append(path)
+    end
   end
 end
 
@@ -115,90 +111,11 @@ local function assert_health_command()
   local lines = vim.api.nvim_buf_get_lines(health_buf, 0, -1, false)
   local text = table.concat(lines, "\n")
   assert(text:find("TSInject Health", 1, true), "health header missing")
-  assert(text:find("generated hosts", 1, true), "health generated hosts section missing")
-  assert(text:find("legacy static hosts", 1, true), "health legacy static hosts section missing")
-  assert(text:find("python", 1, true), "health missing generated python host")
-  assert(text:find("ruby", 1, true), "health missing generated ruby host")
-  assert(text:find("generated query status", 1, true), "health generated query section missing")
+  assert(text:find("enabled hosts", 1, true), "health enabled hosts section missing")
+  assert(text:find("python", 1, true), "health missing python host")
+  assert(text:find("ruby", 1, true), "health missing ruby host")
+  assert(text:find("query status", 1, true), "health query status section missing")
   vim.api.nvim_set_current_buf(original_buf)
-end
-
-local function assert_legacy_static_mode()
-  require("ts_inject").setup({
-    enable = {
-      python = true,
-    },
-    query_mode = {
-      python = "static",
-    },
-    rules = {
-      python = {
-        builtin = false,
-        items = {
-          { kind = "call", fn = { "run_sql" }, lang = "sql" },
-        },
-      },
-    },
-  })
-
-  local custom_buf = vim.api.nvim_create_buf(false, true)
-  vim.api.nvim_set_current_buf(custom_buf)
-  vim.bo[custom_buf].filetype = "python"
-  vim.api.nvim_buf_set_lines(custom_buf, 0, -1, false, {
-    "def run(cursor):",
-    '  cursor.run_sql("SELECT id FROM users")',
-  })
-  require_parser("python")
-  require_parser("sql")
-  local custom_parser = vim.treesitter.get_parser(custom_buf, "python")
-  vim.treesitter.start(custom_buf, "python")
-  custom_parser:parse(true)
-  custom_parser:parse(true)
-  local custom_node = vim.treesitter.get_node({
-    bufnr = custom_buf,
-    pos = { 1, 18 },
-    ignore_injections = false,
-  })
-  assert(custom_node ~= nil, "legacy static test found no custom node")
-  assert(
-    custom_node:type() == "string_content",
-    ("legacy static mode should ignore generated custom rule, got %s"):format(custom_node:type())
-  )
-
-  local builtin_buf = vim.api.nvim_create_buf(false, true)
-  vim.api.nvim_set_current_buf(builtin_buf)
-  vim.bo[builtin_buf].filetype = "python"
-  vim.api.nvim_buf_set_lines(builtin_buf, 0, -1, false, {
-    "def run(cursor):",
-    '  cursor.execute("SELECT id FROM users")',
-  })
-  local builtin_parser = vim.treesitter.get_parser(builtin_buf, "python")
-  vim.treesitter.start(builtin_buf, "python")
-  builtin_parser:parse(true)
-  builtin_parser:parse(true)
-  local builtin_node = vim.treesitter.get_node({
-    bufnr = builtin_buf,
-    pos = { 1, 18 },
-    ignore_injections = false,
-  })
-  assert(builtin_node ~= nil, "legacy static test found no builtin node")
-  assert(
-    builtin_node:type() == "keyword_select",
-    ("legacy static mode should still use static builtin execute injection, got %s"):format(builtin_node:type())
-  )
-
-  vim.cmd("TSInjectHealth")
-  local report = table.concat(vim.api.nvim_buf_get_lines(vim.api.nvim_get_current_buf(), 0, -1, false), "\n")
-  assert(report:find("legacy static hosts", 1, true), "health missing legacy static section")
-  assert(report:find("python", 1, true), "health missing python legacy static entry")
-  assert(
-    report:find("static mode is legacy and not recommended", 1, true) ~= nil,
-    "health missing legacy static warning"
-  )
-
-  require("ts_inject").setup({
-    enable = default_enable,
-  })
 end
 
 local function assert_buffer_loaded(file, filetype)
@@ -277,7 +194,7 @@ local function assert_injected_in_lines(filetype, lines, text, expected_type, ta
     end
   end
 
-  assert(row ~= nil, "fixture text not found: " .. text)
+  assert(row ~= nil, "inline text not found: " .. text)
 
   local parser = vim.treesitter.get_parser(bufnr, filetype)
   vim.treesitter.start(bufnr, filetype)
@@ -289,17 +206,16 @@ local function assert_injected_in_lines(filetype, lines, text, expected_type, ta
     pos = { row, col },
     ignore_injections = false,
   })
-
-  assert(node ~= nil, "no node found at injected position for " .. filetype)
-  assert(node:type() == expected_type, ("expected %s at injected position, got %s"):format(expected_type, node:type()))
+  assert(node ~= nil, "no node found at inline position")
+  assert(node:type() == expected_type, ("expected %s at inline position, got %s"):format(expected_type, node:type()))
 end
+M.assert_injected_in_lines = assert_injected_in_lines
 
 local function assert_language_trees(file, filetype, expected_langs)
   local bufnr = assert_buffer_loaded(file, filetype)
 
-  require_parser(filetype)
-  for _, lang in ipairs(expected_langs) do
-    require_parser(lang)
+  for _, l in ipairs(expected_langs) do
+    require_parser(l)
   end
 
   local parser = vim.treesitter.get_parser(bufnr, filetype)
@@ -318,7 +234,6 @@ M.assert_buffer_loaded = assert_buffer_loaded
 M.assert_debug_header = assert_debug_header
 M.assert_injected_in_lines = assert_injected_in_lines
 M.assert_health_command = assert_health_command
-M.assert_legacy_static_mode = assert_legacy_static_mode
 M.require_parser = require_parser
 M.default_enable = default_enable
 

@@ -43,22 +43,8 @@ function M.path(lang)
   return vim.fs.joinpath(root_dir(), "scm", lang, "injections.scm")
 end
 
-function M.archive_path(lang)
-  return vim.fs.joinpath(root_dir(), "archive", "scm-generated", ("%s.injections.scm"):format(lang))
-end
-
 function M.static_path(lang)
-  local path = M.path(lang)
-  if vim.uv.fs_stat(path) then
-    return path
-  end
-
-  local archived = M.archive_path(lang)
-  if vim.uv.fs_stat(archived) then
-    return archived
-  end
-
-  return path
+  return M.path(lang)
 end
 
 function M.load(lang)
