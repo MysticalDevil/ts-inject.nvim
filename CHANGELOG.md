@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-05-03
+
+### Changed
+
+- Removed `archive/scm-generated/` directory. These were outdated generated-query snapshots serving as a second static fallback. All 19 hosts are now generated-capable; static mode remains as a legacy fallback only for languages with `scm/` injection files.
+- Simplified `query_store.static_path()` to fall back directly to `scm/` without checking the now-removed `archive/` directory.
+
+### Testing
+
+- Removed `assert_legacy_static_mode` smoke test because it relied on Python's archived static query, which no longer exists after archive removal.
+
 ## [0.3.1] - 2026-05-03
 
 ### Changed
