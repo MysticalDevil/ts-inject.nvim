@@ -246,7 +246,7 @@ echo -e "  host:      ${BLUE}$CANONICAL${NC}"
 echo -e "  inject:    ${BLUE}$INJECT${NC}"
 [[ -n "$JUMP_LINE" ]] && echo -e "  jump:      ${BLUE}line $JUMP_LINE${NC}"
 
-setup_lua="vim.opt.runtimepath:prepend('$PROJECT_ROOT'); for k in pairs(package.loaded) do if k:match('^ts_inject') then package.loaded[k] = nil end end; require('ts_inject').setup({ enable = { ['$CANONICAL'] = true } }); vim.cmd('edit')"
+setup_lua="pcall(vim.treesitter.stop, 0); vim.opt.runtimepath:prepend('$PROJECT_ROOT'); for k in pairs(package.loaded) do if k:match('^ts_inject') then package.loaded[k] = nil end end; require('ts_inject').setup({ enable = { ['$CANONICAL'] = true } }); vim.cmd('edit'); pcall(vim.treesitter.start, 0, '$CANONICAL'); pcall(function() local p = vim.treesitter.get_parser(0, '$CANONICAL'); if p then p:parse(true) end end)"
 
 if [[ -n "$JUMP_LINE" ]]; then
 	exec nvim "$FILE" \

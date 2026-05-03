@@ -74,21 +74,47 @@ require("ts_inject").setup({
 - Load `ts-inject.nvim` before opening target buffers.
   - Avoid late lazy-loading events like `VeryLazy`.
   - Recommended plugin-spec setting: `lazy = false`.
-- Some LSP servers' semantic tokens can visually override injected SQL
-  highlighting. If SQL highlighting seems missing after LSP attach, disable
-  semantic tokens for that server.
+- **LSP semantic tokens can override injected SQL highlights.** LSP semantic
+  highlighting runs at a higher priority (default 125) than tree-sitter
+  (default 100). When an LSP server marks a string literal with a `string`
+  semantic token, it will visually mask the injected SQL keyword colors.
+  This commonly affects single-line string literals; multiline literals may
+  be unaffected if the LSP does not emit tokens for them.
 
-Example (`gopls`):
+  **Quick check:** run `:lua vim.lsp.semantic_tokens.stop(0)` in the buffer.
+  If SQL colors immediately appear, LSP semantic tokens are the cause.
 
-```lua
-gopls = {
-  settings = {
-    gopls = {
-      semanticTokens = false,
+  **Per-server fixes:**
+
+  `gopls`:
+
+  ```lua
+  gopls = {
+    settings = {
+      gopls = {
+        semanticTokens = false,
+      },
     },
-  },
-}
-```
+  }
+  ```
+
+  `zls` (Zig Language Server):
+
+  ```lua
+  require('lspconfig').zls.setup({
+    settings = {
+      zls = {
+        semantic_tokens = "none",
+      },
+    },
+  })
+  ```
+
+  **Global alternative** (lowers LSP priority below tree-sitter for all servers):
+
+  ```lua
+  vim.hl.priorities.semantic_tokens = 90
+  ```
 
 Current C / C++ support:
 

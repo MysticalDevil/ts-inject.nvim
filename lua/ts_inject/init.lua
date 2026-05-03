@@ -81,6 +81,23 @@ local function install_query(lang)
   }
 end
 
+local function refresh_existing_parsers()
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    local ok, parser = pcall(vim.treesitter.get_parser, buf)
+    if ok and parser then
+      local lang = parser:lang()
+      if state.opts.enable[lang] then
+        local query = vim.treesitter.query.get(lang, "injections")
+        if query then
+          parser._injection_query = query
+          parser._processed_injection_region = nil
+          parser:invalidate(true)
+        end
+      end
+    end
+  end
+end
+
 local function register_queries()
   runtime.enable_on_runtimepath()
   state.runtime_state = {
@@ -97,6 +114,7 @@ local function register_queries()
   end
 
   clear_query_cache()
+  refresh_existing_parsers()
 end
 
 local function register_debug_command()

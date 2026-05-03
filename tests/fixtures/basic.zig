@@ -6,6 +6,8 @@ const usersSql =
     \\  WHERE status = 'active'
 ;
 
+const users2Sql = "SELECT id, email FROM users WHERE status = 'active'";
+
 pub fn main() !void {
     const schemaSql =
         \\  CREATE TABLE audit_logs (
