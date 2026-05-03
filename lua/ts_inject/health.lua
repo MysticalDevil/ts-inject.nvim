@@ -92,6 +92,38 @@ function M.collect()
   parser_lines[#parser_lines + 1] = ("graphql: %s"):format((#gql_files > 0) and "ok" or "missing")
   util.append_section(lines, "parser availability", parser_lines)
 
+  local semantic_risk = {}
+  local semantic_active = "unknown"
+  if vim.lsp.semantic_tokens then
+    local active_ok, active = pcall(vim.lsp.semantic_tokens.is_enabled, { bufnr = vim.api.nvim_get_current_buf() })
+    if active_ok then
+      semantic_active = active and "enabled" or "stopped"
+    end
+  end
+
+  if semantic_active == "enabled" then
+    local risky = {}
+    local clients = vim.lsp.get_clients({ bufnr = vim.api.nvim_get_current_buf() })
+    for _, client in ipairs(clients) do
+      if client.server_capabilities and client.server_capabilities.semanticTokensProvider then
+        risky[#risky + 1] = client.name
+      end
+    end
+    if #risky > 0 then
+      table.sort(risky)
+      semantic_risk[#semantic_risk + 1] = "at risk: LSP semantic tokens are active"
+      semantic_risk[#semantic_risk + 1] = "  servers: " .. table.concat(risky, ", ")
+      semantic_risk[#semantic_risk + 1] = "  fix: :lua vim.hl.priorities.semantic_tokens = 90"
+    else
+      semantic_risk[#semantic_risk + 1] = "ok: no LSP semantic token providers"
+    end
+  elseif semantic_active == "stopped" then
+    semantic_risk[#semantic_risk + 1] = "ok: semantic tokens stopped"
+  else
+    semantic_risk[#semantic_risk + 1] = "unknown: could not determine semantic token state"
+  end
+  util.append_section(lines, "semantic_token risk", semantic_risk)
+
   util.append_section(lines, "warnings", state.warnings)
   return lines
 end

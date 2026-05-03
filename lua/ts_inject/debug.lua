@@ -118,6 +118,51 @@ function M.collect(opts)
   end
   util.append_section(lines, "language trees", langtrees)
 
+  -- -------------------------------------------------------------------------
+  -- Semantic-token conflict diagnosis
+  -- -------------------------------------------------------------------------
+  local diag = {}
+  if semantic_active == "enabled" then
+    local in_injection = false
+    local has_keyword = false
+
+    if parser_ok and parser then
+      local ok_lr, lt = pcall(parser.language_for_range, parser, { row, col, row, col + 1 })
+      if ok_lr and lt then
+        in_injection = lt:lang() == target_lang
+      end
+    end
+
+    if not in_injection and node_ok and node and type(node.lang) == "function" then
+      local ok_nl, nl = pcall(node.lang, node)
+      if ok_nl then
+        in_injection = nl == target_lang
+      end
+    end
+
+    if captures_ok then
+      for _, cap in ipairs(captures) do
+        if cap.lang == target_lang and cap.capture and cap.capture:match("^keyword") then
+          has_keyword = true
+          break
+        end
+      end
+    end
+
+    if in_injection and has_keyword then
+      diag[#diag + 1] = "⚠  semantic tokens may be overriding injected highlights"
+      diag[#diag + 1] = "   LSP priority (125) > tree-sitter priority (100)"
+      diag[#diag + 1] = "   Fixes: disable per-server, or :lua vim.hl.priorities.semantic_tokens = 90"
+    elseif in_injection then
+      diag[#diag + 1] = "ℹ  semantic tokens enabled, but no keyword capture found at cursor"
+    else
+      diag[#diag + 1] = "ℹ  semantic tokens enabled, but cursor is not inside an injected region"
+    end
+  else
+    diag[#diag + 1] = "✓  semantic tokens stopped; no conflict risk"
+  end
+  util.append_section(lines, "diagnostics", diag)
+
   return lines
 end
 

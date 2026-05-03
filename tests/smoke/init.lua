@@ -101,6 +101,7 @@ local function assert_debug_header()
   local debug_text = table.concat(debug_lines, "\n")
   assert(debug_text:find("TSInject Debug", 1, true), "debug header missing")
   assert(debug_text:find("plugin_enabled", 1, true), "debug plugin section missing")
+  assert(debug_text:find("diagnostics:", 1, true), "debug diagnostics section missing")
   vim.api.nvim_set_current_buf(original_buf)
 end
 
@@ -115,6 +116,7 @@ local function assert_health_command()
   assert(text:find("python", 1, true), "health missing python host")
   assert(text:find("ruby", 1, true), "health missing ruby host")
   assert(text:find("query status", 1, true), "health query status section missing")
+  assert(text:find("semantic_token risk:", 1, true), "health semantic_token risk section missing")
   vim.api.nvim_set_current_buf(original_buf)
 end
 
