@@ -169,7 +169,7 @@ local function test_fixture(file, filetype, expected_langs, test_cases)
 
   if test_cases then
     for _, tc in ipairs(test_cases) do
-      local text, expected_type, target_lang = tc[1], tc[2], tc[3] or "sql"
+      local text, expected_type, _ = tc[1], tc[2], tc[3] or "sql"
       local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
       local row, col
       for i, line in ipairs(lines) do
