@@ -59,5 +59,42 @@ pub fn main() !void {
         \\  SELECT id, email FROM ranked WHERE rn <= 5
     );
 
+    db.query(
+        \\  DELETE FROM users
+        \\  WHERE status = 'inactive'
+    );
+
+    db.query(
+        \\  TRUNCATE TABLE audit_logs
+    );
+
+    db.query(
+        \\  DROP TABLE IF EXISTS temp_projects
+    );
+
+    db.query(
+        \\  SELECT id, email FROM users WHERE status = 'active'
+        \\  UNION
+        \\  SELECT id, email FROM archived_users WHERE status = 'active'
+    );
+
+    db.query(
+        \\  SELECT id, email FROM users u
+        \\  WHERE EXISTS (SELECT 1 FROM projects p WHERE p.user_id = u.id)
+    );
+
+    db.query(
+        \\  BEGIN;
+        \\  UPDATE accounts SET balance = balance - 100 WHERE id = 1;
+        \\  UPDATE accounts SET balance = balance + 100 WHERE id = 2;
+        \\  COMMIT;
+    );
+
+    db.query(
+        \\  INSERT INTO users (email, status)
+        \\  VALUES ('bob@example.com', 'active')
+        \\  ON CONFLICT (email) DO UPDATE SET status = excluded.status
+    );
+
     std.debug.print("{s}\\n{s}\\n", .{ usersSql, schemaSql });
 }

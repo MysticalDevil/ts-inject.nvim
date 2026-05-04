@@ -41,3 +41,36 @@ window_sql = <<~SQL
   )
   SELECT id, email FROM ranked WHERE rn <= 5
 SQL
+
+delete_sql = <<~SQL
+  DELETE FROM users
+  WHERE status = 'inactive'
+SQL
+
+truncate_sql = "TRUNCATE TABLE audit_logs"
+
+drop_sql = "DROP TABLE IF EXISTS temp_projects"
+
+union_sql = <<~SQL
+  SELECT id, email FROM users WHERE status = 'active'
+  UNION
+  SELECT id, email FROM archived_users WHERE status = 'active'
+SQL
+
+exists_sql = <<~SQL
+  SELECT id, email FROM users u
+  WHERE EXISTS (SELECT 1 FROM projects p WHERE p.user_id = u.id)
+SQL
+
+transaction_sql = <<~SQL
+  BEGIN;
+  UPDATE accounts SET balance = balance - 100 WHERE id = 1;
+  UPDATE accounts SET balance = balance + 100 WHERE id = 2;
+  COMMIT;
+SQL
+
+upsert_sql = <<~SQL
+  INSERT INTO users (email, status)
+  VALUES ('bob@example.com', 'active')
+  ON CONFLICT (email) DO UPDATE SET status = excluded.status
+SQL

@@ -13,7 +13,7 @@ local M = c_family.new({
     "(cast_expression\n    value: (string_literal\n      (string_content) @injection.content)+)",
     "(cast_expression\n    value: (concatenated_string\n      (string_literal\n        (string_content) @injection.content)+))",
   },
-  backslash_value = "(string_literal\n    (string_content) @injection.content\n    (escape_sequence)\n    (string_content) @injection.content\n    (escape_sequence)\n    (string_content) @injection.content)",
+  backslash_value = "(string_literal\n    (string_content) @injection.content\n    ((escape_sequence)\n    (string_content) @injection.content)+)",
   static_preamble = [[
 (
   (gnu_asm_expression

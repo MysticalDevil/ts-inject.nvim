@@ -149,6 +149,31 @@ void run(PGconn *conn, sqlite3 *db) {
     )
     SELECT id, email FROM ranked WHERE rn <= 5)sql";
 
+  auto truncateSql = R"sql(  TRUNCATE TABLE audit_logs)sql";
+
+  auto dropSql = "  DROP TABLE IF EXISTS temp_projects";
+
+  auto unionSql = R"sql(  SELECT id, email FROM users WHERE status = 'active'
+    UNION
+    SELECT id, email FROM archived_users WHERE status = 'active')sql";
+
+  auto existsSql = R"sql(  SELECT id, email FROM users u
+    WHERE EXISTS (SELECT 1 FROM projects p WHERE p.user_id = u.id))sql";
+
+  auto transactionSql = R"sql(  BEGIN;
+    UPDATE accounts SET balance = balance - 100 WHERE id = 1;
+    UPDATE accounts SET balance = balance + 100 WHERE id = 2;
+    COMMIT;)sql";
+
+  wrapper.exec(R"sql(  INSERT INTO users (email, status)
+    VALUES ('bob@example.com', 'active')
+    ON CONFLICT (email) DO UPDATE SET status = excluded.status)sql");
+
   (void)join_sql;
   (void)window_sql;
+  (void)truncateSql;
+  (void)dropSql;
+  (void)unionSql;
+  (void)existsSql;
+  (void)transactionSql;
 }

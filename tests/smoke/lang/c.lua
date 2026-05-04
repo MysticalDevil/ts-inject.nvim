@@ -24,3 +24,8 @@ smoke.assert_injected_node("tests/fixtures/basic.c", "c", "LEFT JOIN projects", 
 smoke.assert_injected_node("tests/fixtures/basic.c", "c", "HAVING COUNT(*) > 1", "keyword_having")
 smoke.assert_injected_node("tests/fixtures/basic.c", "c", "WITH ranked AS", "keyword_with")
 smoke.assert_injected_node("tests/fixtures/basic.c", "c", "row_number() OVER", "identifier")
+smoke.assert_injected_node("tests/fixtures/basic.c", "c", "SELECT id \\", "keyword_select")
+smoke.assert_injected_node("tests/fixtures/basic.c", "c", "CREATE TABLE backslash_test", "keyword_create")
+smoke.assert_injected_node("tests/fixtures/basic.c", "c", "WITH backslash_cte AS", "keyword_with")
+smoke.assert_injected_node("tests/fixtures/basic.c", "c", "INNER JOIN projects", "keyword_inner")
+smoke.assert_injected_node("tests/fixtures/basic.c", "c", "INSERT INTO backslash_test", "keyword_insert")

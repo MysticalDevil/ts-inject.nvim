@@ -93,4 +93,36 @@
     )
     SELECT id, email FROM ranked WHERE rn <= 5
   </select>
+
+  <delete id="truncateAudit">
+    TRUNCATE TABLE audit_logs
+  </delete>
+
+  <update id="dropTemp">
+    DROP TABLE IF EXISTS temp_projects
+  </update>
+
+  <select id="unionQuery" resultType="User">
+    SELECT id, email FROM users WHERE status = 'active'
+    UNION
+    SELECT id, email FROM archived_users WHERE status = 'active'
+  </select>
+
+  <select id="existsQuery" resultType="User">
+    SELECT id, email FROM users u
+    WHERE EXISTS (SELECT 1 FROM projects p WHERE p.user_id = u.id)
+  </select>
+
+  <insert id="upsertUser">
+    INSERT INTO users (email, status)
+    VALUES (#{email}, #{status})
+    ON CONFLICT (email) DO UPDATE SET status = excluded.status
+  </insert>
+
+  <select id="transactionQuery" resultType="User">
+    BEGIN;
+    UPDATE accounts SET balance = balance - 100 WHERE id = 1;
+    UPDATE accounts SET balance = balance + 100 WHERE id = 2;
+    COMMIT;
+  </select>
 </mapper>

@@ -102,6 +102,30 @@ void run(PGconn *conn, sqlite3 *db) {
              L"WHERE id > 0",
              -1);
 
+  const char *backslash_sql = "  SELECT id \
+FROM users \
+WHERE status = 'active'";
+
+  const char *backslash_ddl_sql = "  CREATE TABLE backslash_test ( \
+id INTEGER PRIMARY KEY, \
+name TEXT NOT NULL, \
+count INTEGER DEFAULT 0)";
+
+  const char *backslash_cte_sql = "  WITH backslash_cte AS ( \
+SELECT id, email FROM users WHERE created_at >= '2024-01-01' \
+) \
+SELECT id, email FROM backslash_cte ORDER BY email ASC";
+
+  const char *backslash_join_sql = "  SELECT u.id, u.email, p.name \
+FROM users u \
+INNER JOIN projects p ON u.id = p.user_id \
+WHERE u.status = 'active'";
+
+  sqlite3_exec(db,
+               "  INSERT INTO backslash_test (id, name) \
+VALUES (1, 'alpha')",
+               0, 0, 0);
+
   (void)summary_sql;
   (void)schema_sql;
   (void)activity_sql;
@@ -109,6 +133,10 @@ void run(PGconn *conn, sqlite3 *db) {
   (void)utf8_sql;
   (void)cast_sql;
   (void)assigned_sql;
+  (void)backslash_sql;
+  (void)backslash_ddl_sql;
+  (void)backslash_cte_sql;
+  (void)backslash_join_sql;
 
   asm("nop");
   __asm__("mov %0, %1");
@@ -129,4 +157,57 @@ void run(PGconn *conn, sqlite3 *db) {
 
   (void)join_sql;
   (void)window_sql;
+
+  const char *transaction_sql = "  BEGIN TRANSACTION; \
+UPDATE accounts SET balance = balance - 100 WHERE id = 1; \
+UPDATE accounts SET balance = balance + 100 WHERE id = 2; \
+COMMIT;";
+
+  const char *upsert_sql = "  INSERT INTO users (email, status) \
+VALUES ('bob@example.com', 'active') \
+ON CONFLICT (email) DO UPDATE SET status = excluded.status";
+
+  const char *truncate_sql = "  TRUNCATE TABLE audit_logs";
+
+  const char *drop_sql = "  DROP TABLE IF EXISTS temp_projects";
+
+  const char *union_sql = "  SELECT id, email FROM users WHERE status = 'active' \
+UNION \
+SELECT id, email FROM archived_users WHERE status = 'active'";
+
+  const char *exists_sql = "  SELECT id, email FROM users u \
+WHERE EXISTS ( SELECT 1 FROM projects p WHERE p.user_id = u.id )";
+
+  sqlite3_exec(db,
+               "  UPDATE accounts SET balance = balance + ? WHERE id = ?",
+               0, 0, 0);
+
+  const char *backslash_update_sql = "  UPDATE users \
+SET status = 'inactive', \
+updated_at = '2024-06-01' \
+WHERE last_login < '2024-01-01'";
+
+  const char *backslash_delete_sql = "  DELETE FROM audit_logs \
+WHERE created_at < '2023-01-01' \
+AND level = 'debug'";
+
+  const char *savepoint_sql = "  SAVEPOINT before_transfer; \
+UPDATE accounts SET balance = balance - 50 WHERE id = 3; \
+ROLLBACK TO SAVEPOINT before_transfer";
+
+  const char *merge_sql = "  MERGE INTO target_users AS t \
+USING source_users AS s ON t.email = s.email \
+WHEN MATCHED THEN UPDATE SET t.status = s.status \
+WHEN NOT MATCHED THEN INSERT (email, status) VALUES (s.email, s.status)";
+
+  (void)transaction_sql;
+  (void)upsert_sql;
+  (void)truncate_sql;
+  (void)drop_sql;
+  (void)union_sql;
+  (void)exists_sql;
+  (void)backslash_update_sql;
+  (void)backslash_delete_sql;
+  (void)savepoint_sql;
+  (void)merge_sql;
 }

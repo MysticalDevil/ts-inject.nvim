@@ -117,8 +117,40 @@ fun main() {
     SELECT id, email FROM ranked WHERE rn <= 5
   """.trimIndent()
 
+  val truncateSql = "TRUNCATE TABLE audit_logs"
+
+  val dropSql = "DROP TABLE IF EXISTS temp_projects"
+
+  val unionSql = "SELECT id, email FROM users WHERE status = 'active' " +
+    "UNION " +
+    "SELECT id, email FROM archived_users WHERE status = 'active'"
+
+  val existsSql = "SELECT id, email FROM users u " +
+    "WHERE EXISTS (SELECT 1 FROM projects p WHERE p.user_id = u.id)"
+
+  val transactionSql = """
+    BEGIN;
+    UPDATE accounts SET balance = balance - 100 WHERE id = 1;
+    UPDATE accounts SET balance = balance + 100 WHERE id = 2;
+    COMMIT;
+  """.trimIndent()
+
+  val upsertSql = db.query(
+    "INSERT INTO users (email, status) " +
+      "VALUES (?, ?) " +
+      "ON CONFLICT (email) DO UPDATE SET status = excluded.status",
+    "bob@example.com",
+    "active",
+  )
+
   println(joinSql)
   println(windowSql)
+  println(truncateSql)
+  println(dropSql)
+  println(unionSql)
+  println(existsSql)
+  println(transactionSql)
+  println(upsertSql)
 }
 
 class Db {

@@ -16,7 +16,6 @@ function M.binary(opts)
   local operator = opts.operator
   local direction = opts.direction or "left"
   local leaf_fn = opts.leaf_fn
-  local max_depth = opts.max_depth or 5
 
   local op_line = ""
   if operator then
@@ -36,7 +35,7 @@ function M.binary(opts)
     end
   end
 
-  return concat_expr, max_depth
+  return concat_expr
 end
 
 ---Generate a native concatenation expression (no recursion needed).

@@ -114,13 +114,13 @@ function M.build_dispatcher(opts)
   local header = opts.header or ""
   local renderers = opts.renderers or {}
   local static_preamble = opts.static_preamble
-  return function(rules, _opts)
+  return function(rules, render_opts)
     local blocks = {}
     for _, rule in ipairs(rules or {}) do
       local rendered = {}
       local renderer = renderers[rule.kind]
       if renderer then
-        rendered = renderer(rule, _opts)
+        rendered = renderer(rule, render_opts)
       else
         return nil, ("unsupported rule kind: %s"):format(rule.kind)
       end

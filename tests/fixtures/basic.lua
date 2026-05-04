@@ -57,4 +57,41 @@ local window_sql = [[
   SELECT id, email FROM ranked WHERE rn <= 5
 ]]
 
-return USERS_SQL, summary_sql, lookup_sql, join_sql, window_sql
+local delete_sql = [[
+  DELETE FROM users
+  WHERE status = 'inactive'
+]]
+
+local truncate_sql = "TRUNCATE TABLE audit_logs"
+
+local drop_sql = "DROP TABLE IF EXISTS temp_projects"
+
+local union_sql = [[
+  SELECT id, email FROM users WHERE status = 'active'
+  UNION
+  SELECT id, email FROM archived_users WHERE status = 'active'
+]]
+
+local exists_sql = [[
+  SELECT id, email FROM users u
+  WHERE EXISTS (SELECT 1 FROM projects p WHERE p.user_id = u.id)
+]]
+
+local transaction_sql = [[
+  BEGIN;
+  UPDATE accounts SET balance = balance - 100 WHERE id = 1;
+  UPDATE accounts SET balance = balance + 100 WHERE id = 2;
+  COMMIT;
+]]
+
+return USERS_SQL,
+  summary_sql,
+  lookup_sql,
+  join_sql,
+  window_sql,
+  delete_sql,
+  truncate_sql,
+  drop_sql,
+  union_sql,
+  exists_sql,
+  transaction_sql

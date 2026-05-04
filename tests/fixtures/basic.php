@@ -74,3 +74,37 @@ $windowSql = <<<'SQL'
   )
   SELECT id, email FROM ranked WHERE rn <= 5
 SQL;
+
+$truncateSql = <<<'SQL'
+  TRUNCATE TABLE audit_logs
+SQL;
+
+$dropSql = <<<'SQL'
+  DROP TABLE IF EXISTS temp_projects
+SQL;
+
+$unionSql = <<<'SQL'
+  SELECT id, email FROM users WHERE status = 'active'
+  UNION
+  SELECT id, email FROM archived_users WHERE status = 'active'
+SQL;
+
+$existsSql = <<<'SQL'
+  SELECT id, email FROM users u
+  WHERE EXISTS (SELECT 1 FROM projects p WHERE p.user_id = u.id)
+SQL;
+
+$transactionSql = <<<'SQL'
+  BEGIN;
+  UPDATE accounts SET balance = balance - 100 WHERE id = 1;
+  UPDATE accounts SET balance = balance + 100 WHERE id = 2;
+  COMMIT;
+SQL;
+
+$upsertSql = $db->query(
+  "INSERT INTO users (email, status) " .
+  "VALUES (?, ?) " .
+  "ON CONFLICT (email) DO UPDATE SET status = excluded.status",
+  'bob@example.com',
+  'active',
+);

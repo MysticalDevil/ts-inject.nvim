@@ -61,6 +61,34 @@ fn main() {
   SELECT id, email FROM ranked WHERE rn <= 5
 "#;
 
+  let truncate_sql = r#"TRUNCATE TABLE audit_logs"#;
+
+  let drop_sql = r#"DROP TABLE IF EXISTS temp_projects"#;
+
+  let union_sql = r#"
+  SELECT id, email FROM users WHERE status = 'active'
+  UNION
+  SELECT id, email FROM archived_users WHERE status = 'active'
+  "#;
+
+  let exists_sql = r#"
+  SELECT id, email FROM users u
+  WHERE EXISTS (SELECT 1 FROM projects p WHERE p.user_id = u.id)
+  "#;
+
+  let transaction_sql = r#"
+  BEGIN;
+  UPDATE accounts SET balance = balance - 100 WHERE id = 1;
+  UPDATE accounts SET balance = balance + 100 WHERE id = 2;
+  COMMIT;
+  "#;
+
+  let upsert_sql = r#"
+  INSERT INTO users (email, status)
+  VALUES ($1, $2)
+  ON CONFLICT (email) DO UPDATE SET status = excluded.status
+  "#;
+
   let _ = (
     schema_sql,
     query,
@@ -75,6 +103,12 @@ fn main() {
     _manager_delete,
     join_sql,
     window_sql,
+    truncate_sql,
+    drop_sql,
+    union_sql,
+    exists_sql,
+    transaction_sql,
+    upsert_sql,
   );
 }
 

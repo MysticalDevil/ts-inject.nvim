@@ -1,9 +1,5 @@
 local M = {}
 
-local function escape_lua_pattern(text)
-  return (text:gsub("([^%w])", "%%%1"))
-end
-
 local function normalize_fn_list(fn)
   if type(fn) == "string" then
     return { fn }
@@ -49,7 +45,7 @@ local default_name_pattern_hosts = {
 }
 
 local function name_pattern_for(host, suffix)
-  local escaped = escape_lua_pattern(suffix)
+  local escaped = vim.pesc(suffix)
   local format = name_pattern_formats[host]
   if format then
     return format:format(escaped)

@@ -57,4 +57,24 @@ WITH ranked AS (
 SELECT id, email FROM ranked WHERE rn <= 5
 SQL
 
+# === TRUNCATE / DROP ===
+my $truncate_sql = "TRUNCATE TABLE audit_logs";
+my $drop_sql = "DROP TABLE IF EXISTS temp_projects";
+
+# === UNION ===
+my $union_sql = <<'SQL';
+SELECT id, email FROM users WHERE status = 'active'
+UNION
+SELECT id, email FROM archived_users WHERE status = 'active'
+SQL
+
+# === EXISTS subquery ===
+my $exists_sql = <<'SQL';
+SELECT id, email FROM users u
+WHERE EXISTS (SELECT 1 FROM projects p WHERE p.user_id = u.id)
+SQL
+
+# === ON CONFLICT ===
+my $upsert_sql = "INSERT INTO users (email, status) VALUES ('bob@example.com', 'active') ON CONFLICT (email) DO UPDATE SET status = excluded.status";
+
 print "Done\n";

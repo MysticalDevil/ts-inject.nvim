@@ -93,6 +93,44 @@ cat <<'JSON' | curl -X POST https://api.example.com/data -H "Content-Type: appli
 }
 JSON
 
+# === Transaction heredoc ===
+cat <<'SQL' | sqlite3
+BEGIN;
+UPDATE accounts SET balance = balance - 100 WHERE id = 1;
+UPDATE accounts SET balance = balance + 100 WHERE id = 2;
+COMMIT;
+SQL
+
+# === ON CONFLICT heredoc ===
+cat <<'SQL' | sqlite3
+INSERT INTO users (email, status)
+VALUES ('bob@example.com', 'active')
+ON CONFLICT (email) DO UPDATE SET status = excluded.status
+SQL
+
+# === TRUNCATE heredoc ===
+cat <<'SQL' | psql
+TRUNCATE TABLE audit_logs
+SQL
+
+# === DROP heredoc ===
+cat <<'SQL' | mysql
+DROP TABLE IF EXISTS temp_projects
+SQL
+
+# === UNION heredoc ===
+cat <<'SQL' | sqlite3
+SELECT id, email FROM users WHERE status = 'active'
+UNION
+SELECT id, email FROM archived_users WHERE status = 'active'
+SQL
+
+# === EXISTS subquery heredoc ===
+cat <<'SQL' | psql
+SELECT id, email FROM users u
+WHERE EXISTS (SELECT 1 FROM projects p WHERE p.user_id = u.id)
+SQL
+
 # === Regex heredoc ===
 cat <<'REGEX'
 ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$

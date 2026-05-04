@@ -60,7 +60,28 @@ const windowSql = `WITH ranked AS (
   )
   SELECT id, email FROM ranked WHERE rn <= 5`;
 
+const truncateSql = `TRUNCATE TABLE audit_logs`;
+
+const dropSql = `DROP TABLE IF EXISTS temp_projects`;
+
+const unionSql = `SELECT id, email FROM users WHERE status = 'active'
+  UNION
+  SELECT id, email FROM archived_users WHERE status = 'active'`;
+
+const existsSql = `SELECT id, email FROM users u
+  WHERE EXISTS (SELECT 1 FROM projects p WHERE p.user_id = u.id)`;
+
+const transactionSql = `BEGIN;
+  UPDATE accounts SET balance = balance - 100 WHERE id = 1;
+  UPDATE accounts SET balance = balance + 100 WHERE id = 2;
+  COMMIT;`;
+
 void USERS_SQL;
 void aggregateSql;
 void joinSql;
 void windowSql;
+void truncateSql;
+void dropSql;
+void unionSql;
+void existsSql;
+void transactionSql;

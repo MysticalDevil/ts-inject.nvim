@@ -74,8 +74,40 @@ ORDER BY u.created_at";
 )
 SELECT id, email FROM ranked WHERE rn <= 5";
 
+        var truncateSql = "TRUNCATE TABLE audit_logs";
+
+        var dropSql = "DROP TABLE IF EXISTS temp_projects";
+
+        var unionSql = "SELECT id, email FROM users WHERE status = 'active' " +
+            "UNION " +
+            "SELECT id, email FROM archived_users WHERE status = 'active'";
+
+        var existsSql = "SELECT id, email FROM users u " +
+            "WHERE EXISTS (SELECT 1 FROM projects p WHERE p.user_id = u.id)";
+
+        var transactionSql = @"
+BEGIN;
+UPDATE accounts SET balance = balance - 100 WHERE id = 1;
+UPDATE accounts SET balance = balance + 100 WHERE id = 2;
+COMMIT;
+";
+
+        var upsertSql = db.Execute(
+            "INSERT INTO users (email, status) " +
+            "VALUES (@email, @status) " +
+            "ON CONFLICT (email) DO UPDATE SET status = excluded.status",
+            "bob@example.com",
+            "active"
+        );
+
         Console.WriteLine(alter);
         Console.WriteLine(joinSql);
         Console.WriteLine(windowSql);
+        Console.WriteLine(truncateSql);
+        Console.WriteLine(dropSql);
+        Console.WriteLine(unionSql);
+        Console.WriteLine(existsSql);
+        Console.WriteLine(transactionSql);
+        Console.WriteLine(upsertSql);
     }
 }

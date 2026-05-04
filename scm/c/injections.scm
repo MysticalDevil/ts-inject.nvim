@@ -181,17 +181,15 @@
   (#set! injection.language "sql")
 )
 
-; Backslash-continued string literals (3 segments)
+; Backslash-continued string literals
 (
   (declaration
     declarator: (init_declarator
       declarator: (_) @_decl
       value: (string_literal
         (string_content) @injection.content
-        (escape_sequence)
-        (string_content) @injection.content
-        (escape_sequence)
-        (string_content) @injection.content)))
+        ((escape_sequence)
+        (string_content) @injection.content)+)))
   (#lua-match? @_decl "[%a_][%w_]*[Ss][Qq][Ll]")
   (#set! injection.combined)
   (#set! injection.language "sql")
@@ -226,16 +224,14 @@
   (#set! injection.language "sql")
 )
 
-; Backslash-continued string literals in assignments (3 segments)
+; Backslash-continued string literals in assignments
 (
   (assignment_expression
     left: (identifier) @_name
     right: (string_literal
       (string_content) @injection.content
-      (escape_sequence)
-      (string_content) @injection.content
-      (escape_sequence)
-      (string_content) @injection.content))
+      ((escape_sequence)
+      (string_content) @injection.content)+))
   (#lua-match? @_name "^[%a_][%w_]*[Ss][Qq][Ll]$")
   (#set! injection.combined)
   (#set! injection.language "sql")
@@ -288,7 +284,7 @@
   (#set! injection.language "sql")
 )
 
-; Backslash-continued string literals in DB calls (3 segments)
+; Backslash-continued string literals in DB calls
 (
   (call_expression
     function: (identifier) @_fn
@@ -297,10 +293,8 @@
       .
       (string_literal
         (string_content) @injection.content
-        (escape_sequence)
-        (string_content) @injection.content
-        (escape_sequence)
-        (string_content) @injection.content)))
+        ((escape_sequence)
+        (string_content) @injection.content)+)))
   (#any-of? @_fn
     "sqlite3_exec"
     "sqlite3_prepare"
@@ -357,7 +351,7 @@
   (#set! injection.language "sql")
 )
 
-; Backslash-continued string literals in libpq calls (3 segments)
+; Backslash-continued string literals in libpq calls
 (
   (call_expression
     function: (identifier) @_fn
@@ -368,10 +362,8 @@
       .
       (string_literal
         (string_content) @injection.content
-        (escape_sequence)
-        (string_content) @injection.content
-        (escape_sequence)
-        (string_content) @injection.content)))
+        ((escape_sequence)
+        (string_content) @injection.content)+)))
   (#any-of? @_fn
     "PQprepare"
     "PQsendPrepare")

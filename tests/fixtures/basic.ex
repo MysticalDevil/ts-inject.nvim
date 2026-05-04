@@ -102,4 +102,28 @@ defmodule SqlExamples do
   )
   SELECT id, email FROM ranked WHERE rn <= 5
   """
+
+  # === TRUNCATE / DROP ===
+  truncate_sql = "TRUNCATE TABLE audit_logs"
+  drop_sql = "DROP TABLE IF EXISTS temp_projects"
+
+  # === UNION ===
+  union_sql = """
+  SELECT id, email FROM users WHERE status = 'active'
+  UNION
+  SELECT id, email FROM archived_users WHERE status = 'active'
+  """
+
+  # === EXISTS subquery ===
+  exists_sql = """
+  SELECT id, email FROM users u
+  WHERE EXISTS (SELECT 1 FROM projects p WHERE p.user_id = u.id)
+  """
+
+  # === ON CONFLICT ===
+  upsert_sql = """
+  INSERT INTO users (email, status)
+  VALUES ('bob@example.com', 'active')
+  ON CONFLICT (email) DO UPDATE SET status = excluded.status
+  """
 end
