@@ -17,15 +17,15 @@ ts-inject.nvim is a Tree-sitter injection plugin with stable static support and
 an experimental generated-query path.
 
 Current main-branch scope:
-  - stable static host support
-  - generated queries for selected hosts
-  - multiple host languages
+  - generated queries for all 19 built-in hosts
   - SQL string injection
   - GraphQL injection in Go, JavaScript, TypeScript, Python, Rust, Java, Kotlin,
     C#, PHP, and Scala
-  - Regex injection in Java, C#, and PHP
+  - Regex injection in Java, C#, PHP, Scala, C, and C++
   - shell heredoc delimiter injections in bash (`SQL`, `PY`, `LUA`, `JS`, `TS`,
     `RB`/`RUBY`, `PL`/`PERL`, `GRAPHQL`/`GQL`, `JSON`, `REGEX`/`RE`)
+  - cursor-level semantic-token conflict diagnosis in `:TSInjectDebug`
+  - global semantic-token risk check in `:TSInjectHealth`
   - explicit opt-in in |ts-inject-setup|
 
 ==============================================================================
@@ -273,8 +273,8 @@ Lua-specific note for user rules:
 The plugin installs runtime queries for explicitly enabled host languages and
 extends the existing injection queries from Neovim or nvim-treesitter.
 
-`scm/` contains hosts that still load static runtime queries. Generated-host
-snapshots are stored in `archive/scm-generated/` for reference only.
+All 19 built-in hosts use generated runtime queries by default. `scm/` contains
+static query files for hosts that still support legacy static mode.
 
 Current built-in hosts:
   - bash
@@ -297,13 +297,6 @@ Current built-in hosts:
   - xml
   - zig
 
-Generated hosts:
-  - python
-  - javascript
-  - typescript
-  - lua
-  - ruby
-
 `query_mode` is optional and host-specific:
   - generated-capable hosts default to `generated`
   - all other hosts are `static`
@@ -314,14 +307,15 @@ Experimental `rules` currently support:
   - `var_suffix`
   - `call`
   - `template_tag` (currently for `javascript` and `typescript`)
-  - `content_prefix` (currently for `python`, `ruby`, and `lua`)
+  - `content_prefix` (currently for `go`, `python`, `ruby`, `lua`, and `rust`)
+  - `macro` (currently for `rust`)
 
-The experimental `rules` table currently applies to `python`, `javascript`,
-`typescript`, `lua`, and `ruby`. It is additive only for now. Built-in rules
-stay enabled by default, though configurable generated hosts can set
-`builtin = false`. There is no stable precedence or partial disable model yet.
-Invalid `rules` entries are ignored with runtime warnings.
-Invalid `query_mode` entries are also ignored with runtime warnings.
+The experimental `rules` table applies to configurable generated hosts. It is
+additive only for now. Built-in rules stay enabled by default, though
+configurable generated hosts can set `builtin = false`. There is no stable
+precedence or partial disable model yet. Invalid `rules` entries are ignored
+with runtime warnings. Invalid `query_mode` entries are also ignored with
+runtime warnings.
 
 Plain single-line C string assignments are intentionally left as normal
 strings for now. C++ regular strings are injected when a supported SQL naming,
@@ -338,8 +332,8 @@ string concatenation instead — it is equivalent C and produces the same
 ==============================================================================
 5. Host Support                                            *ts-inject-support*
 
-Current main-branch support keeps the static `0.1` path while introducing a
-small generated-query `0.2` path.
+Current main-branch support (`0.3.x`) uses generated queries for all 19
+built-in hosts.
 
 Host notes:
   - bash: heredoc delimiter mapping for `SQL`, `PY`, `LUA`, `JS`, `TS`,
@@ -399,8 +393,12 @@ Host notes:
 6. Commands                                                *ts-inject-commands*
 
 :TSInjectDebug [lang]
-  Show parser, query, capture, node, and language-tree information for the
-  current buffer. The default target language is `sql`.
+  Show parser, query, capture, node, language-tree, and diagnostic information
+  for the current buffer. The default target language is `sql`.
+
+  The `diagnostics` section auto-detects whether LSP semantic tokens are
+  enabled at the cursor position and warns if they may be overriding injected
+  highlights (LSP priority 125 > tree-sitter priority 100).
 
 :TSInjectReload
   Regenerate and reinstall runtime queries using the most recent `setup()`
@@ -414,11 +412,12 @@ Host notes:
 :TSInjectHealth
   Show enabled hosts, static vs generated query paths, generated query-file
   presence, parser availability, per-host builtin/user rule counts,
-  legacy-static host status, and runtime warnings.
+  semantic-token risk, legacy-static host status, and runtime warnings.
 
   Use this to quickly verify:
     - a host is static or generated
     - generated query files were written
     - builtin rules are enabled or disabled for configurable generated hosts
+    - whether active LSP semantic-token providers may be masking injections
 
 vim:tw=78:ts=8:noet:ft=help:norl:

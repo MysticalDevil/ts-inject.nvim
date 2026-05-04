@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 
 ## [0.3.2] - 2026-05-03
 
+### Added
+
+- **Auto-diagnose LSP semantic-token override in `TSInjectDebug` and `TSInjectHealth`:**
+  - `TSInjectDebug` now shows a `diagnostics:` section that detects when LSP semantic tokens are enabled at the cursor position and warns if they may be overriding injected highlights (LSP priority 125 > tree-sitter priority 100).
+  - `TSInjectHealth` now shows a `semantic_token risk:` section listing active LSP semantic-token providers and suggesting the global fix (`vim.hl.priorities.semantic_tokens = 90`).
+
 ### Changed
 
 - Removed `archive/scm-generated/` directory. These were outdated generated-query snapshots serving as a second static fallback. All 19 hosts are now generated-capable; static mode remains as a legacy fallback only for languages with `scm/` injection files.
@@ -13,6 +19,7 @@ All notable changes to this project will be documented in this file.
 
 ### Testing
 
+- Added assertions for `diagnostics:` and `semantic_token risk:` sections in smoke and comprehensive tests.
 - Removed `assert_legacy_static_mode` smoke test because it relied on Python's archived static query, which no longer exists after archive removal.
 
 ## [0.3.1] - 2026-05-03

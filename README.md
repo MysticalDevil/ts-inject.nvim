@@ -319,18 +319,13 @@ Lua-specific note for user rules:
 
 ## Current Main Branch
 
-Current main keeps backward compatibility while adding `0.3` features:
+Current main-branch features (`0.3.x`):
 
-- static runtime-installed queries for most hosts
-- generated runtime queries for `python`, `javascript`, `typescript`, `lua`,
-  and `ruby`
-- experimental additive `rules` support for `python`, `javascript`,
-  `typescript`, `lua`, and `ruby`
+- generated runtime queries for **all 19 hosts**
 - `:TSInjectDebug`, `:TSInjectReload`, and `:TSInjectHealth`
 - built-in delimiter-driven shell heredoc injections for `bash`
-
-Generated-host static query snapshots are kept in `archive/scm-generated/` for
-reference only; runtime loading uses generated queries for those hosts.
+- cursor-level semantic-token conflict diagnosis in `:TSInjectDebug`
+- global semantic-token risk check in `:TSInjectHealth`
 
 Supported hosts:
 
@@ -406,15 +401,16 @@ Current generated hosts:
 `python`, `javascript`, `typescript`, `lua`, and `ruby` accept experimental
 additive rules in `setup({ rules = { ... } })`.
 
-`scm/` now represents static-runtime hosts only. Generated-host snapshots live
-under `archive/scm-generated/`.
+All hosts are generated-capable; `scm/` contains static query files for hosts
+that still support legacy static mode.
 
 Supported experimental rule kinds:
 
 - `var_suffix`
 - `call`
 - `template_tag` (currently for `javascript` and `typescript`, supports `sql` and `graphql`)
-- `content_prefix` (currently for `python`, `ruby`, and `lua`)
+- `content_prefix` (currently for `go`, `python`, `ruby`, `lua`, and `rust`)
+- `macro` (currently for `rust`)
 
 Current limits:
 
@@ -458,22 +454,29 @@ Inspect plugin/runtime state:
 :TSInjectHealth
 ```
 
-The debug and health views report:
+The debug view reports:
 
 - parser paths
 - active query files
 - captures under cursor
 - current node info
 - nested language trees
+- **diagnostics** (auto-detects LSP semantic-token override at cursor)
+
+The health view reports:
+
 - enabled hosts
 - static vs generated hosts
 - generated query file presence
 - builtin and user rule counts for generated hosts
 - legacy static hosts (generated-capable hosts forced to `static`)
+- **semantic_token risk** (lists active LSP semantic-token providers)
 - runtime warnings
+- parser availability
 
 `TSInjectHealth` is the quickest way to confirm:
 
 - a host is `generated` vs `static`
 - `builtin` is on/off for configurable generated hosts
 - generated query files are present on disk
+- whether LSP semantic tokens may be masking injected highlights
