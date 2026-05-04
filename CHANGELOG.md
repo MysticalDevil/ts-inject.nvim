@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- **C backslash-continued string injection:**
+  - Replaced the `backslash_value` + `injection.combined` approach with a
+    single `string_literal` pattern that captures all `string_content`
+    fragments interleaved with `escape_sequence` nodes (`*` quantifier).
+  - This removes the cross-match merging bug that caused multiple
+    SQL-hinted backslash declarations to collapse into one giant injection.
+  - Backslash-continued strings are now supported in `*_sql` declarations,
+    assignments, and DB API call sites on par with adjacent concatenation.
+
+### Changed
+
+- `host/c.lua`: removed `backslash_value` config; `leaf_strings`,
+  `parenthesized`, and `cast` patterns now use the unified
+  `(string_content) ((escape_sequence) (string_content))*` form.
+- `host/_c_family.lua`: removed `(#set! injection.combined)` from the
+  backslash variant emitted by `value_pair()`.
+
 ## [0.3.2] - 2026-05-03
 
 ### Added

@@ -4,23 +4,32 @@ use warnings;
 
 # === Variable naming heuristics ===
 my $users_sql = "SELECT id, email FROM perl_users WHERE active = true";
-our $USERS_SQL = "SELECT id, email, status FROM perl_users ORDER BY created_at DESC";
+our $USERS_SQL =
+  "SELECT id, email, status FROM perl_users ORDER BY created_at DESC";
 my $updateSql = "UPDATE perl_users SET status = 'active'";
 my $query_sql = "DELETE FROM perl_users WHERE id = ?";
 
 # === DBI method calls (single argument) ===
-my $dbh = DBI->connect("dbi:SQLite:dbname=test.db", "", "");
+my $dbh = DBI->connect( "dbi:SQLite:dbname=test.db", "", "" );
 my $sth = $dbh->prepare("SELECT id, email FROM perl_users");
 $dbh->execute("INSERT INTO perl_users (email) VALUES ('test@example.com')");
-$dbh->do("UPDATE perl_users SET status = 'active' WHERE email = 'test@example.com'");
+$dbh->do(
+    "UPDATE perl_users SET status = 'active' WHERE email = 'test@example.com'");
 
 # === DBI method calls (multiple arguments) ===
-my $rows = $dbh->selectall_arrayref("SELECT * FROM perl_users WHERE active = 1", { Slice => {} });
-my $row = $dbh->selectrow_hashref("SELECT id, email FROM perl_users WHERE id = ?", undef, 1);
-my $col = $dbh->selectcol_arrayref("SELECT email FROM perl_users WHERE active = true", undef);
+my $rows =
+  $dbh->selectall_arrayref( "SELECT * FROM perl_users WHERE active = 1",
+    { Slice => {} } );
+my $row =
+  $dbh->selectrow_hashref( "SELECT id, email FROM perl_users WHERE id = ?",
+    undef, 1 );
+my $col =
+  $dbh->selectcol_arrayref( "SELECT email FROM perl_users WHERE active = true",
+    undef );
 
 # === String concatenation ===
-my $dynamic_sql = "SELECT id, email" . " FROM perl_users" . " WHERE active = true";
+my $dynamic_sql =
+  "SELECT id, email" . " FROM perl_users" . " WHERE active = true";
 my $usersSql = "UPDATE perl_users" . " SET status = 'active'";
 
 # === Heredoc SQL ===
@@ -36,10 +45,12 @@ prepare("CREATE TABLE perl_audit_logs (id INTEGER PRIMARY KEY, message TEXT)");
 execute("ALTER TABLE perl_users ADD COLUMN phone VARCHAR(20)");
 
 # === CTE ===
-my $cte_sql = "WITH recent_users AS (SELECT id, email FROM perl_users) SELECT * FROM recent_users";
+my $cte_sql =
+"WITH recent_users AS (SELECT id, email FROM perl_users) SELECT * FROM recent_users";
 
 # === Transaction ===
-my $tx_sql = "BEGIN; UPDATE accounts SET balance = balance - 100 WHERE id = 1; COMMIT;";
+my $tx_sql =
+  "BEGIN; UPDATE accounts SET balance = balance - 100 WHERE id = 1; COMMIT;";
 
 my $join_sql = <<'SQL';
 SELECT u.id, u.email, p.name
@@ -59,7 +70,7 @@ SQL
 
 # === TRUNCATE / DROP ===
 my $truncate_sql = "TRUNCATE TABLE audit_logs";
-my $drop_sql = "DROP TABLE IF EXISTS temp_projects";
+my $drop_sql     = "DROP TABLE IF EXISTS temp_projects";
 
 # === UNION ===
 my $union_sql = <<'SQL';
@@ -75,6 +86,7 @@ WHERE EXISTS (SELECT 1 FROM projects p WHERE p.user_id = u.id)
 SQL
 
 # === ON CONFLICT ===
-my $upsert_sql = "INSERT INTO users (email, status) VALUES ('bob@example.com', 'active') ON CONFLICT (email) DO UPDATE SET status = excluded.status";
+my $upsert_sql =
+"INSERT INTO users (email, status) VALUES ('bob@example.com', 'active') ON CONFLICT (email) DO UPDATE SET status = excluded.status";
 
 print "Done\n";

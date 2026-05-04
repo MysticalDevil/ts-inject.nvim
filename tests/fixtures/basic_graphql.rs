@@ -1,5 +1,5 @@
 fn main() {
-  let get_user_gql = r#"
+    let get_user_gql = r#"
   query GetUser($id: ID!) {
     user(id: $id) {
       id
@@ -9,7 +9,7 @@ fn main() {
   }
 "#;
 
-  let create_user_graphql = r#"
+    let create_user_graphql = r#"
   mutation CreateUser($input: CreateUserInput!) {
     createUser(input: $input) {
       id
@@ -19,7 +19,7 @@ fn main() {
   }
 "#;
 
-  let user_updated_gql = r#"
+    let user_updated_gql = r#"
   subscription OnUserUpdated($userId: ID!) {
     userUpdated(userId: $userId) {
       id
@@ -29,7 +29,7 @@ fn main() {
   }
 "#;
 
-  let user_fields_fragment = r#"
+    let user_fields_fragment = r#"
   fragment UserFields on User {
     id
     name
@@ -37,7 +37,7 @@ fn main() {
   }
 "#;
 
-  let search_users_gql = r#"
+    let search_users_gql = r#"
   query SearchUsers($query: String!, $includeInactive: Boolean!) {
     activeUsers: users(query: $query, status: ACTIVE) {
       ...UserFields
@@ -48,7 +48,7 @@ fn main() {
   }
 "#;
 
-  let get_entity_gql = r#"
+    let get_entity_gql = r#"
   query GetEntity($id: ID!) {
     entity(id: $id) {
       __typename
@@ -64,7 +64,7 @@ fn main() {
   }
 "#;
 
-  let some_query = r#"
+    let some_query = r#"
   query GetUsers {
     users {
       id
@@ -72,25 +72,27 @@ fn main() {
   }
 "#;
 
-  let _delete_macro = graphql!(r#"
+    let _delete_macro = graphql!(
+        r#"
   mutation DeleteUser($id: ID!) {
     deleteUser(id: $id) {
       success
     }
   }
-"#);
+"#
+    );
 
-  let _simple_macro = gql!(r#"query SimpleQuery { simple { id } }"#);
+    let _simple_macro = gql!(r#"query SimpleQuery { simple { id } }"#);
 
-  let _ = (
-    get_user_gql,
-    create_user_graphql,
-    user_updated_gql,
-    user_fields_fragment,
-    search_users_gql,
-    get_entity_gql,
-    some_query,
-    _delete_macro,
-    _simple_macro,
-  );
+    let _ = (
+        get_user_gql,
+        create_user_graphql,
+        user_updated_gql,
+        user_fields_fragment,
+        search_users_gql,
+        get_entity_gql,
+        some_query,
+        _delete_macro,
+        _simple_macro,
+    );
 }

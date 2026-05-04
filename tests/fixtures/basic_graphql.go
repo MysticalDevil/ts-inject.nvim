@@ -1,7 +1,7 @@
 package fixtures
 
 func sample() {
-  getUserGQL := `
+	getUserGQL := `
   query GetUser($id: ID!) {
     user(id: $id) {
       id
@@ -10,7 +10,7 @@ func sample() {
   }
   `
 
-  createUserGQL := `
+	createUserGQL := `
   mutation CreateUser($input: CreateUserInput!) {
     createUser(input: $input) {
       id
@@ -19,7 +19,7 @@ func sample() {
   }
   `
 
-  userFieldsFragment := `
+	userFieldsFragment := `
   fragment UserFields on User {
     id
     name
@@ -27,7 +27,7 @@ func sample() {
   }
   `
 
-  searchUsersGQL := `
+	searchUsersGQL := `
   query SearchUsers($query: String!, $includeInactive: Boolean!) {
     activeUsers: users(query: $query, status: ACTIVE) {
       ...UserFields
@@ -38,7 +38,7 @@ func sample() {
   }
   `
 
-  getEntityGQL := `
+	getEntityGQL := `
   query GetEntity($id: ID!) {
     entity(id: $id) {
       __typename
@@ -54,5 +54,5 @@ func sample() {
   }
   `
 
-  _, _, _, _, _ = getUserGQL, createUserGQL, userFieldsFragment, searchUsersGQL, getEntityGQL
+	_, _, _, _, _ = getUserGQL, createUserGQL, userFieldsFragment, searchUsersGQL, getEntityGQL
 }

@@ -31,9 +31,10 @@ void run(PGconn *conn, sqlite3 *db) {
   assigned_sql = ("  DELETE FROM projects "
                   "WHERE id = 2");
 
-  sqlite3_exec(db, "  UPDATE users "
-                      "SET status = 'active' "
-                      "WHERE email = 'alice@example.com'",
+  sqlite3_exec(db,
+               "  UPDATE users "
+               "SET status = 'active' "
+               "WHERE email = 'alice@example.com'",
                0, 0, 0);
 
   sqlite3_exec(db,
@@ -42,8 +43,8 @@ void run(PGconn *conn, sqlite3 *db) {
                0, 0, 0);
 
   PQexec(conn, "  INSERT INTO users (email, status) "
-                 "VALUES ('alice@example.com', 'active') "
-                 "RETURNING id, email, status");
+               "VALUES ('alice@example.com', 'active') "
+               "RETURNING id, email, status");
 
   PQexec(conn, "  CREATE INDEX "
                "idx_users_email "
@@ -121,8 +122,7 @@ FROM users u \
 INNER JOIN projects p ON u.id = p.user_id \
 WHERE u.status = 'active'";
 
-  sqlite3_exec(db,
-               "  INSERT INTO backslash_test (id, name) \
+  sqlite3_exec(db, "  INSERT INTO backslash_test (id, name) \
 VALUES (1, 'alpha')",
                0, 0, 0);
 
@@ -140,17 +140,20 @@ VALUES (1, 'alpha')",
 
   asm("nop");
   __asm__("mov %0, %1");
-  __asm__ volatile ("cli");
-  asm("push" " %eax");
+  __asm__ volatile("cli");
+  asm("push"
+      " %eax");
 
   const char *join_sql = "  SELECT u.id, u.email, p.name "
                          "FROM users u "
                          "LEFT JOIN projects p ON u.id = p.user_id "
-                         "WHERE u.id IN (SELECT user_id FROM audit_logs GROUP BY user_id HAVING COUNT(*) > 1) "
+                         "WHERE u.id IN (SELECT user_id FROM audit_logs GROUP "
+                         "BY user_id HAVING COUNT(*) > 1) "
                          "ORDER BY u.created_at";
 
   const char *window_sql = "  WITH ranked AS ( "
-                           "SELECT id, email, row_number() OVER (PARTITION BY status ORDER BY created_at) AS rn "
+                           "SELECT id, email, row_number() OVER (PARTITION BY "
+                           "status ORDER BY created_at) AS rn "
                            "FROM users "
                            ") "
                            "SELECT id, email FROM ranked WHERE rn <= 5";
@@ -171,15 +174,15 @@ ON CONFLICT (email) DO UPDATE SET status = excluded.status";
 
   const char *drop_sql = "  DROP TABLE IF EXISTS temp_projects";
 
-  const char *union_sql = "  SELECT id, email FROM users WHERE status = 'active' \
+  const char *union_sql =
+      "  SELECT id, email FROM users WHERE status = 'active' \
 UNION \
 SELECT id, email FROM archived_users WHERE status = 'active'";
 
   const char *exists_sql = "  SELECT id, email FROM users u \
 WHERE EXISTS ( SELECT 1 FROM projects p WHERE p.user_id = u.id )";
 
-  sqlite3_exec(db,
-               "  UPDATE accounts SET balance = balance + ? WHERE id = ?",
+  sqlite3_exec(db, "  UPDATE accounts SET balance = balance + ? WHERE id = ?",
                0, 0, 0);
 
   const char *backslash_update_sql = "  UPDATE users \

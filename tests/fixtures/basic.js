@@ -4,7 +4,8 @@ const USERS_SQL = `
   WHERE status = 'active'
 `;
 
-const aggregateSql = "SELECT status, count(*) AS total " +
+const aggregateSql =
+  "SELECT status, count(*) AS total " +
   "FROM users " +
   "GROUP BY status " +
   "HAVING count(*) > 0";
@@ -28,9 +29,7 @@ db.query(`
 `);
 
 db.execute(
-  "UPDATE users " +
-    "SET status = 'active' " +
-    "WHERE email = ?",
+  "UPDATE users " + "SET status = 'active' " + "WHERE email = ?",
   "alice@example.com",
 );
 

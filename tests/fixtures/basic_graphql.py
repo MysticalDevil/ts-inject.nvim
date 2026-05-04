@@ -1,5 +1,5 @@
 def run():
-  get_user_gql = """
+    get_user_gql = """
   query GetUser($id: ID!) {
     user(id: $id) {
       id
@@ -8,7 +8,7 @@ def run():
   }
   """
 
-  create_user_gql = """
+    create_user_gql = """
   mutation CreateUser($input: CreateUserInput!) {
     createUser(input: $input) {
       id
@@ -17,7 +17,7 @@ def run():
   }
   """
 
-  user_fields_fragment = """
+    user_fields_fragment = """
   fragment UserFields on User {
     id
     name
@@ -25,7 +25,7 @@ def run():
   }
   """
 
-  search_users_gql = """
+    search_users_gql = """
   query SearchUsers($query: String!, $includeInactive: Boolean!) {
     activeUsers: users(query: $query, status: ACTIVE) {
       ...UserFields
@@ -36,7 +36,7 @@ def run():
   }
   """
 
-  get_entity_gql = """
+    get_entity_gql = """
   query GetEntity($id: ID!) {
     entity(id: $id) {
       __typename
@@ -52,10 +52,10 @@ def run():
   }
   """
 
-  return (
-    get_user_gql,
-    create_user_gql,
-    user_fields_fragment,
-    search_users_gql,
-    get_entity_gql,
-  )
+    return (
+        get_user_gql,
+        create_user_gql,
+        user_fields_fragment,
+        search_users_gql,
+        get_entity_gql,
+    )

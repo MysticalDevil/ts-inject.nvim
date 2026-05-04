@@ -73,8 +73,9 @@ This file is the current implementation plan and release-tracking document.
 Stable constraints that are already part of the shipped contract:
 
 - `c`
-  - supports adjacent-string `*_sql` declarations and explicit DB API call sites
-    (`sqlite3_exec`, `sqlite3_prepare_v2`, `PQexec`, `PQprepare`, etc.)
+  - supports adjacent-string and backslash-continued `*_sql` declarations
+    and explicit DB API call sites (`sqlite3_exec`, `sqlite3_prepare_v2`,
+    `PQexec`, `PQprepare`, etc.)
   - injects `asm` into `gnu_asm_expression` (basic asm, `__asm__`, `__asm__ volatile`)
   - plain single-line C string assignments are intentionally left as normal strings
 - `cpp`
@@ -90,7 +91,7 @@ The codebase is close to a complete `0.1`, but a few release-closeout items rema
 
 | Host | Implemented | Smoke-covered | Notes |
 | --- | --- | --- | --- |
-| `c` | yes | yes | SQL via adjacent strings and DB calls; also `asm` injection |
+| `c` | yes | yes | SQL via adjacent and backslash-continued strings and DB calls; also `asm` injection |
 | `cpp` | yes | yes | SQL via raw strings, comments, and DB calls |
 | `c_sharp` | yes | yes | regular, concatenated, verbatim strings |
 | `go` | yes | yes | SQL-looking strings and Go-style naming |

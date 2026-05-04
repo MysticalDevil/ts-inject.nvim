@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 SQL = <<~SQL
   CREATE TABLE users (
     id INTEGER PRIMARY KEY,
@@ -5,9 +7,9 @@ SQL = <<~SQL
   )
 SQL
 
-report_sql = "SELECT id, email FROM users WHERE active = true"
+report_sql = 'SELECT id, email FROM users WHERE active = true'
 
-aggregate_sql = "SELECT status, count(*) AS total FROM users GROUP BY status HAVING count(*) > 0"
+aggregate_sql = 'SELECT status, count(*) AS total FROM users GROUP BY status HAVING count(*) > 0'
 
 DB.execute("UPDATE users SET status = 'active' WHERE email = 'alice@example.com'")
 
@@ -17,7 +19,7 @@ DB.execute(<<~SQL)
   RETURNING id, email, status
 SQL
 
-DB.prepare("ALTER TABLE users ADD COLUMN created_at timestamp")
+DB.prepare('ALTER TABLE users ADD COLUMN created_at timestamp')
 
 User.find_by_sql(<<~SQL)
   WITH recent_users AS (
@@ -47,9 +49,9 @@ delete_sql = <<~SQL
   WHERE status = 'inactive'
 SQL
 
-truncate_sql = "TRUNCATE TABLE audit_logs"
+truncate_sql = 'TRUNCATE TABLE audit_logs'
 
-drop_sql = "DROP TABLE IF EXISTS temp_projects"
+drop_sql = 'DROP TABLE IF EXISTS temp_projects'
 
 union_sql = <<~SQL
   SELECT id, email FROM users WHERE status = 'active'

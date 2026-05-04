@@ -9,7 +9,8 @@ const USER_LOOKUP_SQL = `
   WHERE email = $1
 `;
 
-const summarySql = "SELECT status, count(*) AS total " +
+const summarySql =
+  "SELECT status, count(*) AS total " +
   "FROM users " +
   "GROUP BY status " +
   "HAVING count(*) > 0";
@@ -39,9 +40,9 @@ const rows = db.execute<UserRow>(`
 const summaries = db.query<UserRow>(
   "WITH recent_users AS ( " +
     "SELECT id, email FROM users WHERE created_at >= NOW() - INTERVAL '7 days' " +
-  ") " +
-  "SELECT id, email FROM recent_users " +
-  "ORDER BY email ASC",
+    ") " +
+    "SELECT id, email FROM recent_users " +
+    "ORDER BY email ASC",
 );
 
 prisma.$executeRaw`
@@ -66,7 +67,7 @@ const windowSql = `WITH ranked AS (
 const insertSql = db.query<UserRow>(
   `INSERT INTO users (email, status)
   VALUES ('alice@example.com', 'active')
-  RETURNING id, email, status`
+  RETURNING id, email, status`,
 );
 
 const deleteSql = `DELETE FROM users WHERE status = 'inactive'`;

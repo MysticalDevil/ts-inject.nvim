@@ -33,14 +33,16 @@ function M.new(config)
   end
 
   -- Emit a normal block (string_value) and, when backslash_value is configured,
-  -- a variant that uses backslash_value with injection.combined.
-  -- block_fn(value, combined_line) is called once for each variant and should
-  -- return a formatted query string.
+  -- a variant that uses backslash_value.  The backslash variant captures each
+  -- string_content fragment; Neovim's injection engine groups them per-match
+  -- without needing injection.combined (which would incorrectly merge across
+  -- separate string literals).
+  -- block_fn(value, extra) is called once for each variant.
   local function value_pair(block_fn)
     local blocks = {}
     blocks[#blocks + 1] = block_fn(string_value(), "")
     if backslash_value_str then
-      blocks[#blocks + 1] = block_fn(backslash_value(), "\n  (#set! injection.combined)")
+      blocks[#blocks + 1] = block_fn(backslash_value(), "")
     end
     return blocks
   end

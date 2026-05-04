@@ -46,7 +46,8 @@ const SEARCH_USERS_GQL = gql`
     activeUsers: users(query: $query, status: ACTIVE) {
       ...UserFields
     }
-    inactiveUsers: users(query: $query, status: INACTIVE) @include(if: $includeInactive) {
+    inactiveUsers: users(query: $query, status: INACTIVE)
+      @include(if: $includeInactive) {
       ...UserFields
     }
   }

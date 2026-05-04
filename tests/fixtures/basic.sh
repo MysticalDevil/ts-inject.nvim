@@ -22,7 +22,7 @@ run_query "SELECT id FROM logs"
 execute_sql "INSERT INTO users (email) VALUES ('test@example.com')"
 
 # === Here-string ===
-sqlite3 db <<< "SELECT count(*) FROM users"
+sqlite3 db <<<"SELECT count(*) FROM users"
 
 # === String concatenation ===
 dynamic_sql="SELECT id, email"" FROM users"" WHERE active = true"

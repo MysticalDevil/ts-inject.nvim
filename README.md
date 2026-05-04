@@ -126,16 +126,12 @@ const char *summary_sql = "  SELECT status "
                           "ORDER BY status";
 ```
 
-Backslash continuation (`"..." \`) is intentionally not supported
-because Neovim's `injection.combined` merges across **all matches**
-of a pattern, not just within a single `string_literal`.  A C file
-with multiple SQL-hinted variables would end up with a single giant
-injection spanning the entire declaration block, breaking every
-injection.
-
-Use adjacent string concatenation instead — it is equivalent C and
-produces the same `concatenated_string` tree-sitter node, so the
-injection works identically.
+Backslash-continued strings (`"..." \`) are also supported when
+they appear in a SQL-hinted declaration or at a recognised DB call
+site.  The query captures each `string_content` fragment separated
+by `escape_sequence` (`\` + newline) and groups them per-match,
+so multi-line backslash strings inject as a single contiguous SQL
+region without needing `injection.combined`.
 
 For `cpp`:
 
@@ -352,7 +348,7 @@ Supported hosts:
 | Host | Primary naming / signal | Stable string forms | Notes |
 | --- | --- | --- | --- |
 | `bash` | heredoc delimiters | heredoc bodies | built-in `SQL`, `PY`, `LUA`, `JS`, `TS`, `RB`/`RUBY`, `PL`/`PERL`, `GRAPHQL`/`GQL`, `JSON`, `REGEX`/`RE` delimiter mapping |
-| `c` | `*_sql`, DB API calls | adjacent string literals | includes SQLite/libpq/MySQL/ODBC APIs; also injects `asm` into `gnu_asm_expression`; Regex: `regcomp(...)` second argument |
+| `c` | `*_sql`, DB API calls | adjacent and backslash-continued string literals | includes SQLite/libpq/MySQL/ODBC APIs; also injects `asm` into `gnu_asm_expression`; Regex: `regcomp(...)` second argument |
 | `cpp` | `*_sql`, DB API calls, `sql` comments | regular, adjacent, raw, prefixed, suffixed, parenthesized, casted | includes SQLite/libpq/MySQL/ODBC, Qt, SQLiteCpp, SOCI, common wrappers; Regex: `std::regex(...)` constructor |
 | `c_sharp` | `camelCase ...Sql`, `..._SQL`, DB calls | regular, concatenated, verbatim | SQL: common `Query` / `Execute` / `Prepare` paths; GraphQL: `*_GQL` / `*Gql` suffix; Regex: `Regex.Match` / `Regex.Replace` / `new Regex(...)` |
 | `go` | Go-style `userQuery`, SQL-looking content | raw and interpreted strings | SQL: favors obvious SQL text; GraphQL: content prefix (query/mutation/subscription/fragment) |
