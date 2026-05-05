@@ -5,11 +5,13 @@ local util = require("ts_inject.host._util")
 function M.collect()
   local state = require("ts_inject").get_runtime_state()
   local lines = {}
+  local highlights = {}
 
-  util.add(lines, "TSInject Health")
-  util.add(lines, ("time: %s"):format(os.date("%Y-%m-%d %H:%M:%S")))
+  util.add_hl(lines, highlights, "TSInject Health", "Title")
+  util.add_hl(lines, highlights, ("time: %s"):format(os.date("%Y-%m-%d %H:%M:%S")), "Comment")
   util.add(lines, "")
-  util.add_kv(lines, "runtime_root", require("ts_inject.runtime").root_dir())
+
+  util.add_kv_hl(lines, highlights, "runtime_root", require("ts_inject.runtime").root_dir())
 
   local enabled = {}
   local generated = {}
@@ -65,21 +67,51 @@ function M.collect()
   table.sort(error_hosts)
 
   local total = #enabled
-  util.add(lines, ("%-18s %d enabled, %d generated, %d static"):format("summary:", total, #generated, #static))
+  util.add_kv_hl(
+    lines,
+    highlights,
+    "summary",
+    ("%d enabled, %d generated, %d static"):format(total, #generated, #static),
+    "DiagnosticInfo"
+  )
   if #legacy_static > 0 then
-    util.add(lines, ("%-18s %d host(s) forced to static mode"):format("", #legacy_static))
+    util.add_kv_hl(lines, highlights, "", ("%d host(s) forced to static mode"):format(#legacy_static), "DiagnosticWarn")
   end
   if #error_hosts > 0 then
-    util.add(lines, ("%-18s %d host(s) with errors"):format("", #error_hosts))
+    util.add_kv_hl(lines, highlights, "", ("%d host(s) with errors"):format(#error_hosts), "DiagnosticError")
   end
 
-  util.append_section(lines, "enabled hosts", enabled)
-  util.append_section(lines, "generated hosts", generated)
-  util.append_section(lines, "static hosts", static)
-  util.append_section(lines, "legacy static hosts", legacy_static)
-  util.append_section(lines, "host status", host_status)
-  util.append_section(lines, "generated query status", generated_paths)
-  util.append_section(lines, "errors", error_hosts)
+  util.append_section_hl(lines, highlights, "enabled hosts", enabled)
+  util.append_section_hl(lines, highlights, "generated hosts", generated)
+  util.append_section_hl(lines, highlights, "static hosts", static)
+  util.append_section_hl(lines, highlights, "legacy static hosts", legacy_static)
+
+  local host_status_hl = {}
+  for _, status in ipairs(host_status) do
+    local hl = "Normal"
+    if status:find("error:", 1, true) then
+      hl = "DiagnosticError"
+    elseif status:find("legacy_static=on", 1, true) then
+      hl = "DiagnosticWarn"
+    elseif status:find("ok", 1, true) then
+      hl = "DiagnosticOk"
+    end
+    host_status_hl[#host_status_hl + 1] = { text = status, hl_group = hl }
+  end
+  util.append_section_hl(lines, highlights, "host status", host_status_hl)
+
+  local generated_paths_hl = {}
+  for _, path in ipairs(generated_paths) do
+    local hl = path:find("present", 1, true) and "DiagnosticOk" or "DiagnosticError"
+    generated_paths_hl[#generated_paths_hl + 1] = { text = path, hl_group = hl }
+  end
+  util.append_section_hl(lines, highlights, "generated query status", generated_paths_hl)
+
+  local error_hosts_hl = {}
+  for _, err in ipairs(error_hosts) do
+    error_hosts_hl[#error_hosts_hl + 1] = { text = err, hl_group = "DiagnosticError" }
+  end
+  util.append_section_hl(lines, highlights, "errors", error_hosts_hl)
 
   local parser_lines = {}
   for _, host in ipairs(enabled) do
@@ -90,7 +122,13 @@ function M.collect()
   parser_lines[#parser_lines + 1] = ("sql: %s"):format((#sql_files > 0) and "ok" or "missing")
   local gql_files = vim.api.nvim_get_runtime_file("parser/graphql.*", true)
   parser_lines[#parser_lines + 1] = ("graphql: %s"):format((#gql_files > 0) and "ok" or "missing")
-  util.append_section(lines, "parser availability", parser_lines)
+
+  local parser_lines_hl = {}
+  for _, p in ipairs(parser_lines) do
+    local hl = p:find("ok", 1, true) and "DiagnosticOk" or "DiagnosticError"
+    parser_lines_hl[#parser_lines_hl + 1] = { text = p, hl_group = hl }
+  end
+  util.append_section_hl(lines, highlights, "parser availability", parser_lines_hl)
 
   local semantic_risk = {}
   local semantic_active = "unknown"
@@ -122,21 +160,37 @@ function M.collect()
   else
     semantic_risk[#semantic_risk + 1] = "unknown: could not determine semantic token state"
   end
-  util.append_section(lines, "semantic_token risk", semantic_risk)
 
-  util.append_section(lines, "warnings", state.warnings)
-  return lines
+  local semantic_risk_hl = {}
+  for _, r in ipairs(semantic_risk) do
+    local hl = "Normal"
+    if r:find("at risk", 1, true) or r:find("unknown", 1, true) then
+      hl = "DiagnosticWarn"
+    elseif r:find("ok:", 1, true) then
+      hl = "DiagnosticOk"
+    end
+    semantic_risk_hl[#semantic_risk_hl + 1] = { text = r, hl_group = hl }
+  end
+  util.append_section_hl(lines, highlights, "semantic_token risk", semantic_risk_hl)
+
+  local warnings_hl = {}
+  for _, w in ipairs(state.warnings or {}) do
+    warnings_hl[#warnings_hl + 1] = { text = w, hl_group = "DiagnosticWarn" }
+  end
+  util.append_section_hl(lines, highlights, "warnings", warnings_hl)
+
+  return lines, highlights
 end
 
 function M.show()
-  local lines = M.collect()
+  local lines, highlights = M.collect()
   -- Sanitize embedded newlines before writing to buffer (some status messages
   -- contain multi-line strings that would crash nvim_buf_set_lines).
   local sanitized = {}
   for _, line in ipairs(lines) do
     sanitized[#sanitized + 1] = (line:gsub("\n", " "))
   end
-  return util.open_float(sanitized, "TSInject Health")
+  return util.open_float(sanitized, "TSInject Health", { highlights = highlights })
 end
 
 return M
